@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Vendor Name",
+    "type": "Exact Text",
+    "instructions": "The supplier's full legal name exactly as shown. Where to look: Vendor, Supplier, From, Remit To, letterhead, or Supplier of Record section."
+  },
+  {
+    "name": "Vendor Tax ID",
+    "type": "Exact Text",
+    "instructions": "The vendor's US tax identifier (EIN) formatted NN-NNNNNNN. Preserve all characters and leading zeros. Where to look: Tax ID, Tax Ref, EIN, VAT, Supplier Tax ID / VAT, or supplier registration section."
+  },
+  {
+    "name": "Invoice Number",
+    "type": "Exact Text",
+    "instructions": "The vendor's invoice or document number, including any prefix and punctuation. Where to look: Invoice No., Invoice #, Document Number, or the invoice header."
+  },
+  {
+    "name": "Invoice Date",
+    "type": "Date",
+    "instructions": "The date the invoice was issued. Where to look: Invoice Date, Date, Issued, or the invoice header. Do not use the order date, ship date, or service date."
+  },
+  {
+    "name": "PO Number",
+    "type": "Exact Text",
+    "instructions": "The purchase-order reference the invoice bills against, including its prefix. Preserve all digits and leading zeros. Where to look: Customer PO, PO, PO Reference, Purchase Order, or the procurement section."
+  },
+  {
+    "name": "Total Amount",
+    "type": "Number",
+    "instructions": "The grand total payable, including tax. Extract the final total, not the subtotal or amount before tax. Where to look: Total Due, Total, Gross Payable, Amount Due, or the totals block."
+  },
+  {
+    "name": "Currency",
+    "type": "Exact Text",
+    "instructions": "The three-letter currency code (USD on every packet), or the currency implied by the invoice's currency symbol. Where to look: Currency, Billing Currency, the currency symbol on the total, or the totals block."
+  },
+  {
+    "name": "Due Date",
+    "type": "Date",
+    "instructions": "The date payment is due. Where to look: Payment Due By, Net Due Date, Due Date, or derived from the invoice date plus the payment terms."
+  }
+]

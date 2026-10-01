@@ -1,0 +1,86 @@
+{
+  "_format": "uip-ixp-cli-mirror",
+  "_format_note": "This is NOT one of the two import-taxonomy file formats ({field_types,label_group} or {entity_defs,label_groups}); the uipath-ixp skill (v1.200.0) documents those only by their top-level keys, not their full nested schema, so an import file could not be authored precisely from the skill alone. Instead this mirrors, key for key, the parameters of the commands the lab actually runs: `uip ixp groups add --name --instructions --fields '[{name,type,instructions}]'`, `uip ixp fields add --group --field --type --instructions`, and `uip ixp projects update-prompt --prompt`. `type` values are the names of the project's built-in data types (entity_defs) listed in cli-reference.md, Default data types.",
+  "_source": "commercial_bootcamp_lab_assets/lab1-ixp/fields-to-extract.md (field names, types, what/where text) and bootcamp-site/src/data/labs.ts lab1 uipChain (command shapes).",
+  "project": {
+    "title_pattern": "Vendor Invoice <user_name>",
+    "create_command": "uip ixp projects create \"Vendor Invoice <user_name>\" . --skip-taxonomy --output json",
+    "recommended_model_config": {
+      "model": "gemini_2_5_flash",
+      "preprocessing": "table_mini",
+      "command": "uip ixp projects configure-model <project-name> --model gemini_2_5_flash --preprocessing table_mini --output json"
+    },
+    "overall_extraction_instructions": "These are one-page US vendor invoices issued to Globex Manufacturing. Extract only the eight header fields defined in the Vendor Invoice field group: the supplier identity and EIN, the invoice and purchase-order references, the grand total including tax, the currency, and the invoice and due dates. Ignore line items, bill-to / ship-to addresses, bank details and the remittance stub except where a field is repeated there. Extract values only when they are present and clearly supported by the document.",
+    "update_prompt_command": "uip ixp projects update-prompt <project-name> --prompt \"<overall_extraction_instructions>\" --output json"
+  },
+  "field_groups": [
+    {
+      "name": "Vendor Invoice",
+      "instructions": "Extract the vendor identity and tax registration, the invoice and purchase-order references, and the total payable amount, currency, and dates needed to match and approve the invoice.",
+      "add_command": "uip ixp groups add <project-name> --name \"Vendor Invoice\" --instructions \"<instructions>\" --fields \"$(cat payloads/groups-add-fields.json)\" --output json",
+      "fields": [
+        {
+          "name": "Vendor Name",
+          "type": "Exact Text",
+          "type_source": "fields-to-extract.md: Exact Text",
+          "instructions": "The supplier's full legal name exactly as shown. Where to look: Vendor, Supplier, From, Remit To, letterhead, or Supplier of Record section."
+        },
+        {
+          "name": "Vendor Tax ID",
+          "type": "Exact Text",
+          "type_source": "fields-to-extract.md: Exact Text",
+          "instructions": "The vendor's US tax identifier (EIN) formatted NN-NNNNNNN. Preserve all characters and leading zeros. Where to look: Tax ID, Tax Ref, EIN, VAT, Supplier Tax ID / VAT, or supplier registration section."
+        },
+        {
+          "name": "Invoice Number",
+          "type": "Exact Text",
+          "type_source": "fields-to-extract.md: Exact Text",
+          "instructions": "The vendor's invoice or document number, including any prefix and punctuation. Where to look: Invoice No., Invoice #, Document Number, or the invoice header."
+        },
+        {
+          "name": "Invoice Date",
+          "type": "Date",
+          "type_source": "fields-to-extract.md: Date",
+          "instructions": "The date the invoice was issued. Where to look: Invoice Date, Date, Issued, or the invoice header. Do not use the order date, ship date, or service date."
+        },
+        {
+          "name": "PO Number",
+          "type": "Exact Text",
+          "type_source": "fields-to-extract.md: Exact Text",
+          "instructions": "The purchase-order reference the invoice bills against, including its prefix. Preserve all digits and leading zeros. Where to look: Customer PO, PO, PO Reference, Purchase Order, or the procurement section."
+        },
+        {
+          "name": "Total Amount",
+          "type": "Number",
+          "type_source": "fields-to-extract.md: Number",
+          "accepted_alternative_type": "Monetary Quantity",
+          "type_note": "fields-to-extract.md says Number. The uipath-ixp skill's Critical Rule 17 steers Claude Code to reuse the built-in Monetary Quantity type for any currency amount, so participant projects will legitimately show either. Accept both; the normalized prediction differs (Number -> '17988.20', Monetary Quantity -> '17988.20 USD').",
+          "instructions": "The grand total payable, including tax. Extract the final total, not the subtotal or amount before tax. Where to look: Total Due, Total, Gross Payable, Amount Due, or the totals block."
+        },
+        {
+          "name": "Currency",
+          "type": "Exact Text",
+          "type_source": "fields-to-extract.md: Exact Text",
+          "instructions": "The three-letter currency code (USD on every packet), or the currency implied by the invoice's currency symbol. Where to look: Currency, Billing Currency, the currency symbol on the total, or the totals block."
+        },
+        {
+          "name": "Due Date",
+          "type": "Date",
+          "type_source": "fields-to-extract.md: Date",
+          "instructions": "The date payment is due. Where to look: Payment Due By, Net Due Date, Due Date, or derived from the invoice date plus the payment terms."
+        }
+      ]
+    }
+  ],
+  "lab_step4_total_amount_fix": {
+    "purpose": "Lab 1 step 4: the initial Total Amount instruction lets the model pick the Subtotal. This is the strengthened per-field instruction a participant's project should end up with (wording may vary).",
+    "command": "uip ixp fields update-prompts <project-name> --updates \"$(cat payloads/fields-update-prompts-total-amount.json)\" --output json",
+    "field": "Total Amount",
+    "instructions": "The grand total payable including sales tax, printed in bold on the last row of the totals block at the bottom right, labeled 'TOTAL DUE', 'BALANCE DUE' or 'TOTAL (USD)' and followed by the currency code. Do NOT extract the 'Subtotal' row or the 'Sales Tax' row above it, and do not extract any line-item AMOUNT. Example: on invoice GLS-2026-0442 the value is 17,988.20 (Subtotal 16,970.00 is wrong)."
+  },
+  "expected_counts": {
+    "field_groups": 1,
+    "fields": 8,
+    "documents_lab1": 5
+  }
+}

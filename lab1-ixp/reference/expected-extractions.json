@@ -1,0 +1,560 @@
+{
+  "$schema_note": "Ground truth for the Commercial Bootcamp vendor-invoice packets. 'expected' holds the value a facilitator scores against (dates as printed MM/DD/YYYY, Total Amount as the grand total incl. tax, plain decimal). 'ixp_normalized' is how uip ixp labellings get-predictions reports Date / Number / Monetary Quantity fields (see cli-reference.md, Normalized output formats).",
+  "source": "commercial_bootcamp_lab_assets/generate_invoices.py (INVOICES list + computed()); every value cross-checked against pdftotext -layout of the rendered PDF, including the TOTAL DUE / BALANCE DUE / TOTAL (USD) line.",
+  "field_order": [
+    "Vendor Name",
+    "Vendor Tax ID",
+    "Invoice Number",
+    "Invoice Date",
+    "PO Number",
+    "Total Amount",
+    "Currency",
+    "Due Date"
+  ],
+  "lab1_ixp_documents": [
+    "commercial-invoice-006-great-lakes-steel.pdf",
+    "commercial-invoice-007-liberty-print.pdf",
+    "commercial-invoice-008-summit-facilities.pdf",
+    "commercial-invoice-009-vertex-analytics.pdf",
+    "commercial-invoice-010-pacific-timber.pdf"
+  ],
+  "lab2_rpa_documents": [
+    "commercial-invoice-001-northwind.pdf",
+    "commercial-invoice-002-contoso-logistics.pdf",
+    "commercial-invoice-003-ableton-fabrication.pdf",
+    "commercial-invoice-004-meridian-cloud.pdf",
+    "commercial-invoice-005-blue-harbor-catering.pdf"
+  ],
+  "invoices": [
+    {
+      "seq": "001",
+      "file": "commercial-invoice-001-northwind.pdf",
+      "lab_folder": "lab2-rpa",
+      "layout": "classic",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Northwind Office Supplies Inc.",
+        "Vendor Tax ID": "47-2013865",
+        "Invoice Number": "NW-88214",
+        "Invoice Date": "03/04/2026",
+        "PO Number": "PO-2026-0431",
+        "Total Amount": "4155.40",
+        "Currency": "USD",
+        "Due Date": "04/03/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Northwind Office Supplies Inc.",
+        "Vendor Tax ID": "47-2013865",
+        "Invoice Number": "NW-88214",
+        "Invoice Date": "03/04/2026",
+        "PO Number": "PO-2026-0431",
+        "Total Amount": "$4,155.40 USD",
+        "Currency": "USD",
+        "Due Date": "04/03/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-04T00:00:00Z",
+        "Due Date": "2026-04-03T00:00:00Z",
+        "Total Amount (Number type)": "4155.40",
+        "Total Amount (Monetary Quantity type)": "4155.40 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Federal Tax ID (EIN)",
+        "Invoice Number": "Invoice #",
+        "Invoice Date": "Invoice Date",
+        "PO Number": "PO Number",
+        "Total Amount": "TOTAL DUE",
+        "Currency": "Currency",
+        "Due Date": "Due Date"
+      },
+      "distractors": {
+        "subtotal": "3874.50",
+        "sales_tax": "280.90",
+        "tax_rate_pct": "7.25",
+        "subtotal_equals_total": false,
+        "payment_terms": "Net 30",
+        "amount_due_label_present": false
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": false
+      }
+    },
+    {
+      "seq": "002",
+      "file": "commercial-invoice-002-contoso-logistics.pdf",
+      "lab_folder": "lab2-rpa",
+      "layout": "banded",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Contoso Logistics LLC",
+        "Vendor Tax ID": "82-4471900",
+        "Invoice Number": "CLL-2026-3391",
+        "Invoice Date": "03/06/2026",
+        "PO Number": "PO-2026-0447",
+        "Total Amount": "12740.00",
+        "Currency": "USD",
+        "Due Date": "04/20/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Contoso Logistics LLC",
+        "Vendor Tax ID": "82-4471900",
+        "Invoice Number": "CLL-2026-3391",
+        "Invoice Date": "03/06/2026",
+        "PO Number": "PO-2026-0447",
+        "Total Amount": "$12,740.00 USD",
+        "Currency": "USD",
+        "Due Date": "04/20/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-06T00:00:00Z",
+        "Due Date": "2026-04-20T00:00:00Z",
+        "Total Amount (Number type)": "12740.00",
+        "Total Amount (Monetary Quantity type)": "12740.00 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Vendor EIN",
+        "Invoice Number": "No.",
+        "Invoice Date": "Invoice Date",
+        "PO Number": "PO Number",
+        "Total Amount": "BALANCE DUE",
+        "Currency": "(suffix on AMOUNT DUE / BALANCE DUE, 'All amounts in USD')",
+        "Due Date": "Due Date"
+      },
+      "distractors": {
+        "subtotal": "12740.00",
+        "sales_tax": "0.00",
+        "tax_rate_pct": "0",
+        "subtotal_equals_total": true,
+        "payment_terms": "Net 45",
+        "amount_due_label_present": true
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": true
+      }
+    },
+    {
+      "seq": "003",
+      "file": "commercial-invoice-003-ableton-fabrication.pdf",
+      "lab_folder": "lab2-rpa",
+      "layout": "service",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Ableton Fabrication, Inc.",
+        "Vendor Tax ID": "26-1509338",
+        "Invoice Number": "AF19427",
+        "Invoice Date": "03/09/2026",
+        "PO Number": "PO-2026-0452",
+        "Total Amount": "4026.88",
+        "Currency": "USD",
+        "Due Date": "04/08/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Ableton Fabrication, Inc.",
+        "Vendor Tax ID": "26-1509338",
+        "Invoice Number": "AF19427",
+        "Invoice Date": "03/09/2026",
+        "PO Number": "PO-2026-0452",
+        "Total Amount": "$4,026.88 USD",
+        "Currency": "USD",
+        "Due Date": "04/08/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-09T00:00:00Z",
+        "Due Date": "2026-04-08T00:00:00Z",
+        "Total Amount (Number type)": "4026.88",
+        "Total Amount (Monetary Quantity type)": "4026.88 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Tax ID:",
+        "Invoice Number": "Invoice Number:",
+        "Invoice Date": "Invoice Date:",
+        "PO Number": "Customer PO:",
+        "Total Amount": "TOTAL (USD)",
+        "Currency": "Currency:",
+        "Due Date": "Payment Due:"
+      },
+      "distractors": {
+        "subtotal": "3790.00",
+        "sales_tax": "236.88",
+        "tax_rate_pct": "6.25",
+        "subtotal_equals_total": false,
+        "payment_terms": "Net 30",
+        "amount_due_label_present": true
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": false
+      }
+    },
+    {
+      "seq": "004",
+      "file": "commercial-invoice-004-meridian-cloud.pdf",
+      "lab_folder": "lab2-rpa",
+      "layout": "classic",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Meridian Cloud Services Corp.",
+        "Vendor Tax ID": "91-3320764",
+        "Invoice Number": "MCS-Q1-20418",
+        "Invoice Date": "03/01/2026",
+        "PO Number": "PO-2026-0399",
+        "Total Amount": "16980.00",
+        "Currency": "USD",
+        "Due Date": "03/31/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Meridian Cloud Services Corp.",
+        "Vendor Tax ID": "91-3320764",
+        "Invoice Number": "MCS-Q1-20418",
+        "Invoice Date": "03/01/2026",
+        "PO Number": "PO-2026-0399",
+        "Total Amount": "$16,980.00 USD",
+        "Currency": "USD",
+        "Due Date": "03/31/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-01T00:00:00Z",
+        "Due Date": "2026-03-31T00:00:00Z",
+        "Total Amount (Number type)": "16980.00",
+        "Total Amount (Monetary Quantity type)": "16980.00 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Federal Tax ID (EIN)",
+        "Invoice Number": "Invoice #",
+        "Invoice Date": "Invoice Date",
+        "PO Number": "PO Number",
+        "Total Amount": "TOTAL DUE",
+        "Currency": "Currency",
+        "Due Date": "Due Date"
+      },
+      "distractors": {
+        "subtotal": "16980.00",
+        "sales_tax": "0.00",
+        "tax_rate_pct": "0",
+        "subtotal_equals_total": true,
+        "payment_terms": "Net 30",
+        "amount_due_label_present": false
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": true
+      }
+    },
+    {
+      "seq": "005",
+      "file": "commercial-invoice-005-blue-harbor-catering.pdf",
+      "lab_folder": "lab2-rpa",
+      "layout": "banded",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Blue Harbor Catering Co.",
+        "Vendor Tax ID": "33-7788214",
+        "Invoice Number": "BHC-4471",
+        "Invoice Date": "03/11/2026",
+        "PO Number": "PO-2026-0461",
+        "Total Amount": "2954.00",
+        "Currency": "USD",
+        "Due Date": "03/26/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Blue Harbor Catering Co.",
+        "Vendor Tax ID": "33-7788214",
+        "Invoice Number": "BHC-4471",
+        "Invoice Date": "03/11/2026",
+        "PO Number": "PO-2026-0461",
+        "Total Amount": "$2,954.00 USD",
+        "Currency": "USD",
+        "Due Date": "03/26/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-11T00:00:00Z",
+        "Due Date": "2026-03-26T00:00:00Z",
+        "Total Amount (Number type)": "2954.00",
+        "Total Amount (Monetary Quantity type)": "2954.00 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Vendor EIN",
+        "Invoice Number": "No.",
+        "Invoice Date": "Invoice Date",
+        "PO Number": "PO Number",
+        "Total Amount": "BALANCE DUE",
+        "Currency": "(suffix on AMOUNT DUE / BALANCE DUE, 'All amounts in USD')",
+        "Due Date": "Due Date"
+      },
+      "distractors": {
+        "subtotal": "2800.00",
+        "sales_tax": "154.00",
+        "tax_rate_pct": "5.5",
+        "subtotal_equals_total": false,
+        "payment_terms": "Net 15",
+        "amount_due_label_present": true
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": false
+      }
+    },
+    {
+      "seq": "006",
+      "file": "commercial-invoice-006-great-lakes-steel.pdf",
+      "lab_folder": "lab1-ixp",
+      "layout": "service",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Great Lakes Steel Supply Inc.",
+        "Vendor Tax ID": "38-4410927",
+        "Invoice Number": "GLS-2026-0442",
+        "Invoice Date": "03/05/2026",
+        "PO Number": "PO-2026-0470",
+        "Total Amount": "17988.20",
+        "Currency": "USD",
+        "Due Date": "04/04/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Great Lakes Steel Supply Inc.",
+        "Vendor Tax ID": "38-4410927",
+        "Invoice Number": "GLS-2026-0442",
+        "Invoice Date": "03/05/2026",
+        "PO Number": "PO-2026-0470",
+        "Total Amount": "$17,988.20 USD",
+        "Currency": "USD",
+        "Due Date": "04/04/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-05T00:00:00Z",
+        "Due Date": "2026-04-04T00:00:00Z",
+        "Total Amount (Number type)": "17988.20",
+        "Total Amount (Monetary Quantity type)": "17988.20 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Tax ID:",
+        "Invoice Number": "Invoice Number:",
+        "Invoice Date": "Invoice Date:",
+        "PO Number": "Customer PO:",
+        "Total Amount": "TOTAL (USD)",
+        "Currency": "Currency:",
+        "Due Date": "Payment Due:"
+      },
+      "distractors": {
+        "subtotal": "16970.00",
+        "sales_tax": "1018.20",
+        "tax_rate_pct": "6",
+        "subtotal_equals_total": false,
+        "payment_terms": "Net 30",
+        "amount_due_label_present": true
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": true
+      }
+    },
+    {
+      "seq": "007",
+      "file": "commercial-invoice-007-liberty-print.pdf",
+      "lab_folder": "lab1-ixp",
+      "layout": "classic",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Liberty Print & Signage LLC",
+        "Vendor Tax ID": "36-5127744",
+        "Invoice Number": "LPS-55210",
+        "Invoice Date": "03/09/2026",
+        "PO Number": "PO-2026-0476",
+        "Total Amount": "4946.40",
+        "Currency": "USD",
+        "Due Date": "04/08/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Liberty Print & Signage LLC",
+        "Vendor Tax ID": "36-5127744",
+        "Invoice Number": "LPS-55210",
+        "Invoice Date": "03/09/2026",
+        "PO Number": "PO-2026-0476",
+        "Total Amount": "$4,946.40 USD",
+        "Currency": "USD",
+        "Due Date": "04/08/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-09T00:00:00Z",
+        "Due Date": "2026-04-08T00:00:00Z",
+        "Total Amount (Number type)": "4946.40",
+        "Total Amount (Monetary Quantity type)": "4946.40 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Federal Tax ID (EIN)",
+        "Invoice Number": "Invoice #",
+        "Invoice Date": "Invoice Date",
+        "PO Number": "PO Number",
+        "Total Amount": "TOTAL DUE",
+        "Currency": "Currency",
+        "Due Date": "Due Date"
+      },
+      "distractors": {
+        "subtotal": "4580.00",
+        "sales_tax": "366.40",
+        "tax_rate_pct": "8",
+        "subtotal_equals_total": false,
+        "payment_terms": "Net 30",
+        "amount_due_label_present": false
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": false
+      }
+    },
+    {
+      "seq": "008",
+      "file": "commercial-invoice-008-summit-facilities.pdf",
+      "lab_folder": "lab1-ixp",
+      "layout": "banded",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Summit Facilities Group",
+        "Vendor Tax ID": "45-6612093",
+        "Invoice Number": "SFG-2026-0771",
+        "Invoice Date": "03/12/2026",
+        "PO Number": "PO-2026-0468",
+        "Total Amount": "3699.26",
+        "Currency": "USD",
+        "Due Date": "04/11/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Summit Facilities Group",
+        "Vendor Tax ID": "45-6612093",
+        "Invoice Number": "SFG-2026-0771",
+        "Invoice Date": "03/12/2026",
+        "PO Number": "PO-2026-0468",
+        "Total Amount": "$3,699.26 USD",
+        "Currency": "USD",
+        "Due Date": "04/11/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-12T00:00:00Z",
+        "Due Date": "2026-04-11T00:00:00Z",
+        "Total Amount (Number type)": "3699.26",
+        "Total Amount (Monetary Quantity type)": "3699.26 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Vendor EIN",
+        "Invoice Number": "No.",
+        "Invoice Date": "Invoice Date",
+        "PO Number": "PO Number",
+        "Total Amount": "BALANCE DUE",
+        "Currency": "(suffix on AMOUNT DUE / BALANCE DUE, 'All amounts in USD')",
+        "Due Date": "Due Date"
+      },
+      "distractors": {
+        "subtotal": "3595.00",
+        "sales_tax": "104.26",
+        "tax_rate_pct": "2.9",
+        "subtotal_equals_total": false,
+        "payment_terms": "Net 30",
+        "amount_due_label_present": true
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": false
+      }
+    },
+    {
+      "seq": "009",
+      "file": "commercial-invoice-009-vertex-analytics.pdf",
+      "lab_folder": "lab1-ixp",
+      "layout": "service",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Vertex Analytics Corp.",
+        "Vendor Tax ID": "88-2245107",
+        "Invoice Number": "VA-INV-40592",
+        "Invoice Date": "03/02/2026",
+        "PO Number": "PO-2026-0405",
+        "Total Amount": "22700.00",
+        "Currency": "USD",
+        "Due Date": "04/16/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Vertex Analytics Corp.",
+        "Vendor Tax ID": "88-2245107",
+        "Invoice Number": "VA-INV-40592",
+        "Invoice Date": "03/02/2026",
+        "PO Number": "PO-2026-0405",
+        "Total Amount": "$22,700.00 USD",
+        "Currency": "USD",
+        "Due Date": "04/16/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-02T00:00:00Z",
+        "Due Date": "2026-04-16T00:00:00Z",
+        "Total Amount (Number type)": "22700.00",
+        "Total Amount (Monetary Quantity type)": "22700.00 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Tax ID:",
+        "Invoice Number": "Invoice Number:",
+        "Invoice Date": "Invoice Date:",
+        "PO Number": "Customer PO:",
+        "Total Amount": "TOTAL (USD)",
+        "Currency": "Currency:",
+        "Due Date": "Payment Due:"
+      },
+      "distractors": {
+        "subtotal": "22700.00",
+        "sales_tax": "0.00",
+        "tax_rate_pct": "0",
+        "subtotal_equals_total": true,
+        "payment_terms": "Net 45",
+        "amount_due_label_present": true
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": true
+      }
+    },
+    {
+      "seq": "010",
+      "file": "commercial-invoice-010-pacific-timber.pdf",
+      "lab_folder": "lab1-ixp",
+      "layout": "classic",
+      "pages": 1,
+      "expected": {
+        "Vendor Name": "Pacific Timber Company",
+        "Vendor Tax ID": "93-1180446",
+        "Invoice Number": "PTC-2026-2287",
+        "Invoice Date": "03/13/2026",
+        "PO Number": "PO-2026-0489",
+        "Total Amount": "9902.58",
+        "Currency": "USD",
+        "Due Date": "04/12/2026"
+      },
+      "as_printed": {
+        "Vendor Name": "Pacific Timber Company",
+        "Vendor Tax ID": "93-1180446",
+        "Invoice Number": "PTC-2026-2287",
+        "Invoice Date": "03/13/2026",
+        "PO Number": "PO-2026-0489",
+        "Total Amount": "$9,902.58 USD",
+        "Currency": "USD",
+        "Due Date": "04/12/2026"
+      },
+      "ixp_normalized": {
+        "Invoice Date": "2026-03-13T00:00:00Z",
+        "Due Date": "2026-04-12T00:00:00Z",
+        "Total Amount (Number type)": "9902.58",
+        "Total Amount (Monetary Quantity type)": "9902.58 USD"
+      },
+      "labels_on_page": {
+        "Vendor Tax ID": "Federal Tax ID (EIN)",
+        "Invoice Number": "Invoice #",
+        "Invoice Date": "Invoice Date",
+        "PO Number": "PO Number",
+        "Total Amount": "TOTAL DUE",
+        "Currency": "Currency",
+        "Due Date": "Due Date"
+      },
+      "distractors": {
+        "subtotal": "9060.00",
+        "sales_tax": "842.58",
+        "tax_rate_pct": "9.3",
+        "subtotal_equals_total": false,
+        "payment_terms": "Net 30",
+        "amount_due_label_present": false
+      },
+      "scenario_notes": {
+        "over_10k_approval_threshold": false
+      }
+    }
+  ]
+}

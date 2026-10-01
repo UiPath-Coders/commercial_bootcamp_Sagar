@@ -1,0 +1,6 @@
+[
+  {
+    "name": "Total Amount",
+    "instructions": "The grand total payable including sales tax, printed in bold on the last row of the totals block at the bottom right, labeled 'TOTAL DUE', 'BALANCE DUE' or 'TOTAL (USD)' and followed by the currency code. Do NOT extract the 'Subtotal' row or the 'Sales Tax' row above it, and do not extract any line-item AMOUNT. Example: on invoice GLS-2026-0442 the value is 17,988.20 (Subtotal 16,970.00 is wrong)."
+  }
+]
