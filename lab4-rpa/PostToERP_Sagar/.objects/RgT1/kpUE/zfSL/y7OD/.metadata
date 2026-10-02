@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Next Step 1 Button",
+  "Description": "Continue to invoice details button at the bottom of wizard step 1",
+  "Type": "Element",
+  "TaxonomyType": "Button",
+  "Id": "y7ODoE-EZkeGi60w0s8baw",
+  "Reference": "rwCndfD9A0urGqmQG327tw/y7ODoE-EZkeGi60w0s8baw",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:14:06.624506Z",
+  "Updated": "2026-10-02T20:14:06.624506Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

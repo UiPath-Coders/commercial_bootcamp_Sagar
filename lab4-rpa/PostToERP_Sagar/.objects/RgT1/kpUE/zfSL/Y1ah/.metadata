@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Password Input",
+  "Description": "Password text box on the portal sign-in form",
+  "Type": "Element",
+  "TaxonomyType": "Password",
+  "Id": "Y1ahrrCMCEWJ2sk6XKwLjg",
+  "Reference": "rwCndfD9A0urGqmQG327tw/Y1ahrrCMCEWJ2sk6XKwLjg",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:05:55.3083345Z",
+  "Updated": "2026-10-02T20:05:55.3083345Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

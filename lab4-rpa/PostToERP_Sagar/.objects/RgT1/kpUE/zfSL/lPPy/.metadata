@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Vendor Result Radio",
+  "Description": "Radio button of the returned vendor row in the vendor search results table on step 1",
+  "Type": "Element",
+  "TaxonomyType": "RadioButton",
+  "Id": "lPPyuWPo70Glb46USY6_CA",
+  "Reference": "rwCndfD9A0urGqmQG327tw/lPPyuWPo70Glb46USY6_CA",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:14:06.5257179Z",
+  "Updated": "2026-10-02T20:14:06.5257179Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

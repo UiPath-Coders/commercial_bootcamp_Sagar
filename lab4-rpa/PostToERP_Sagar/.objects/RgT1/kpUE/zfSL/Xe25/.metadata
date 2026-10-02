@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Total Amount Input",
+  "Description": "Gross invoice amount text box on step 2 of the invoice wizard",
+  "Type": "Element",
+  "TaxonomyType": "Input",
+  "Id": "Xe2514ScpEe3A8k8V8aHsg",
+  "Reference": "rwCndfD9A0urGqmQG327tw/Xe2514ScpEe3A8k8V8aHsg",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:15:34.4578253Z",
+  "Updated": "2026-10-02T20:15:34.4578253Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

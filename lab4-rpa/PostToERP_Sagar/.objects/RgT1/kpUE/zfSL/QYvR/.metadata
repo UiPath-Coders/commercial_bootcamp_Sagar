@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Confirmation Status Text",
+  "Description": "Posting status badge on the Posted confirmation step, reads Submitted for payment",
+  "Type": "Element",
+  "TaxonomyType": "Label",
+  "Id": "QYvRhICGckqflW1G2rnMYg",
+  "Reference": "rwCndfD9A0urGqmQG327tw/QYvRhICGckqflW1G2rnMYg",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:17:09.4950931Z",
+  "Updated": "2026-10-02T20:17:09.4950931Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

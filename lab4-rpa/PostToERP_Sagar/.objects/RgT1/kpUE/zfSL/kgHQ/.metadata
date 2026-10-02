@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Vendor Name Input",
+  "Description": "Vendor name search text box on step 1 of the vendor invoice wizard",
+  "Type": "Element",
+  "TaxonomyType": "Input",
+  "Id": "kgHQRPWmV062asl_qQpzcw",
+  "Reference": "rwCndfD9A0urGqmQG327tw/kgHQRPWmV062asl_qQpzcw",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:12:36.8810196Z",
+  "Updated": "2026-10-02T20:12:36.8810196Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

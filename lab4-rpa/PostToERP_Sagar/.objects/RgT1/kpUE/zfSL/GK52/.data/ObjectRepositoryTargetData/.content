@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ObjectRepositoryTargetData ContentHash="cy7IONqc1kWMe8MPSNBfbg" xmlns="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ObjectRepositoryTargetData.Data>
+    <TargetAnchorable x:Key="TargetAnchorable" DesignTimeRectangle="1598, 799, 142, 45" DesignTimeScaleFactor="1.25" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='btn-search' tag='BUTTON' /&gt;" Guid="c78c76ba-9973-40b1-bd92-3975d5ccd45d" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive">
+      <imageRef attrName="InformativeScreenshot" originalValue="4a816dce7405c8c4cf5a3898feb86a1d.jpg" xmlns="">0vbhCt-hejkC0_TRJZYIHMw</imageRef>
+    </TargetAnchorable>
+  </ObjectRepositoryTargetData.Data>
+</ObjectRepositoryTargetData>

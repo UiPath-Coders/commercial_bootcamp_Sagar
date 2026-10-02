@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Search Vendor Button",
+  "Description": "Search vendor button next to the vendor name box on step 1 of the invoice wizard",
+  "Type": "Element",
+  "TaxonomyType": "Button",
+  "Id": "GK52xtTw3k2I-UVtjClW6g",
+  "Reference": "rwCndfD9A0urGqmQG327tw/GK52xtTw3k2I-UVtjClW6g",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:12:36.9980515Z",
+  "Updated": "2026-10-02T20:12:36.9980515Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

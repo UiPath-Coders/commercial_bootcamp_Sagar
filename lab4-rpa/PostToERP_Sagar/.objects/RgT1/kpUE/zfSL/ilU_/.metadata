@@ -1,0 +1,18 @@
+﻿{
+  "Name": "Enter Vendor Invoice Button",
+  "Description": "Enter vendor invoice button in the AP overview page header",
+  "Type": "Element",
+  "TaxonomyType": "Button",
+  "Id": "ilU_3T28G0iYl1jNkQK8LQ",
+  "Reference": "rwCndfD9A0urGqmQG327tw/ilU_3T28G0iYl1jNkQK8LQ",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:11:04.1900517Z",
+  "Updated": "2026-10-02T20:11:47.44755Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ],
+  "UpdatedBy": [
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Username Input",
+  "Description": "Username text box on the portal sign-in form",
+  "Type": "Element",
+  "TaxonomyType": "Input",
+  "Id": "FBAY5V6MHUChyA6_NthBHQ",
+  "Reference": "rwCndfD9A0urGqmQG327tw/FBAY5V6MHUChyA6_NthBHQ",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:05:55.1798967Z",
+  "Updated": "2026-10-02T20:05:55.1798967Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

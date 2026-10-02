@@ -1,0 +1,223 @@
+<Activity mc:Ignorable="sap2010" x:Class="PostInvoiceInPortal" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uix="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_PortalUrl" Type="InArgument(x:String)" />
+    <x:Property Name="in_VendorName" Type="InArgument(x:String)" />
+    <x:Property Name="in_InvoiceNumber" Type="InArgument(x:String)" />
+    <x:Property Name="in_PONumber" Type="InArgument(x:String)" />
+    <x:Property Name="in_TotalAmountText" Type="InArgument(x:String)" />
+    <x:Property Name="out_PostingId" Type="OutArgument(x:String)" />
+    <x:Property Name="out_PostingStatus" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Success" Type="OutArgument(x:Boolean)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.UIAutomationNext.Activities</x:String>
+      <x:String>UiPath.UIAutomationNext.Enums</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext.Activities</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="PostInvoiceInPortal - sign in if asked, eight portal actions, verify confirmation" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="portalPostingId" />
+      <Variable x:TypeArguments="x:String" Name="portalPostingStatus" />
+      <Variable x:TypeArguments="x:Int32" Default="0" Name="confirmationAttempts" />
+    </Sequence.Variables>
+    <Assign x:TypeArguments="x:Boolean" DisplayName="Assign out_Success = False" sap2010:WorkflowViewState.IdRef="Assign_1" To="[out_Success]" Value="[False]" />
+    <Assign x:TypeArguments="x:String" DisplayName="Assign out_PostingId = empty" sap2010:WorkflowViewState.IdRef="Assign_2" To="[out_PostingId]" Value="[String.Empty]" />
+    <Assign x:TypeArguments="x:String" DisplayName="Assign out_PostingStatus = empty" sap2010:WorkflowViewState.IdRef="Assign_3" To="[out_PostingStatus]" Value="[String.Empty]" />
+    <If Condition="[String.IsNullOrWhiteSpace(in_PortalUrl) OrElse String.IsNullOrWhiteSpace(in_VendorName) OrElse String.IsNullOrWhiteSpace(in_InvoiceNumber) OrElse String.IsNullOrWhiteSpace(in_PONumber) OrElse String.IsNullOrWhiteSpace(in_TotalAmountText)]" DisplayName="If a portal value or the URL is empty" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <Sequence DisplayName="Then - fail before opening the browser" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <Throw DisplayName="Throw BusinessRuleException - incomplete portal input" Exception="[New BusinessRuleException(&quot;PostInvoiceInPortal needs PortalUrl, VendorName, InvoiceNumber, PONumber and TotalAmount; at least one is empty.&quot;)]" sap2010:WorkflowViewState.IdRef="Throw_1" />
+        </Sequence>
+      </If.Then>
+    </If>
+    <ui:LogMessage DisplayName="Log portal start" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;Posting invoice &quot; &amp; in_InvoiceNumber &amp; &quot; (&quot; &amp; in_VendorName &amp; &quot;, PO &quot; &amp; in_PONumber &amp; &quot;) in the AP portal &quot; &amp; in_PortalUrl]" />
+    <uix:NApplicationCard sap2010:Annotation.AnnotationText="Simulate input; the URL is bound to in_PortalUrl and the window selector carries no url or host, so the serverless robot opens whatever portal the job passes." AttachMode="ByInstance" CloseMode="IfOpenedByAppBrowser" DisplayName="Use Browser Chrome: Globex AP Portal" HealingAgentBehavior="Job" sap2010:WorkflowViewState.IdRef="NApplicationCard_1" InteractionMode="Simulate" OpenMode="IfNotOpen" ScopeGuid="3e9680b5-2326-4d5a-afc9-f5ea0fa94f12" Timeout="120" Version="V2">
+      <uix:NApplicationCard.Body>
+        <ActivityAction x:TypeArguments="x:Object">
+          <ActivityAction.Argument>
+            <DelegateInArgument x:TypeArguments="x:Object" Name="WSSessionData" />
+          </ActivityAction.Argument>
+          <Sequence DisplayName="Do" sap2010:WorkflowViewState.IdRef="Sequence_3">
+            <TryCatch sap2010:Annotation.AnnotationText="Short timeouts: the hosted portal shows the form, the local portal (or an existing session) does not, and then the robot carries on. Synthetic training credentials; a real automation would read an Orchestrator Credential asset." DisplayName="0 - Sign in if the portal asks (hosted portal only)" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+              <TryCatch.Try>
+                <Sequence DisplayName="Try - sign in with the shared training account" sap2010:WorkflowViewState.IdRef="Sequence_4">
+                  <uix:NTypeInto ActivateBefore="True" ClickBeforeMode="Single" DisplayName="0a - Type username (#input-portal-username)" EmptyFieldMode="SingleLine" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NTypeInto_1" Text="ap_user" Timeout="10" Version="V5">
+                    <uix:NTypeInto.Target>
+                      <uix:TargetAnchorable ContentHash="QMXIyrH250KkqbIC9J3PQg" DesignTimeRectangle="1022, 841, 496, 46" ElementType="InputBox" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='auth-form' tag='FORM' /&gt;&lt;webctrl id='input-portal-username' tag='INPUT' /&gt;" Guid="05cce2cf-efa1-47da-af52-8c608f6bbd35" InformativeScreenshot="bb58d7fd5442689d082ef79201e4dc36.jpg" Reference="rwCndfD9A0urGqmQG327tw/FBAY5V6MHUChyA6_NthBHQ" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+                    </uix:NTypeInto.Target>
+                  </uix:NTypeInto>
+                  <uix:NTypeInto ActivateBefore="True" ClickBeforeMode="Single" DisplayName="0b - Type training password (#input-portal-password)" EmptyFieldMode="SingleLine" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NTypeInto_2" Text="passwod" Timeout="5" Version="V5">
+                    <uix:NTypeInto.Target>
+                      <uix:TargetAnchorable ContentHash="CHMPCS3_rUmaJHf1eB0weg" DesignTimeRectangle="1022, 976, 496, 50" ElementType="InputBoxPassword" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='auth-form' tag='FORM' /&gt;&lt;webctrl id='input-portal-password' tag='INPUT' /&gt;" Guid="37aeca61-6bf9-4a73-aeed-36c6f63fc97a" InformativeScreenshot="5bf463f5f414a633a29b7f36a4d3064e.jpg" Reference="rwCndfD9A0urGqmQG327tw/Y1ahrrCMCEWJ2sk6XKwLjg" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+                    </uix:NTypeInto.Target>
+                  </uix:NTypeInto>
+                  <uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="0c - Click Sign in to AP workspace (#btn-sign-in)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NClick_1" KeyModifiers="None" MouseButton="Left" Timeout="5" Version="V5">
+                    <uix:NClick.Target>
+                      <uix:TargetAnchorable ContentHash="tqoi4gX2S0mSoRF03BGbXw" DesignTimeRectangle="1022, 1073, 496, 45" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='auth-form' tag='FORM' /&gt;&lt;webctrl id='btn-sign-in' tag='BUTTON' /&gt;" Guid="13d5031b-078b-4e02-b7c7-8efcd924c077" InformativeScreenshot="ce11be8a638daf02c60ef77fb99506b2.jpg" Reference="rwCndfD9A0urGqmQG327tw/Bt6ZiD54P0ibt8MyATy3gw" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+                    </uix:NClick.Target>
+                  </uix:NClick>
+                  <ui:LogMessage DisplayName="Log signed in" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[&quot;Signed in to the AP portal with the shared training account&quot;]" />
+                </Sequence>
+              </TryCatch.Try>
+              <TryCatch.Catches>
+                <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch_1">
+                  <ActivityAction x:TypeArguments="s:Exception">
+                    <ActivityAction.Argument>
+                      <DelegateInArgument x:TypeArguments="s:Exception" Name="signInException" />
+                    </ActivityAction.Argument>
+                    <Sequence DisplayName="Catch - no sign-in form, continue" sap2010:WorkflowViewState.IdRef="Sequence_5">
+                      <ui:LogMessage DisplayName="Log sign-in skipped" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Info" Message="[&quot;No portal sign-in form within the short timeout; continuing (&quot; &amp; signInException.GetType().Name &amp; &quot;)&quot;]" />
+                    </Sequence>
+                  </ActivityAction>
+                </Catch>
+              </TryCatch.Catches>
+            </TryCatch>
+            <uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="1 - Click Enter vendor invoice (#btn-post-invoice)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NClick_2" KeyModifiers="None" MouseButton="Left" Timeout="60" Version="V5">
+              <uix:NClick.Target>
+                <uix:TargetAnchorable ContentHash="OvcXIZEtX02ZW42QvZgzpg" DesignTimeRectangle="2197, 390, 220, 48" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='btn-post-invoice' tag='BUTTON' /&gt;" Guid="b8e3f363-034b-4497-a798-edfd4e4358b8" InformativeScreenshot="ef428521c587353e64b711d731e4b6c7.jpg" Reference="rwCndfD9A0urGqmQG327tw/ilU_3T28G0iYl1jNkQK8LQ" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NClick.Target>
+            </uix:NClick>
+            <uix:NTypeInto ActivateBefore="True" ClickBeforeMode="Single" DisplayName="2 - Type Vendor Name (#input-vendor-name)" EmptyFieldMode="SingleLine" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NTypeInto_3" Text="[in_VendorName]" Version="V5">
+              <uix:NTypeInto.Target>
+                <uix:TargetAnchorable ContentHash="ZELkiMD7f0m4qLvJqFMWZA" DesignTimeRectangle="790, 797, 797, 47" ElementType="InputBox" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='input-vendor-name' tag='INPUT' /&gt;" Guid="96278039-3c26-411b-bfce-8f333dec25fd" InformativeScreenshot="ec4449bc13f25c52bbbd8c774d2ad34a.jpg" Reference="rwCndfD9A0urGqmQG327tw/kgHQRPWmV062asl_qQpzcw" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NTypeInto.Target>
+            </uix:NTypeInto>
+            <uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="3 - Click Search vendor (#btn-search)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NClick_3" KeyModifiers="None" MouseButton="Left" Version="V5">
+              <uix:NClick.Target>
+                <uix:TargetAnchorable ContentHash="cy7IONqc1kWMe8MPSNBfbg" DesignTimeRectangle="1598, 799, 142, 45" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='btn-search' tag='BUTTON' /&gt;" Guid="c78c76ba-9973-40b1-bd92-3975d5ccd45d" InformativeScreenshot="4a816dce7405c8c4cf5a3898feb86a1d.jpg" Reference="rwCndfD9A0urGqmQG327tw/GK52xtTw3k2I-UVtjClW6g" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NClick.Target>
+            </uix:NClick>
+            <uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="4 - Select the returned vendor row (#vendor-row-V-*)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NClick_4" KeyModifiers="None" MouseButton="Left" Version="V5">
+              <uix:NClick.Target>
+                <uix:TargetAnchorable ContentHash="2WRTTS7v5ECFo6uBYpqTvA" DesignTimeRectangle="810, 950, 16, 17" ElementType="RadioButton" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='vendor-row-V-*' tag='INPUT' /&gt;" Guid="cf94027d-22ab-436f-aff8-86b1329125e4" InformativeScreenshot="77d91ad21c347f9b514474652881cfa8.jpg" Reference="rwCndfD9A0urGqmQG327tw/lPPyuWPo70Glb46USY6_CA" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NClick.Target>
+            </uix:NClick>
+            <uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="5 - Click Continue to invoice details (#btn-next-1)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NClick_5" KeyModifiers="None" MouseButton="Left" Version="V5">
+              <uix:NClick.Target>
+                <uix:TargetAnchorable ContentHash="1TZioJ80M0KcVuIWKir3Ow" DesignTimeRectangle="1795, 1032, 263, 49" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='btn-next-1' tag='BUTTON' /&gt;" Guid="bd3eca7a-9291-49ec-b66b-8b6c3a7ae25f" InformativeScreenshot="ec01062fa225c86005c076a0ce032536.jpg" Reference="rwCndfD9A0urGqmQG327tw/y7ODoE-EZkeGi60w0s8baw" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NClick.Target>
+            </uix:NClick>
+            <uix:NTypeInto ActivateBefore="True" ClickBeforeMode="Single" DisplayName="6a - Type Invoice Number (#input-invoice-number)" EmptyFieldMode="SingleLine" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NTypeInto_4" Text="[in_InvoiceNumber]" Version="V5">
+              <uix:NTypeInto.Target>
+                <uix:TargetAnchorable ContentHash="ACWoopDvrUGBg4dVSVTU_g" DesignTimeRectangle="790, 813, 411, 47" ElementType="InputBox" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='input-invoice-number' tag='INPUT' /&gt;" Guid="9f0c6b83-c966-471c-bf88-e93bec584d69" InformativeScreenshot="bc7e64c6fecc75802c71f1281f0c4f40.jpg" Reference="rwCndfD9A0urGqmQG327tw/YZNMTXlRM0-ocpeLG2f-dw" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NTypeInto.Target>
+            </uix:NTypeInto>
+            <uix:NTypeInto ActivateBefore="True" ClickBeforeMode="Single" DisplayName="6b - Type PO Number (#input-po-number)" EmptyFieldMode="SingleLine" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NTypeInto_5" Text="[in_PONumber]" Version="V5">
+              <uix:NTypeInto.Target>
+                <uix:TargetAnchorable ContentHash="qEnCCb6Gf0WUBY3yrW1byw" DesignTimeRectangle="790, 908, 411, 46" ElementType="InputBox" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='input-po-number' tag='INPUT' /&gt;" Guid="30817f75-2744-4666-b876-c9895fac962b" InformativeScreenshot="8e5f0a48d890d907ef38d808e5b054ee.jpg" Reference="rwCndfD9A0urGqmQG327tw/t-nJwcahBku8xLlpI0PGpw" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NTypeInto.Target>
+            </uix:NTypeInto>
+            <uix:NTypeInto ActivateBefore="True" ClickBeforeMode="Single" DisplayName="6c - Type Total Amount (#input-total-amount)" EmptyFieldMode="SingleLine" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NTypeInto_6" Text="[in_TotalAmountText]" Version="V5">
+              <uix:NTypeInto.Target>
+                <uix:TargetAnchorable ContentHash="otpdcW-3IUig4-rtXQRYkg" DesignTimeRectangle="1269, 908, 360, 46" ElementType="InputBox" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='input-total-amount' tag='INPUT' /&gt;" Guid="3c5f7374-d14b-4b95-be42-04f97c69edcb" InformativeScreenshot="5b9d35430fb3434678a39f358dcf22c3.jpg" Reference="rwCndfD9A0urGqmQG327tw/Xe2514ScpEe3A8k8V8aHsg" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NTypeInto.Target>
+            </uix:NTypeInto>
+            <uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="7 - Click Run match and review (#btn-next-2)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NClick_6" KeyModifiers="None" MouseButton="Left" Version="V5">
+              <uix:NClick.Target>
+                <uix:TargetAnchorable ContentHash="sto_wrx3U06bc1-tODYtfw" DesignTimeRectangle="1842, 1226, 216, 49" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='btn-next-2' tag='BUTTON' /&gt;" Guid="3cde1b21-d857-47e3-b50f-dd26a03ea043" InformativeScreenshot="d4ef5f99ca1d53ef129cdbb12be8e3d8.jpg" Reference="rwCndfD9A0urGqmQG327tw/Huqm1EDRIUKqjkJJtv1knA" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NClick.Target>
+            </uix:NClick>
+            <uix:NClick ActivateBefore="True" sap2010:Annotation.AnnotationText="The one non-repeatable action. It is never retried here; a retry of the whole job is stopped earlier by the PostedToERP guard once the record is marked." ClickType="Single" DisplayName="8 - Click Post voucher and release for payment (#btn-submit-payment)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NClick_7" KeyModifiers="None" MouseButton="Left" Version="V5">
+              <uix:NClick.Target>
+                <uix:TargetAnchorable ContentHash="ucFhB-CFv06eizzluR_5Tw" DesignTimeRectangle="1754, 1201, 304, 45" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='btn-submit-payment' tag='BUTTON' /&gt;" Guid="a74beb57-6359-43df-b2a5-a1379657f4bf" InformativeScreenshot="65bb46a810ff9282706be5a12cda099c.jpg" Reference="rwCndfD9A0urGqmQG327tw/LG94knaM3ECz62QBXhpdaQ" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NClick.Target>
+            </uix:NClick>
+            <ui:InterruptibleDoWhile CurrentIndex="{x:Null}" sap2010:Annotation.AnnotationText="#confirmation-status already reads 'Submitted for payment' in the hidden confirmation panel before any submit, so only a non-empty #confirmation-id proves the posting happened." Condition="[String.IsNullOrWhiteSpace(portalPostingId) AndAlso confirmationAttempts &lt; 6]" DisplayName="Wait for the portal posting id (#confirmation-id)" sap2010:WorkflowViewState.IdRef="InterruptibleDoWhile_1">
+              <ui:InterruptibleDoWhile.Body>
+                <Sequence DisplayName="Body" sap2010:WorkflowViewState.IdRef="Sequence_6">
+                  <uix:NGetText ContinueOnError="True" DisplayName="Get Text - posting id (#confirmation-id)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NGetText_1" TextString="[portalPostingId]" Timeout="10" Version="V5">
+                    <uix:NGetText.Target>
+                      <uix:TargetAnchorable ContentHash="9bBQXr92MU2tkv80RZMzfA" DesignTimeRectangle="9, 221, 0, 0" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='confirmation-id' tag='STRONG' /&gt;" Guid="52097aec-5713-4c04-9b47-2542e3d09f18" InformativeScreenshot="08af527faf8c5f34eb39e1100df5ce36.jpg" Reference="rwCndfD9A0urGqmQG327tw/J4ieZ6A3hEKBtJl9dEsncQ" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+                    </uix:NGetText.Target>
+                  </uix:NGetText>
+                  <Assign x:TypeArguments="x:Int32" DisplayName="Assign confirmationAttempts + 1" sap2010:WorkflowViewState.IdRef="Assign_4" To="[confirmationAttempts]" Value="[confirmationAttempts + 1]" />
+                  <If Condition="[String.IsNullOrWhiteSpace(portalPostingId) AndAlso confirmationAttempts &lt; 6]" DisplayName="If the posting id is still empty" sap2010:WorkflowViewState.IdRef="If_2">
+                    <If.Then>
+                      <Sequence DisplayName="Then - wait briefly" sap2010:WorkflowViewState.IdRef="Sequence_7">
+                        <Delay DisplayName="Delay 2 s before reading again" Duration="00:00:02" sap2010:WorkflowViewState.IdRef="Delay_1" />
+                      </Sequence>
+                    </If.Then>
+                  </If>
+                </Sequence>
+              </ui:InterruptibleDoWhile.Body>
+            </ui:InterruptibleDoWhile>
+            <uix:NGetText ContinueOnError="True" DisplayName="Get Text - confirmation status (#confirmation-status)" HealingAgentBehavior="SameAsCard" sap2010:WorkflowViewState.IdRef="NGetText_2" TextString="[portalPostingStatus]" Timeout="10" Version="V5">
+              <uix:NGetText.Target>
+                <uix:TargetAnchorable ContentHash="qJaK6DuOKEqIEAEqkHsKfw" DesignTimeRectangle="9, 221, 0, 0" ElementType="Text" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='confirmation-status' tag='SPAN' /&gt;" Guid="c4989e0b-854f-493c-95bf-066f126a723c" InformativeScreenshot="08af527faf8c5f34eb39e1100df5ce36.jpg" Reference="rwCndfD9A0urGqmQG327tw/QYvRhICGckqflW1G2rnMYg" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+              </uix:NGetText.Target>
+            </uix:NGetText>
+          </Sequence>
+        </ActivityAction>
+      </uix:NApplicationCard.Body>
+      <uix:NApplicationCard.TargetApp>
+        <uix:TargetApp Area="-9, -9, 3858, 1558" BrowserType="Chrome" ContentHash="mx_8m1arHUKBcK5P-COFPQ" InformativeScreenshot="0d76e1a5d76770a864374e23026a8f6c.jpg" Reference="rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw" Selector="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" Url="[in_PortalUrl]" Version="V3" />
+      </uix:NApplicationCard.TargetApp>
+    </uix:NApplicationCard>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign out_PostingId" sap2010:WorkflowViewState.IdRef="Assign_5" To="[out_PostingId]" Value="[If(portalPostingId, String.Empty).Trim()]" />
+    <Assign x:TypeArguments="x:String" DisplayName="Assign out_PostingStatus" sap2010:WorkflowViewState.IdRef="Assign_6" To="[out_PostingStatus]" Value="[If(portalPostingStatus, String.Empty).Trim()]" />
+    <ui:LogMessage DisplayName="Log portal confirmation" sap2010:WorkflowViewState.IdRef="LogMessage_4" Level="Info" Message="[&quot;Portal confirmation: posting id '&quot; &amp; out_PostingId &amp; &quot;', status '&quot; &amp; out_PostingStatus &amp; &quot;' after &quot; &amp; confirmationAttempts.ToString() &amp; &quot; read(s)&quot;]" />
+    <If Condition="[String.IsNullOrWhiteSpace(out_PostingId) OrElse out_PostingStatus.IndexOf(&quot;Submitted for payment&quot;, StringComparison.OrdinalIgnoreCase) &lt; 0]" DisplayName="If the portal did not confirm the submission" sap2010:WorkflowViewState.IdRef="If_3">
+      <If.Then>
+        <Sequence DisplayName="Then - fail, the record stays unposted" sap2010:WorkflowViewState.IdRef="Sequence_8">
+          <Throw DisplayName="Throw - portal did not confirm the submission" Exception="[New Exception(&quot;The AP portal did not confirm the submission of invoice &quot; &amp; in_InvoiceNumber &amp; &quot; (posting id '&quot; &amp; out_PostingId &amp; &quot;', status '&quot; &amp; out_PostingStatus &amp; &quot;'). PostedToERP was not set.&quot;)]" sap2010:WorkflowViewState.IdRef="Throw_2" />
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else - confirmed" sap2010:WorkflowViewState.IdRef="Sequence_9">
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Assign out_Success = True" sap2010:WorkflowViewState.IdRef="Assign_7" To="[out_Success]" Value="[True]" />
+        </Sequence>
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>

@@ -1,0 +1,14 @@
+﻿{
+  "Name": "Globex AP Portal",
+  "Description": "The Globex AP Portal (hosted mock ERP) in Chrome: sign-in page and the vendor-invoice posting wizard",
+  "Type": "Screen",
+  "Id": "zfSLRlYsME2K0GXzLlHznw",
+  "Reference": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/kpUEjPwdPUGOUwLTufPrIA",
+  "Created": "2026-10-02T20:04:06.9153819Z",
+  "Updated": "2026-10-02T20:04:06.9153819Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

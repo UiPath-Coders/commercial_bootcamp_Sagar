@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Submit Payment Button",
+  "Description": "Post voucher and release for payment button on wizard step 3 (match and review)",
+  "Type": "Element",
+  "TaxonomyType": "Button",
+  "Id": "LG94knaM3ECz62QBXhpdaQ",
+  "Reference": "rwCndfD9A0urGqmQG327tw/LG94knaM3ECz62QBXhpdaQ",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:17:09.2222119Z",
+  "Updated": "2026-10-02T20:17:09.2222119Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

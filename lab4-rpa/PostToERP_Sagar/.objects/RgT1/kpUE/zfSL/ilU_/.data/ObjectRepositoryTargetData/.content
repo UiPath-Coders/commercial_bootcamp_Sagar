@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ObjectRepositoryTargetData ContentHash="OvcXIZEtX02ZW42QvZgzpg" Reference="rwCndfD9A0urGqmQG327tw/ilU_3T28G0iYl1jNkQK8LQ" xmlns="http://schemas.uipath.com/workflow/activities/uix" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ObjectRepositoryTargetData.Data>
+    <TargetAnchorable x:Key="TargetAnchorable" ContentHash="Ex-lOUpvIUS_6axuP4zdGQ" DesignTimeRectangle="2197, 390, 220, 48" DesignTimeScaleFactor="1.25" ElementType="Button" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='btn-post-invoice' tag='BUTTON' /&gt;" FuzzySelectorArgument="&lt;webctrl id='btn-post-invoice' tag='BUTTON' type='button' class='btn primary' aaname='＋ Enter vendor invoice' matching:id='fuzzy' fuzzylevel:id='0.0' matching:class='fuzzy' fuzzylevel:class='0.0' matching:aaname='fuzzy' fuzzylevel:aaname='0.0' check:text='＋ Enter vendor invoice' /&gt;" Guid="b8e3f363-034b-4497-a798-edfd4e4358b8" Reference="rwCndfD9A0urGqmQG327tw/ilU_3T28G0iYl1jNkQK8LQ" ScopeSelectorArgument="&lt;html app='chrome.exe' title='Globex AP Portal*' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive">
+      <TargetAnchorable.Anchors>
+        <scg:List x:TypeArguments="ITarget" Capacity="0" />
+      </TargetAnchorable.Anchors>
+      <imageRef attrName="InformativeScreenshot" originalValue="ef428521c587353e64b711d731e4b6c7.jpg" xmlns="">0SlMGnXYOQ0G_ZcdONP5foA</imageRef>
+    </TargetAnchorable>
+  </ObjectRepositoryTargetData.Data>
+</ObjectRepositoryTargetData>

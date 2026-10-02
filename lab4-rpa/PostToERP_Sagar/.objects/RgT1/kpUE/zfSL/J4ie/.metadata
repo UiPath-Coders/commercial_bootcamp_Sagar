@@ -1,0 +1,15 @@
+﻿{
+  "Name": "Confirmation Id Text",
+  "Description": "Posting id (accounting document number) shown on the Posted confirmation step",
+  "Type": "Element",
+  "TaxonomyType": "None",
+  "Id": "J4ieZ6A3hEKBtJl9dEsncQ",
+  "Reference": "rwCndfD9A0urGqmQG327tw/J4ieZ6A3hEKBtJl9dEsncQ",
+  "ParentRef": "rwCndfD9A0urGqmQG327tw/zfSLRlYsME2K0GXzLlHznw",
+  "Created": "2026-10-02T20:17:09.3476717Z",
+  "Updated": "2026-10-02T20:17:09.3476717Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.3.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}
