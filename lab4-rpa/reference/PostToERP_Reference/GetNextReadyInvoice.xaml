@@ -1,0 +1,202 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="GetNextReadyInvoice" mva:VisualBasic.Settings="{x:Null}"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:local="clr-namespace:PostToERP_Reference;assembly=DataService.PostToERP_Reference"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+ xmlns:uda="clr-namespace:UiPath.DataService.Activities;assembly=UiPath.DataService.Activities.Core"
+ xmlns:ui="http://schemas.uipath.com/workflow/activities"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="out_RecordFound" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="out_RecordId" Type="OutArgument(s:Guid)" />
+    <x:Property Name="out_InvoiceNumber" Type="OutArgument(x:String)" />
+    <x:Property Name="out_VendorName" Type="OutArgument(x:String)" />
+    <x:Property Name="out_PONumber" Type="OutArgument(x:String)" />
+    <x:Property Name="out_TotalAmountText" Type="OutArgument(x:String)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.DataService.Activities</x:String>
+      <x:String>UiPath.DataService.Activities.Models</x:String>
+      <x:String>UiPath.DataService.Definition</x:String>
+      <x:String>PostToERP_Reference</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Activities.Core</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Definition</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>DataService.PostToERP_Reference</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="GetNextReadyInvoice - select the next ready-to-post AP_Invoice_Reference record" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="scg:IList(local:AP_Invoice_Reference)" Name="allRecords" />
+      <Variable x:TypeArguments="scg:List(local:AP_Invoice_Reference)" Name="readyRecords" />
+      <Variable x:TypeArguments="x:Int64" Name="totalRecords" Default="0" />
+      <Variable x:TypeArguments="local:AP_Invoice_Reference" Name="rec" />
+    </Sequence.Variables>
+    <ui:LogMessage DisplayName="Log query" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_1" Message="Querying AP_Invoice_Reference (tenant scope) ordered by ProcessedTimestamp; the ready-to-post rule (POMatched = true, ApprovalNeeded = false, PostedToERP not true) is applied in the workflow after the query" />
+    <ui:RetryScope DisplayName="Retry Scope - Data Fabric query (transient faults)" NumberOfRetries="3" RetryInterval="00:00:05" sap2010:WorkflowViewState.IdRef="RetryScope_1" sap2010:Annotation.AnnotationText="Read-only query, safe to retry. One transient Data Fabric fault ('QueryEntityRecords failed during execution') should not fault the whole job.">
+      <ui:RetryScope.ActivityBody>
+        <ActivityAction>
+          <Sequence DisplayName="Action" sap2010:WorkflowViewState.IdRef="Sequence_5">
+            <uda:QueryEntityRecords x:TypeArguments="local:AP_Invoice_Reference" ContinueOnError="False" DisplayName="Query AP_Invoice_Reference - oldest first (no designer filter)" EntityId="dadab581-76ef-5e29-8352-a8dffcd0b1b3" ExpansionDepth="2" sap2010:WorkflowViewState.IdRef="QueryEntityRecords_1" sap2010:Annotation.AnnotationText="No FilterArguments on purpose: the designer operators 'Equals true' / 'Equals false' / 'is null' fail at runtime (QueryHelper.InternalNameToQueryOperator - Sequence contains no matching element). The eligibility rule is applied with LINQ in the next Assign." OutputRecords="[allRecords]" Skip="0" SortAscending="True" SortByField="[&quot;ProcessedTimestamp&quot;]" TimeoutInMs="60000" Top="100" TotalRecords="[totalRecords]" />
+          </Sequence>
+        </ActivityAction>
+      </ui:RetryScope.ActivityBody>
+      <ui:RetryScope.Condition>
+        <ActivityFunc x:TypeArguments="x:Boolean" />
+      </ui:RetryScope.Condition>
+    </ui:RetryScope>
+    <Assign x:TypeArguments="scg:List(local:AP_Invoice_Reference)" DisplayName="Assign readyRecords - apply the ready-to-post rule (LINQ)" sap2010:WorkflowViewState.IdRef="Assign_9" sap2010:Annotation.AnnotationText="Nullable Data Fabric booleans: GetValueOrDefault treats an empty POMatched as false, an empty ApprovalNeeded as 'needs approval', and an empty PostedToERP as 'not posted yet'. Where keeps the ProcessedTimestamp order from the query.">
+      <Assign.To>
+        <OutArgument x:TypeArguments="scg:List(local:AP_Invoice_Reference)">[readyRecords]</OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="scg:List(local:AP_Invoice_Reference)">[If(allRecords, CType(New List(Of AP_Invoice_Reference)(), IList(Of AP_Invoice_Reference))).Where(Function(r) r.POMatched.GetValueOrDefault(False) AndAlso Not r.ApprovalNeeded.GetValueOrDefault(True) AndAlso Not r.PostedToERP.GetValueOrDefault(False)).ToList()]</InArgument>
+      </Assign.Value>
+    </Assign>
+    <ui:LogMessage DisplayName="Log ready count" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_3" Message="[&quot;Fetched &quot; &amp; If(allRecords Is Nothing, 0, allRecords.Count).ToString() &amp; &quot; of &quot; &amp; totalRecords.ToString() &amp; &quot; record(s); &quot; &amp; readyRecords.Count.ToString() &amp; &quot; ready to post&quot;]" />
+    <If DisplayName="If a ready record exists" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">[readyRecords.Count &gt; 0]</InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Then - read the record" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <Assign x:TypeArguments="local:AP_Invoice_Reference" DisplayName="Assign rec" sap2010:WorkflowViewState.IdRef="Assign_1">
+            <Assign.To>
+              <OutArgument x:TypeArguments="local:AP_Invoice_Reference">[rec]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="local:AP_Invoice_Reference">[readyRecords(0)]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Assign out_RecordFound" sap2010:WorkflowViewState.IdRef="Assign_2">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:Boolean">[out_RecordFound]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:Boolean">[True]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="s:Guid" DisplayName="Assign out_RecordId" sap2010:WorkflowViewState.IdRef="Assign_3">
+            <Assign.To>
+              <OutArgument x:TypeArguments="s:Guid">[out_RecordId]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="s:Guid">[rec.Id]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign out_InvoiceNumber" sap2010:WorkflowViewState.IdRef="Assign_4">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[out_InvoiceNumber]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">[If(rec.InvoiceNumber, String.Empty).Trim()]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign out_VendorName" sap2010:WorkflowViewState.IdRef="Assign_5">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[out_VendorName]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">[If(rec.VendorName, String.Empty).Trim()]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign out_PONumber" sap2010:WorkflowViewState.IdRef="Assign_6">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[out_PONumber]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">[If(rec.PONumber, String.Empty).Trim()]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign out_TotalAmountText" sap2010:WorkflowViewState.IdRef="Assign_7">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[out_TotalAmountText]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">[If(rec.TotalAmount.HasValue, rec.TotalAmount.Value.ToString("0.00", CultureInfo.InvariantCulture), String.Empty)]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <If DisplayName="If the record is missing a portal field" sap2010:WorkflowViewState.IdRef="If_2">
+            <If.Condition>
+              <InArgument x:TypeArguments="x:Boolean">[String.IsNullOrWhiteSpace(out_VendorName) OrElse String.IsNullOrWhiteSpace(out_InvoiceNumber) OrElse String.IsNullOrWhiteSpace(out_PONumber) OrElse String.IsNullOrWhiteSpace(out_TotalAmountText)]</InArgument>
+            </If.Condition>
+            <If.Then>
+              <Sequence DisplayName="Then - fail fast" sap2010:WorkflowViewState.IdRef="Sequence_3">
+                <Throw DisplayName="Throw BusinessRuleException - incomplete record" sap2010:WorkflowViewState.IdRef="Throw_1">
+                  <Throw.Exception>
+                    <InArgument x:TypeArguments="s:Exception">[New BusinessRuleException("AP_Invoice_Reference record " &amp; rec.Id.ToString() &amp; " is ready to post but VendorName, InvoiceNumber, PONumber or TotalAmount is empty. Fix the record before posting.")]</InArgument>
+                  </Throw.Exception>
+                </Throw>
+              </Sequence>
+            </If.Then>
+          </If>
+          <ui:LogMessage DisplayName="Log selected record" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_2" Message="[&quot;Ready to post: &quot; &amp; readyRecords.Count.ToString() &amp; &quot; record(s). Selected &quot; &amp; out_InvoiceNumber &amp; &quot; / &quot; &amp; out_VendorName &amp; &quot; / &quot; &amp; out_PONumber &amp; &quot; / &quot; &amp; out_TotalAmountText &amp; &quot; (Id &quot; &amp; out_RecordId.ToString() &amp; &quot;)&quot;]" />
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else - nothing ready" sap2010:WorkflowViewState.IdRef="Sequence_4">
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Assign out_RecordFound = False" sap2010:WorkflowViewState.IdRef="Assign_8">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:Boolean">[out_RecordFound]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:Boolean">[False]</InArgument>
+            </Assign.Value>
+          </Assign>
+        </Sequence>
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>

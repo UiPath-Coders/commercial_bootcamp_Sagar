@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uipath="http://uipath.org/schema/bpmn" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="UiPath Maestro (https://uipath.com)" exporterVersion="1.200.0">
+  <bpmn:process id="Process_1" name="InvoiceApprovalProcess_Reference" isExecutable="true">
+    <bpmn:extensionElements>
+      <uipath:variables version="v1">
+        <uipath:input id="VarFileName" name="FileName" type="string" elementId="Event_start" />
+        <uipath:inputOutput id="VarRecordId" name="RecordId" type="string" />
+        <uipath:inputOutput id="VarIsValid" name="IsValid" type="boolean" />
+        <uipath:inputOutput id="VarWasDuplicate" name="WasDuplicate" type="boolean" />
+        <uipath:inputOutput id="VarPOMatched" name="POMatched" type="boolean" />
+        <uipath:inputOutput id="VarApprovalNeeded" name="ApprovalNeeded" type="boolean" />
+        <uipath:inputOutput id="VarMatchReason" name="MatchReason" type="string" />
+        <uipath:inputOutput id="VarPoErrorType" name="PoErrorType" type="string" />
+        <uipath:inputOutput id="VarRecommendation" name="Recommendation" type="string" />
+        <uipath:inputOutput id="VarAgentErrorType" name="AgentErrorType" type="string" />
+        <uipath:inputOutput id="VarInvoiceLifecycleState" name="InvoiceLifecycleState" type="string" />
+        <uipath:inputOutput id="VarStatusFound" name="StatusFound" type="boolean" />
+        <uipath:inputOutput id="VarStatusErrorType" name="StatusErrorType" type="string" />
+        <uipath:inputOutput id="VarReviewedBy" name="ReviewedBy" type="string" />
+        <uipath:inputOutput id="VarApprovalConfirmed" name="ApprovalConfirmed" type="boolean" />
+        <uipath:inputOutput id="VarPollCount" name="PollCount" type="number" />
+        <uipath:inputOutput id="VarPosted" name="Posted" type="boolean" />
+        <uipath:inputOutput id="VarWasAlreadyPosted" name="WasAlreadyPosted" type="boolean" />
+        <uipath:inputOutput id="VarPostingId" name="PostingId" type="string" />
+        <uipath:inputOutput id="VarErrorMessage" name="ErrorMessage" type="string" />
+        <uipath:inputOutput id="VarTaskIntakeResponse" name="Task_IntakeResponse" type="any" />
+        <uipath:inputOutput id="VarTaskPOMatchResponse" name="Task_POMatchResponse" type="any" />
+        <uipath:inputOutput id="VarTaskAgentResponse" name="Task_AgentResponse" type="any" />
+        <uipath:inputOutput id="VarTaskStatusResponse" name="Task_StatusResponse" type="any" />
+        <uipath:inputOutput id="VarTaskPostResponse" name="Task_PostResponse" type="any" />
+      </uipath:variables>
+      <uipath:bindings version="v1">
+        <uipath:binding id="b_Task_Intake_name" name="name" type="string" default="Invoice_Intake_RPA_Reference" resource="process" resourceSubType="Process" resourceKey="Agentic Bootcamp/APAutomation_Reference.Invoice_Intake_RPA_Reference" propertyAttribute="name" />
+        <uipath:binding id="b_Task_Intake_folder" name="folderPath" type="string" default="Agentic Bootcamp/APAutomation_Reference" resource="process" resourceSubType="Process" resourceKey="Agentic Bootcamp/APAutomation_Reference.Invoice_Intake_RPA_Reference" propertyAttribute="folderPath" />
+        <uipath:binding id="b_Task_POMatch_name" name="name" type="string" default="POMatch_Reference_process_invoice" resource="process" resourceSubType="Function" resourceKey="Agentic Bootcamp/APAutomation_Reference.POMatch_Reference_process_invoice" propertyAttribute="name" />
+        <uipath:binding id="b_Task_POMatch_folder" name="folderPath" type="string" default="Agentic Bootcamp/APAutomation_Reference" resource="process" resourceSubType="Function" resourceKey="Agentic Bootcamp/APAutomation_Reference.POMatch_Reference_process_invoice" propertyAttribute="folderPath" />
+        <uipath:binding id="b_Task_Agent_name" name="name" type="string" default="Invoice_Approval_Agent_Reference" resource="process" resourceSubType="Agent" resourceKey="Agentic Bootcamp/APAutomation_Reference.Invoice_Approval_Agent_Reference" propertyAttribute="name" />
+        <uipath:binding id="b_Task_Agent_folder" name="folderPath" type="string" default="Agentic Bootcamp/APAutomation_Reference" resource="process" resourceSubType="Agent" resourceKey="Agentic Bootcamp/APAutomation_Reference.Invoice_Approval_Agent_Reference" propertyAttribute="folderPath" />
+        <uipath:binding id="b_Task_Status_name" name="name" type="string" default="POMatch_Reference_get_invoice_status" resource="process" resourceSubType="Function" resourceKey="Agentic Bootcamp/APAutomation_Reference.POMatch_Reference_get_invoice_status" propertyAttribute="name" />
+        <uipath:binding id="b_Task_Status_folder" name="folderPath" type="string" default="Agentic Bootcamp/APAutomation_Reference" resource="process" resourceSubType="Function" resourceKey="Agentic Bootcamp/APAutomation_Reference.POMatch_Reference_get_invoice_status" propertyAttribute="folderPath" />
+        <uipath:binding id="b_Task_Post_name" name="name" type="string" default="PostToERP_Reference" resource="process" resourceSubType="Process" resourceKey="Agentic Bootcamp/APAutomation_Reference.PostToERP_Reference" propertyAttribute="name" />
+        <uipath:binding id="b_Task_Post_folder" name="folderPath" type="string" default="Agentic Bootcamp/APAutomation_Reference" resource="process" resourceSubType="Process" resourceKey="Agentic Bootcamp/APAutomation_Reference.PostToERP_Reference" propertyAttribute="folderPath" />
+      </uipath:bindings>
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="Event_start" name="Manual start">
+      <bpmn:extensionElements>
+        <uipath:entryPointId value="43243790-b173-4500-b64a-8b1fb60fe2c1" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>Flow_Start</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Task_Intake" name="Intake invoice (Invoice_Intake_RPA_Reference)">
+      <bpmn:extensionElements>
+        <uipath:activity version="v1">
+          <uipath:type value="Orchestrator.StartJob" version="v1" />
+          <uipath:context>
+            <uipath:input name="releaseKey" type="string" value="REPLACE_WITH_INTAKE_RPA_RELEASE_KEY" />
+            <uipath:input name="folderId" type="string" value="REPLACE_WITH_APAUTOMATION_FOLDER_ID" />
+            <uipath:input name="folderPath" type="string" value="=bindings.b_Task_Intake_folder" />
+            <uipath:input name="name" type="string" value="=bindings.b_Task_Intake_name" />
+            <uipath:inputSchema type="jsonSchema"><![CDATA[{"type":"object","properties":{"FileName":{"type":"string"},"CreateQueueItem":{"type":"boolean"}},"required":[]}]]></uipath:inputSchema>
+          </uipath:context>
+          <uipath:input name="JobArguments" type="json" target="bodyField"><![CDATA[{"FileName":"=vars.VarFileName","CreateQueueItem":false}]]></uipath:input>
+          <uipath:output name="Process response" type="Orchestrator.RunJob" var="VarTaskIntakeResponse" />
+          <uipath:output name="RecordId" type="string" source="=RecordId" var="VarRecordId" />
+          <uipath:output name="IsValid" type="boolean" source="=IsValid" var="VarIsValid" />
+          <uipath:output name="WasDuplicate" type="boolean" source="=WasDuplicate" var="VarWasDuplicate" />
+          <uipath:output name="ErrorMessage" type="string" source="=ErrorMessage" var="VarErrorMessage" />
+        </uipath:activity>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Start</bpmn:incoming>
+      <bpmn:outgoing>Flow_Intake_Done</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_Valid" name="Valid?" default="Flow_Valid_No">
+      <bpmn:incoming>Flow_Intake_Done</bpmn:incoming>
+      <bpmn:outgoing>Flow_Valid_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Valid_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Invalid" name="Invalid Invoice">
+      <bpmn:incoming>Flow_Valid_No</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Task_POMatch" name="PO match (POMatch_Reference process_invoice)">
+      <bpmn:extensionElements>
+        <uipath:activity version="v1">
+          <uipath:type value="Orchestrator.StartJob" version="v1" />
+          <uipath:context>
+            <uipath:input name="releaseKey" type="string" value="REPLACE_WITH_POMATCH_PROCESS_INVOICE_RELEASE_KEY" />
+            <uipath:input name="folderId" type="string" value="REPLACE_WITH_APAUTOMATION_FOLDER_ID" />
+            <uipath:input name="folderPath" type="string" value="=bindings.b_Task_POMatch_folder" />
+            <uipath:input name="name" type="string" value="=bindings.b_Task_POMatch_name" />
+            <uipath:inputSchema type="jsonSchema"><![CDATA[{"type":"object","properties":{"record_id":{"type":"string"},"entity_name":{"type":"string"}},"required":[]}]]></uipath:inputSchema>
+          </uipath:context>
+          <uipath:input name="JobArguments" type="json" target="bodyField"><![CDATA[{"record_id":"=vars.VarRecordId"}]]></uipath:input>
+          <uipath:output name="Process response" type="Orchestrator.RunJob" var="VarTaskPOMatchResponse" />
+          <uipath:output name="po_matched" type="boolean" source="=po_matched" var="VarPOMatched" />
+          <uipath:output name="approval_required" type="boolean" source="=approval_required" var="VarApprovalNeeded" />
+          <uipath:output name="match_reason" type="string" source="=match_reason" var="VarMatchReason" />
+          <uipath:output name="error_type" type="string" source="=error_type" var="VarPoErrorType" />
+          <uipath:output name="error_message" type="string" source="=error_message" var="VarErrorMessage" />
+        </uipath:activity>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Valid_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_PO_Done</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_ApprovalNeeded" name="Approval needed?" default="Flow_Appr_No">
+      <bpmn:incoming>Flow_PO_Done</bpmn:incoming>
+      <bpmn:outgoing>Flow_PO_Error</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Appr_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Appr_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="Script_NoApproval" name="Set ApprovalConfirmed false" scriptFormat="JavaScript">
+      <bpmn:extensionElements>
+        <uipath:mapping version="v1">
+          <uipath:type value="BPMN.Variables" version="v1" />
+          <uipath:input name="args" type="json" target="bodyField"><![CDATA[{}]]></uipath:input>
+          <uipath:output name="ApprovalConfirmed" type="boolean" source="=js:false" var="VarApprovalConfirmed" custom="true" />
+        </uipath:mapping>
+        <uipath:scriptVersion value="v3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Appr_No</bpmn:incoming>
+      <bpmn:outgoing>Flow_NoAppr_Post</bpmn:outgoing>
+      <bpmn:script><![CDATA[return {};]]></bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="Task_Agent" name="Prepare approval (Invoice_Approval_Agent_Reference)">
+      <bpmn:extensionElements>
+        <uipath:activity version="v1">
+          <uipath:type value="Orchestrator.StartJob" version="v1" />
+          <uipath:context>
+            <uipath:input name="releaseKey" type="string" value="REPLACE_WITH_APPROVAL_AGENT_RELEASE_KEY" />
+            <uipath:input name="folderId" type="string" value="REPLACE_WITH_APAUTOMATION_FOLDER_ID" />
+            <uipath:input name="folderPath" type="string" value="=bindings.b_Task_Agent_folder" />
+            <uipath:input name="name" type="string" value="=bindings.b_Task_Agent_name" />
+            <uipath:inputSchema type="jsonSchema"><![CDATA[{"type":"object","properties":{"recordId":{"type":"string"}},"required":["recordId"]}]]></uipath:inputSchema>
+          </uipath:context>
+          <uipath:input name="JobArguments" type="json" target="bodyField"><![CDATA[{"recordId":"=vars.VarRecordId"}]]></uipath:input>
+          <uipath:output name="Process response" type="Orchestrator.RunJob" var="VarTaskAgentResponse" />
+          <uipath:output name="recommendation" type="string" source="=recommendation" var="VarRecommendation" />
+          <uipath:output name="invoiceLifecycleState" type="string" source="=invoiceLifecycleState" var="VarInvoiceLifecycleState" />
+          <uipath:output name="errorType" type="string" source="=errorType" var="VarAgentErrorType" />
+          <uipath:output name="errorMessage" type="string" source="=errorMessage" var="VarErrorMessage" />
+        </uipath:activity>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Appr_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_Agent_Done</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_AgentResult" name="Held?" default="Flow_Agent_Review">
+      <bpmn:incoming>Flow_Agent_Done</bpmn:incoming>
+      <bpmn:outgoing>Flow_Agent_Held</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Agent_Review</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Held" name="Held">
+      <bpmn:incoming>Flow_Agent_Held</bpmn:incoming>
+      <bpmn:incoming>Flow_PollCap</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gw_WaitJoin" name="Await review">
+      <bpmn:incoming>Flow_Agent_Review</bpmn:incoming>
+      <bpmn:incoming>Flow_Loop</bpmn:incoming>
+      <bpmn:outgoing>Flow_Wait_Timer</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:intermediateCatchEvent id="Timer_Wait" name="Wait 2 minutes">
+      <bpmn:incoming>Flow_Wait_Timer</bpmn:incoming>
+      <bpmn:outgoing>Flow_Timer_Count</bpmn:outgoing>
+      <bpmn:timerEventDefinition>
+        <bpmn:timeDuration xsi:type="bpmn:tFormalExpression">PT2M</bpmn:timeDuration>
+      </bpmn:timerEventDefinition>
+    </bpmn:intermediateCatchEvent>
+    <bpmn:scriptTask id="Script_CountPoll" name="PollCount + 1" scriptFormat="JavaScript">
+      <bpmn:extensionElements>
+        <uipath:mapping version="v1">
+          <uipath:type value="BPMN.Variables" version="v1" />
+          <uipath:input name="args" type="json" target="bodyField"><![CDATA[{}]]></uipath:input>
+          <uipath:output name="PollCount" type="number" source="=js:(vars.VarPollCount || 0) + 1" var="VarPollCount" custom="true" />
+        </uipath:mapping>
+        <uipath:scriptVersion value="v3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Timer_Count</bpmn:incoming>
+      <bpmn:outgoing>Flow_Count_Status</bpmn:outgoing>
+      <bpmn:script><![CDATA[return {};]]></bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:serviceTask id="Task_Status" name="Read status (POMatch_Reference get_invoice_status)">
+      <bpmn:extensionElements>
+        <uipath:activity version="v1">
+          <uipath:type value="Orchestrator.StartJob" version="v1" />
+          <uipath:context>
+            <uipath:input name="releaseKey" type="string" value="REPLACE_WITH_POMATCH_GET_INVOICE_STATUS_RELEASE_KEY" />
+            <uipath:input name="folderId" type="string" value="REPLACE_WITH_APAUTOMATION_FOLDER_ID" />
+            <uipath:input name="folderPath" type="string" value="=bindings.b_Task_Status_folder" />
+            <uipath:input name="name" type="string" value="=bindings.b_Task_Status_name" />
+            <uipath:inputSchema type="jsonSchema"><![CDATA[{"type":"object","properties":{"record_id":{"type":"string"},"entity_name":{"type":"string"}},"required":[]}]]></uipath:inputSchema>
+          </uipath:context>
+          <uipath:input name="JobArguments" type="json" target="bodyField"><![CDATA[{"record_id":"=vars.VarRecordId"}]]></uipath:input>
+          <uipath:output name="Process response" type="Orchestrator.RunJob" var="VarTaskStatusResponse" />
+          <uipath:output name="invoice_lifecycle_state" type="string" source="=invoice_lifecycle_state" var="VarInvoiceLifecycleState" />
+          <uipath:output name="approval_needed" type="boolean" source="=approval_needed" var="VarApprovalNeeded" />
+          <uipath:output name="reviewed_by" type="string" source="=reviewed_by" var="VarReviewedBy" />
+          <uipath:output name="found" type="boolean" source="=found" var="VarStatusFound" />
+          <uipath:output name="error_type" type="string" source="=error_type" var="VarStatusErrorType" />
+          <uipath:output name="error_message" type="string" source="=error_message" var="VarErrorMessage" />
+        </uipath:activity>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Count_Status</bpmn:incoming>
+      <bpmn:outgoing>Flow_Status_Done</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_Approved" name="Approved?" default="Flow_Appr_Unexpected">
+      <bpmn:incoming>Flow_Status_Done</bpmn:incoming>
+      <bpmn:outgoing>Flow_Status_Error</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Rejected</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Loop</bpmn:outgoing>
+      <bpmn:outgoing>Flow_PollCap</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Appr_Unexpected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:scriptTask id="Script_Approved" name="Set ApprovalConfirmed true" scriptFormat="JavaScript">
+      <bpmn:extensionElements>
+        <uipath:mapping version="v1">
+          <uipath:type value="BPMN.Variables" version="v1" />
+          <uipath:input name="args" type="json" target="bodyField"><![CDATA[{}]]></uipath:input>
+          <uipath:output name="ApprovalConfirmed" type="boolean" source="=js:true" var="VarApprovalConfirmed" custom="true" />
+        </uipath:mapping>
+        <uipath:scriptVersion value="v3" />
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Approved</bpmn:incoming>
+      <bpmn:outgoing>Flow_Approved_Post</bpmn:outgoing>
+      <bpmn:script><![CDATA[return {};]]></bpmn:script>
+    </bpmn:scriptTask>
+    <bpmn:endEvent id="End_Rejected" name="Rejected">
+      <bpmn:incoming>Flow_Rejected</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gw_PostJoin" name="Ready to post">
+      <bpmn:incoming>Flow_NoAppr_Post</bpmn:incoming>
+      <bpmn:incoming>Flow_Approved_Post</bpmn:incoming>
+      <bpmn:outgoing>Flow_Join_Post</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_Post" name="Post to ERP (PostToERP_Reference)">
+      <bpmn:extensionElements>
+        <uipath:activity version="v1">
+          <uipath:type value="Orchestrator.StartJob" version="v1" />
+          <uipath:context>
+            <uipath:input name="releaseKey" type="string" value="REPLACE_WITH_POSTTOERP_RELEASE_KEY" />
+            <uipath:input name="folderId" type="string" value="REPLACE_WITH_APAUTOMATION_FOLDER_ID" />
+            <uipath:input name="folderPath" type="string" value="=bindings.b_Task_Post_folder" />
+            <uipath:input name="name" type="string" value="=bindings.b_Task_Post_name" />
+            <uipath:inputSchema type="jsonSchema"><![CDATA[{"type":"object","properties":{"RecordId":{"type":"string"},"ApprovalConfirmed":{"type":"boolean"},"PortalUrl":{"type":"string"}},"required":[]}]]></uipath:inputSchema>
+          </uipath:context>
+          <uipath:input name="JobArguments" type="json" target="bodyField"><![CDATA[{"RecordId":"=vars.VarRecordId","ApprovalConfirmed":"=vars.VarApprovalConfirmed","PortalUrl":"https://commercial-bootcamp-mock-erp.onrender.com/portal/"}]]></uipath:input>
+          <uipath:output name="Process response" type="Orchestrator.RunJob" var="VarTaskPostResponse" />
+          <uipath:output name="Posted" type="boolean" source="=Posted" var="VarPosted" />
+          <uipath:output name="WasAlreadyPosted" type="boolean" source="=WasAlreadyPosted" var="VarWasAlreadyPosted" />
+          <uipath:output name="PostingId" type="string" source="=PostingId" var="VarPostingId" />
+          <uipath:output name="ErrorMessage" type="string" source="=ErrorMessage" var="VarErrorMessage" />
+        </uipath:activity>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_Join_Post</bpmn:incoming>
+      <bpmn:outgoing>Flow_Post_Done</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_Posted" name="Posted?" default="Flow_Posted_No">
+      <bpmn:incoming>Flow_Post_Done</bpmn:incoming>
+      <bpmn:outgoing>Flow_Posted_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_Posted_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_Paid" name="Paid">
+      <bpmn:incoming>Flow_Posted_Yes</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="Gw_FailJoin" name="Failure">
+      <bpmn:incoming>Flow_PO_Error</bpmn:incoming>
+      <bpmn:incoming>Flow_Status_Error</bpmn:incoming>
+      <bpmn:incoming>Flow_Appr_Unexpected</bpmn:incoming>
+      <bpmn:incoming>Flow_Posted_No</bpmn:incoming>
+      <bpmn:incoming>Flow_Err_Task_Intake</bpmn:incoming>
+      <bpmn:incoming>Flow_Err_Task_POMatch</bpmn:incoming>
+      <bpmn:incoming>Flow_Err_Task_Agent</bpmn:incoming>
+      <bpmn:incoming>Flow_Err_Task_Status</bpmn:incoming>
+      <bpmn:incoming>Flow_Err_Task_Post</bpmn:incoming>
+      <bpmn:outgoing>Flow_Fail_End</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="End_OpFailure" name="Operational Failure">
+      <bpmn:incoming>Flow_Fail_End</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:boundaryEvent id="Err_Task_Intake" name="Job failed" attachedToRef="Task_Intake" cancelActivity="true">
+      <bpmn:outgoing>Flow_Err_Task_Intake</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Err_Task_POMatch" name="Job failed" attachedToRef="Task_POMatch" cancelActivity="true">
+      <bpmn:outgoing>Flow_Err_Task_POMatch</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Err_Task_Agent" name="Job failed" attachedToRef="Task_Agent" cancelActivity="true">
+      <bpmn:outgoing>Flow_Err_Task_Agent</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Err_Task_Status" name="Job failed" attachedToRef="Task_Status" cancelActivity="true">
+      <bpmn:outgoing>Flow_Err_Task_Status</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="Err_Task_Post" name="Job failed" attachedToRef="Task_Post" cancelActivity="true">
+      <bpmn:outgoing>Flow_Err_Task_Post</bpmn:outgoing>
+      <bpmn:errorEventDefinition />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_Start" sourceRef="Event_start" targetRef="Task_Intake" />
+    <bpmn:sequenceFlow id="Flow_Intake_Done" sourceRef="Task_Intake" targetRef="Gw_Valid" />
+    <bpmn:sequenceFlow id="Flow_Valid_Yes" sourceRef="Gw_Valid" targetRef="Task_POMatch">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=vars.VarIsValid == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Valid_No" sourceRef="Gw_Valid" targetRef="End_Invalid" />
+    <bpmn:sequenceFlow id="Flow_PO_Done" sourceRef="Task_POMatch" targetRef="Gw_ApprovalNeeded" />
+    <bpmn:sequenceFlow id="Flow_PO_Error" sourceRef="Gw_ApprovalNeeded" targetRef="Gw_FailJoin">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=vars.VarPoErrorType != null &amp;&amp; vars.VarPoErrorType != ""</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Appr_Yes" sourceRef="Gw_ApprovalNeeded" targetRef="Task_Agent">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=vars.VarApprovalNeeded == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Appr_No" sourceRef="Gw_ApprovalNeeded" targetRef="Script_NoApproval" />
+    <bpmn:sequenceFlow id="Flow_NoAppr_Post" sourceRef="Script_NoApproval" targetRef="Gw_PostJoin" />
+    <bpmn:sequenceFlow id="Flow_Agent_Done" sourceRef="Task_Agent" targetRef="Gw_AgentResult" />
+    <bpmn:sequenceFlow id="Flow_Agent_Held" sourceRef="Gw_AgentResult" targetRef="End_Held">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(vars.VarAgentErrorType != null &amp;&amp; vars.VarAgentErrorType != "") || vars.VarRecommendation == "HOLD_PO_MISMATCH"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Agent_Review" sourceRef="Gw_AgentResult" targetRef="Gw_WaitJoin" />
+    <bpmn:sequenceFlow id="Flow_Wait_Timer" sourceRef="Gw_WaitJoin" targetRef="Timer_Wait" />
+    <bpmn:sequenceFlow id="Flow_Timer_Count" sourceRef="Timer_Wait" targetRef="Script_CountPoll" />
+    <bpmn:sequenceFlow id="Flow_Count_Status" sourceRef="Script_CountPoll" targetRef="Task_Status" />
+    <bpmn:sequenceFlow id="Flow_Status_Done" sourceRef="Task_Status" targetRef="Gw_Approved" />
+    <bpmn:sequenceFlow id="Flow_Status_Error" sourceRef="Gw_Approved" targetRef="Gw_FailJoin">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(vars.VarStatusErrorType != null &amp;&amp; vars.VarStatusErrorType != "") || vars.VarStatusFound == false</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Approved" sourceRef="Gw_Approved" targetRef="Script_Approved">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=vars.VarInvoiceLifecycleState == "APPROVED"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Rejected" sourceRef="Gw_Approved" targetRef="End_Rejected">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=vars.VarInvoiceLifecycleState == "REJECTED"</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Loop" sourceRef="Gw_Approved" targetRef="Gw_WaitJoin">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(vars.VarInvoiceLifecycleState == "NEEDS_AP_REVIEW" || vars.VarInvoiceLifecycleState == "READY_FOR_APPROVAL") &amp;&amp; vars.VarPollCount &lt; 6</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_PollCap" name="30 polls, no decision" sourceRef="Gw_Approved" targetRef="End_Held">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=(vars.VarInvoiceLifecycleState == "NEEDS_AP_REVIEW" || vars.VarInvoiceLifecycleState == "READY_FOR_APPROVAL") &amp;&amp; vars.VarPollCount &gt;= 6</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Appr_Unexpected" sourceRef="Gw_Approved" targetRef="Gw_FailJoin" />
+    <bpmn:sequenceFlow id="Flow_Approved_Post" sourceRef="Script_Approved" targetRef="Gw_PostJoin" />
+    <bpmn:sequenceFlow id="Flow_Join_Post" sourceRef="Gw_PostJoin" targetRef="Task_Post" />
+    <bpmn:sequenceFlow id="Flow_Post_Done" sourceRef="Task_Post" targetRef="Gw_Posted" />
+    <bpmn:sequenceFlow id="Flow_Posted_Yes" sourceRef="Gw_Posted" targetRef="End_Paid">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">=vars.VarPosted == true</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_Posted_No" sourceRef="Gw_Posted" targetRef="Gw_FailJoin" />
+    <bpmn:sequenceFlow id="Flow_Err_Task_Intake" sourceRef="Err_Task_Intake" targetRef="Gw_FailJoin" />
+    <bpmn:sequenceFlow id="Flow_Err_Task_POMatch" sourceRef="Err_Task_POMatch" targetRef="Gw_FailJoin" />
+    <bpmn:sequenceFlow id="Flow_Err_Task_Agent" sourceRef="Err_Task_Agent" targetRef="Gw_FailJoin" />
+    <bpmn:sequenceFlow id="Flow_Err_Task_Status" sourceRef="Err_Task_Status" targetRef="Gw_FailJoin" />
+    <bpmn:sequenceFlow id="Flow_Err_Task_Post" sourceRef="Err_Task_Post" targetRef="Gw_FailJoin" />
+    <bpmn:sequenceFlow id="Flow_Fail_End" sourceRef="Gw_FailJoin" targetRef="End_OpFailure" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="Diagram_1">
+    <bpmndi:BPMNPlane id="Plane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="S_Event_start" bpmnElement="Event_start"><dc:Bounds x="102" y="182" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_Intake" bpmnElement="Task_Intake"><dc:Bounds x="190" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_Valid" bpmnElement="Gw_Valid"><dc:Bounds x="345" y="175" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_Invalid" bpmnElement="End_Invalid"><dc:Bounds x="352" y="312" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_POMatch" bpmnElement="Task_POMatch"><dc:Bounds x="450" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_ApprovalNeeded" bpmnElement="Gw_ApprovalNeeded"><dc:Bounds x="605" y="175" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Script_NoApproval" bpmnElement="Script_NoApproval"><dc:Bounds x="710" y="20" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_Agent" bpmnElement="Task_Agent"><dc:Bounds x="710" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_AgentResult" bpmnElement="Gw_AgentResult"><dc:Bounds x="865" y="175" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_Held" bpmnElement="End_Held"><dc:Bounds x="872" y="312" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_WaitJoin" bpmnElement="Gw_WaitJoin"><dc:Bounds x="975" y="175" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Timer_Wait" bpmnElement="Timer_Wait"><dc:Bounds x="1082" y="182" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Script_CountPoll" bpmnElement="Script_CountPoll"><dc:Bounds x="1050" y="300" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_Status" bpmnElement="Task_Status"><dc:Bounds x="1170" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_Approved" bpmnElement="Gw_Approved"><dc:Bounds x="1325" y="175" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_Rejected" bpmnElement="End_Rejected"><dc:Bounds x="1332" y="312" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Script_Approved" bpmnElement="Script_Approved"><dc:Bounds x="1430" y="160" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_PostJoin" bpmnElement="Gw_PostJoin"><dc:Bounds x="1585" y="35" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Task_Post" bpmnElement="Task_Post"><dc:Bounds x="1690" y="20" width="100" height="80" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_Posted" bpmnElement="Gw_Posted"><dc:Bounds x="1845" y="35" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_Paid" bpmnElement="End_Paid"><dc:Bounds x="1962" y="42" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gw_FailJoin" bpmnElement="Gw_FailJoin"><dc:Bounds x="1845" y="455" width="50" height="50" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_End_OpFailure" bpmnElement="End_OpFailure"><dc:Bounds x="1962" y="462" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Err_Task_Intake" bpmnElement="Err_Task_Intake"><dc:Bounds x="260" y="222" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Err_Task_POMatch" bpmnElement="Err_Task_POMatch"><dc:Bounds x="520" y="222" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Err_Task_Agent" bpmnElement="Err_Task_Agent"><dc:Bounds x="780" y="222" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Err_Task_Status" bpmnElement="Err_Task_Status"><dc:Bounds x="1240" y="222" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Err_Task_Post" bpmnElement="Err_Task_Post"><dc:Bounds x="1760" y="82" width="36" height="36" /></bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Start" bpmnElement="Flow_Start"><di:waypoint x="120" y="200" /><di:waypoint x="240" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Intake_Done" bpmnElement="Flow_Intake_Done"><di:waypoint x="240" y="200" /><di:waypoint x="370" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Valid_Yes" bpmnElement="Flow_Valid_Yes"><di:waypoint x="370" y="200" /><di:waypoint x="500" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Valid_No" bpmnElement="Flow_Valid_No"><di:waypoint x="370" y="200" /><di:waypoint x="370" y="330" /><di:waypoint x="370" y="330" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_PO_Done" bpmnElement="Flow_PO_Done"><di:waypoint x="500" y="200" /><di:waypoint x="630" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_PO_Error" bpmnElement="Flow_PO_Error"><di:waypoint x="630" y="218" /><di:waypoint x="630" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Appr_Yes" bpmnElement="Flow_Appr_Yes"><di:waypoint x="630" y="200" /><di:waypoint x="760" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Appr_No" bpmnElement="Flow_Appr_No"><di:waypoint x="630" y="200" /><di:waypoint x="630" y="60" /><di:waypoint x="760" y="60" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_NoAppr_Post" bpmnElement="Flow_NoAppr_Post"><di:waypoint x="760" y="60" /><di:waypoint x="1610" y="60" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Agent_Done" bpmnElement="Flow_Agent_Done"><di:waypoint x="760" y="200" /><di:waypoint x="890" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Agent_Held" bpmnElement="Flow_Agent_Held"><di:waypoint x="890" y="200" /><di:waypoint x="890" y="330" /><di:waypoint x="890" y="330" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Agent_Review" bpmnElement="Flow_Agent_Review"><di:waypoint x="890" y="200" /><di:waypoint x="1000" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Wait_Timer" bpmnElement="Flow_Wait_Timer"><di:waypoint x="1000" y="200" /><di:waypoint x="1100" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Timer_Count" bpmnElement="Flow_Timer_Count"><di:waypoint x="1100" y="218" /><di:waypoint x="1100" y="300" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Count_Status" bpmnElement="Flow_Count_Status"><di:waypoint x="1150" y="340" /><di:waypoint x="1220" y="340" /><di:waypoint x="1220" y="240" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Status_Done" bpmnElement="Flow_Status_Done"><di:waypoint x="1220" y="200" /><di:waypoint x="1350" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Status_Error" bpmnElement="Flow_Status_Error"><di:waypoint x="1350" y="218" /><di:waypoint x="1350" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Approved" bpmnElement="Flow_Approved"><di:waypoint x="1350" y="200" /><di:waypoint x="1480" y="200" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Rejected" bpmnElement="Flow_Rejected"><di:waypoint x="1350" y="200" /><di:waypoint x="1350" y="330" /><di:waypoint x="1350" y="330" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Loop" bpmnElement="Flow_Loop"><di:waypoint x="1350" y="175" /><di:waypoint x="1350" y="120" /><di:waypoint x="1000" y="120" /><di:waypoint x="1000" y="175" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Appr_Unexpected" bpmnElement="Flow_Appr_Unexpected"><di:waypoint x="1350" y="218" /><di:waypoint x="1350" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Approved_Post" bpmnElement="Flow_Approved_Post"><di:waypoint x="1480" y="200" /><di:waypoint x="1480" y="60" /><di:waypoint x="1610" y="60" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Join_Post" bpmnElement="Flow_Join_Post"><di:waypoint x="1610" y="60" /><di:waypoint x="1740" y="60" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Post_Done" bpmnElement="Flow_Post_Done"><di:waypoint x="1740" y="60" /><di:waypoint x="1870" y="60" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Posted_Yes" bpmnElement="Flow_Posted_Yes"><di:waypoint x="1870" y="60" /><di:waypoint x="1980" y="60" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Posted_No" bpmnElement="Flow_Posted_No"><di:waypoint x="1870" y="85" /><di:waypoint x="1870" y="455" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Err_Task_Intake" bpmnElement="Flow_Err_Task_Intake"><di:waypoint x="278" y="258" /><di:waypoint x="278" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Err_Task_POMatch" bpmnElement="Flow_Err_Task_POMatch"><di:waypoint x="538" y="258" /><di:waypoint x="538" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Err_Task_Agent" bpmnElement="Flow_Err_Task_Agent"><di:waypoint x="798" y="258" /><di:waypoint x="798" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Err_Task_Status" bpmnElement="Flow_Err_Task_Status"><di:waypoint x="1258" y="258" /><di:waypoint x="1258" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Err_Task_Post" bpmnElement="Flow_Err_Task_Post"><di:waypoint x="1778" y="118" /><di:waypoint x="1778" y="480" /><di:waypoint x="1870" y="480" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_PollCap" bpmnElement="Flow_PollCap"><di:waypoint x="1340" y="215" /><di:waypoint x="1300" y="400" /><di:waypoint x="890" y="400" /><di:waypoint x="890" y="348" /></bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_Flow_Fail_End" bpmnElement="Flow_Fail_End"><di:waypoint x="1870" y="480" /><di:waypoint x="1980" y="480" /></bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

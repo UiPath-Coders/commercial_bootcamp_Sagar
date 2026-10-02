@@ -1,0 +1,123 @@
+{
+  "service": "erp-po-api",
+  "vendors": [
+    {
+      "vendorId": "V-1001",
+      "vendorName": "Northwind Office Supplies Inc.",
+      "taxId": "47-2013865",
+      "address": "1420 Elm Ridge Pkwy, Columbus, OH 43215",
+      "currency": "USD",
+      "paymentTerms": "Net 30",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0431"
+      ]
+    },
+    {
+      "vendorId": "V-1002",
+      "vendorName": "Contoso Logistics LLC",
+      "taxId": "82-4471900",
+      "address": "8800 Cargo Way, Bldg C, Memphis, TN 38118",
+      "currency": "USD",
+      "paymentTerms": "Net 45",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0447"
+      ]
+    },
+    {
+      "vendorId": "V-1003",
+      "vendorName": "Ableton Fabrication, Inc.",
+      "taxId": "26-1509338",
+      "address": "55 Foundry St, Worcester, MA 01604",
+      "currency": "USD",
+      "paymentTerms": "Net 30",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0452"
+      ]
+    },
+    {
+      "vendorId": "V-1004",
+      "vendorName": "Meridian Cloud Services Corp.",
+      "taxId": "91-3320764",
+      "address": "200 Bayfront Ave, Suite 1900, Seattle, WA 98121",
+      "currency": "USD",
+      "paymentTerms": "Net 30",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0399"
+      ]
+    },
+    {
+      "vendorId": "V-1005",
+      "vendorName": "Blue Harbor Catering Co.",
+      "taxId": "33-7788214",
+      "address": "17 Wharf Lane, Portland, ME 04101",
+      "currency": "USD",
+      "paymentTerms": "Net 15",
+      "status": "INACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0461"
+      ]
+    },
+    {
+      "vendorId": "V-1006",
+      "vendorName": "Great Lakes Steel Supply Inc.",
+      "taxId": "38-4410927",
+      "address": "1400 Zug Island Rd, Detroit, MI 48209",
+      "currency": "USD",
+      "paymentTerms": "Net 30",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0470"
+      ]
+    },
+    {
+      "vendorId": "V-1007",
+      "vendorName": "Liberty Print & Signage LLC",
+      "taxId": "36-5127744",
+      "address": "4 Kingsway Trade Park, Elk Grove Village, IL 60007",
+      "currency": "USD",
+      "paymentTerms": "Net 30",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0476"
+      ]
+    },
+    {
+      "vendorId": "V-1008",
+      "vendorName": "Summit Facilities Group",
+      "taxId": "45-6612093",
+      "address": "9 Cornerstone Blvd, Aurora, CO 80011",
+      "currency": "USD",
+      "paymentTerms": "Net 30",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0468"
+      ]
+    },
+    {
+      "vendorId": "V-1009",
+      "vendorName": "Vertex Analytics Corp.",
+      "taxId": "88-2245107",
+      "address": "410 Innovation Dr, Suite 700, Austin, TX 78701",
+      "currency": "USD",
+      "paymentTerms": "Net 45",
+      "status": "ACTIVE",
+      "openPurchaseOrders": [
+        "PO-2026-0405"
+      ]
+    },
+    {
+      "vendorId": "V-1010",
+      "vendorName": "Pacific Timber Company",
+      "taxId": "93-1180446",
+      "address": "2600 Millport Rd, Tacoma, WA 98421",
+      "currency": "USD",
+      "paymentTerms": "Net 30",
+      "status": "ACTIVE",
+      "openPurchaseOrders": []
+    }
+  ]
+}

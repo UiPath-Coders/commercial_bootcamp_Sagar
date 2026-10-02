@@ -20,6 +20,8 @@ Work inside commercial_bootcamp_<user_name>/lab1-ixp for the rest of this sessio
 | `fields-to-extract.md` | The eight fields with the instruction text for each one. Claude Code reads this to create the field group. | You and Claude Code. |
 | `reference/` | **The answer key.** `expected-extractions.json` / `.csv` hold the correct value of every field on every invoice (all ten, including the Lab 2 five). `taxonomy.json` is the field definition Claude Code should end up with. `annotation-guide.md` says which label carries each field on each layout and how to score a model. | You, at the end of the lab, to check your model. Facilitators, to grade. |
 
+Invoice 011 (in `challenge-maestro-flow/`) is not part of Lab 1; it is reserved for the homework Challenge.
+
 ## How to know you are done
 
 1. The project `Vendor Invoice <user_name>` exists in the Training tenant with one field group and the eight fields.
@@ -35,5 +37,16 @@ Work inside commercial_bootcamp_<user_name>/lab1-ixp for the rest of this sessio
   `TOTAL (USD)` line, tax included.
 - Skipping the **live** publish. Lab 2's extraction agent calls the live version by project name.
 - Creating the project under a different name. Everything downstream expects `Vendor Invoice <user_name>`.
+
+## Runtime notes from the dry run
+
+- There is no retrain command. Confirming labels triggers a retrain within about 20-35 seconds; wait until the
+  model version goes up.
+- Predictions may appear for only some documents on the first read. Read again after a minute before reviewing.
+- Dates read back as `YYYY-MM-DDT00:00:00Z`. Compare them as dates.
+- `labellings get-predictions` returns the latest model, which is the live one right after publishing. No
+  command runs a specific version on local files.
+- Total Amount may already be correct on all five before you harden its instruction. Report that rather than
+  looking for a defect.
 
 All vendors, amounts and identifiers are synthetic.

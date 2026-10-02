@@ -1,0 +1,159 @@
+{
+    "$schema": "https://cloud.uipath.com/draft/2024-12/entry-point",
+    "$id": "entry-points.json",
+    "entryPoints": [
+        {
+            "filePath": "agent",
+            "uniqueId": "40184cc5-3ade-4b3a-8fe7-09f45c346cb3",
+            "type": "agent",
+            "input": {
+                "type": "object",
+                "properties": {
+                    "recordId": {
+                        "description": "Data Fabric Id of the AP_Invoice record to evaluate",
+                        "title": "Recordid",
+                        "type": "string"
+                    },
+                    "entityName": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "recordId"
+                ]
+            },
+            "output": {
+                "type": "object",
+                "properties": {
+                    "record_id": {
+                        "description": "The same record Id that was read and updated",
+                        "title": "Record Id",
+                        "type": "string"
+                    },
+                    "invoice_reference": {
+                        "type": "string"
+                    },
+                    "approval_evidence_state": {
+                        "description": "NOT_EVALUATED | NOT_REQUIRED | INCOMPLETE | COMPLETE",
+                        "title": "Approval Evidence State",
+                        "type": "string"
+                    },
+                    "missing_approval_fields": {
+                        "description": "Empty required approval inputs",
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Missing Approval Fields",
+                        "type": "array"
+                    },
+                    "recommendation": {
+                        "description": "HOLD_PO_MISMATCH | AUTO_APPROVED | NEEDS_AP_REVIEW | READY_FOR_APPROVAL",
+                        "title": "Recommendation",
+                        "type": "string"
+                    },
+                    "invoice_lifecycle_state": {
+                        "description": "Lifecycle state written to InvoiceLifecycleState",
+                        "title": "Invoice Lifecycle State",
+                        "type": "string"
+                    },
+                    "agent_processed_at": {
+                        "description": "UTC ISO-8601 timestamp written to AgentProcessedAt",
+                        "title": "Agent Processed At",
+                        "type": "string"
+                    },
+                    "narrative_generated": {
+                        "description": "True only when gate 4 fired and a narrative was produced",
+                        "title": "Narrative Generated",
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "record_id",
+                    "approval_evidence_state",
+                    "recommendation",
+                    "invoice_lifecycle_state",
+                    "agent_processed_at",
+                    "narrative_generated"
+                ]
+            },
+            "graph": {
+                "nodes": [
+                    {
+                        "id": "__start__",
+                        "name": "__start__",
+                        "type": "__start__",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "load_record",
+                        "name": "load_record",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "evaluate_gates",
+                        "name": "evaluate_gates",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "write_narrative",
+                        "name": "write_narrative",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "write_back",
+                        "name": "write_back",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "__end__",
+                        "name": "__end__",
+                        "type": "__end__",
+                        "subgraph": null,
+                        "metadata": {}
+                    }
+                ],
+                "edges": [
+                    {
+                        "source": "__start__",
+                        "target": "load_record",
+                        "label": null
+                    },
+                    {
+                        "source": "evaluate_gates",
+                        "target": "write_back",
+                        "label": null
+                    },
+                    {
+                        "source": "evaluate_gates",
+                        "target": "write_narrative",
+                        "label": null
+                    },
+                    {
+                        "source": "load_record",
+                        "target": "evaluate_gates",
+                        "label": null
+                    },
+                    {
+                        "source": "write_narrative",
+                        "target": "write_back",
+                        "label": null
+                    },
+                    {
+                        "source": "write_back",
+                        "target": "__end__",
+                        "label": null
+                    }
+                ]
+            }
+        }
+    ]
+}

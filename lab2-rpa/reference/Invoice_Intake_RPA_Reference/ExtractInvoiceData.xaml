@@ -21,6 +21,7 @@
     <x:Property Name="in_LocalFile" Type="InArgument(upr:ILocalResource)" />
     <x:Property Name="in_SourceFileName" Type="InArgument(x:String)" />
     <x:Property Name="in_AgentProcessName" Type="InArgument(x:String)" />
+    <x:Property Name="in_AgentFolderPath" Type="InArgument(x:String)" />
     <x:Property Name="out_VendorName" Type="OutArgument(x:String)" />
     <x:Property Name="out_VendorTaxId" Type="OutArgument(x:String)" />
     <x:Property Name="out_InvoiceNumber" Type="OutArgument(x:String)" />
@@ -92,11 +93,13 @@
         </InArgument>
       </ui:LogMessage.Message>
     </ui:LogMessage>
-    <!-- Run Job in Busy mode = start the agent job in the current Orchestrator folder and block until it completes.
+    <!-- Run Job in Busy mode = start the agent job and block until it completes. FolderPath is the agent's own
+         solution folder (Agentic Bootcamp/APAutomation_<user_name>/Invoice_Extraction_Agent_<user_name>): the agent
+         solution deploys into a child folder, so the RPA's own folder does not hold it.
          Dictionary mode: SourceFile is the agent's File (job-attachment) input, the eight OutArguments map 1:1 to the
          agent's output schema (all strings). FailWhenFaulted=True -> a faulted agent job throws here and is handled per
          file by the caller (Main.xaml Try/Catch). -->
-    <uasj:RunJob DisplayName="Run Job - Invoice_Extraction_Agent (wait for completion)" ExecutionMode="Busy" FailWhenFaulted="True" TimeoutMS="[600000]" Job="[agentJob]">
+    <uasj:RunJob DisplayName="Run Job - Invoice_Extraction_Agent (wait for completion)" ExecutionMode="Busy" FailWhenFaulted="True" TimeoutMS="[600000]" FolderPath="[in_AgentFolderPath]" Job="[agentJob]">
       <uasj:RunJob.ProcessName>
         <InArgument x:TypeArguments="x:String">[in_AgentProcessName]</InArgument>
       </uasj:RunJob.ProcessName>

@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+__uipath/
+fixture-output/
+.env
+eval-results.json
+run-output*.json
+*.pyc
+.pytest_cache/

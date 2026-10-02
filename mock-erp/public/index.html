@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Globex AP Portal · Mock ERP</title>
+  <link rel="stylesheet" href="portal.css" />
+</head>
+<body>
+  <main id="auth-shell" class="auth-page" hidden>
+    <section class="auth-card" aria-labelledby="auth-title">
+      <span class="brand-mark auth-mark" aria-hidden="true">G</span>
+      <p class="eyebrow">Globex Manufacturing · Finance Operations</p>
+      <h1 id="auth-title">Sign in to Accounts Payable</h1>
+      <p class="muted">Use the shared training account below. This environment contains synthetic workshop data only.</p>
+      <div class="training-credentials"><span>Training credentials</span><code>ap_user</code><i>/</i><code>passwod</code></div>
+      <form id="auth-form">
+        <label for="input-portal-username">Username</label>
+        <input id="input-portal-username" name="username" type="text" value="ap_user" autocomplete="username" spellcheck="false" required />
+        <label for="input-portal-password">Password</label>
+        <input id="input-portal-password" name="password" type="password" placeholder="Enter training password" autocomplete="current-password" required />
+        <p id="auth-message" class="error" role="alert"></p>
+        <button id="btn-sign-in" class="btn primary wide" type="submit">Sign in to AP workspace</button>
+      </form>
+      <p class="auth-note"><strong>Using the PO-lookup service?</strong> Generate your personal, expiring API URL from the bootcamp site. Portal credentials do not grant direct API access.</p>
+    </section>
+  </main>
+
+  <div id="portal-shell" hidden>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">G</span>
+      <span>
+        <strong>GLOBEX</strong>
+        <small>MANUFACTURING</small>
+      </span>
+    </div>
+    <div class="product-name">Finance Operations</div>
+    <div class="topbar-context">
+      <span class="environment-dot" aria-hidden="true"></span>
+      <span>US Production</span>
+      <span class="topbar-divider" aria-hidden="true"></span>
+      <span>Period 09 · FY2026</span>
+    </div>
+    <div class="session" id="session" hidden>
+      <span class="avatar" aria-hidden="true">AR</span>
+      <span id="session-participant"></span>
+      <button id="btn-sign-out" class="session-button" type="button">Sign out</button>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Finance modules">
+      <div class="entity-switcher">
+        <span class="entity-icon" aria-hidden="true">US</span>
+        <span><small>Legal entity</small><strong>Globex US01</strong></span>
+        <span class="chevron" aria-hidden="true">⌄</span>
+      </div>
+      <nav class="side-nav">
+        <p class="nav-label">Work center</p>
+        <button class="nav-item active" type="button" data-nav="home"><span aria-hidden="true">OV</span>AP overview</button>
+        <button class="nav-item" type="button" data-nav="invoices"><span aria-hidden="true">IN</span>Invoice workbench <b>42</b></button>
+        <button class="nav-item" type="button" data-nav="approvals"><span aria-hidden="true">AP</span>Approval queue <b>6</b></button>
+        <button class="nav-item" type="button" data-nav="payments"><span aria-hidden="true">PY</span>Payment runs</button>
+        <p class="nav-label">Payables</p>
+        <button class="nav-item" type="button" data-nav="vendors"><span aria-hidden="true">VE</span>Vendors</button>
+        <button class="nav-item" type="button" data-nav="purchase-orders"><span aria-hidden="true">PO</span>Purchase orders</button>
+        <button class="nav-item" type="button" data-nav="receipts"><span aria-hidden="true">GR</span>Goods receipts</button>
+        <button class="nav-item" type="button" data-nav="compliance"><span aria-hidden="true">TX</span>Tax &amp; compliance</button>
+        <p class="nav-label">Accounting</p>
+        <button class="nav-item" type="button" data-nav="journals"><span aria-hidden="true">JE</span>Journal entries</button>
+        <button class="nav-item" type="button" data-nav="close"><span aria-hidden="true">CL</span>Period close</button>
+        <button class="nav-item" type="button" data-nav="reports"><span aria-hidden="true">RP</span>Financial reports</button>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="system-status"><i></i> All systems operational</span>
+        <small>Globex ERP · Training tenant</small>
+      </div>
+    </aside>
+
+    <div class="workspace">
+      <div class="workspace-bar">
+        <nav class="breadcrumbs" aria-label="Breadcrumb"><span>Finance</span><b>/</b><span>Accounts payable</span><b>/</b><strong id="page-context">Overview</strong></nav>
+        <div class="workspace-actions"><button type="button" aria-label="Search">⌕</button><button type="button" aria-label="Notifications">◉<i>3</i></button><button type="button" aria-label="Help">?</button></div>
+      </div>
+
+      <main class="page">
+    <nav class="crumbs" id="crumbs" aria-label="Invoice entry progress" hidden>
+      <span data-step="vendor" data-index="1">Vendor &amp; entity</span>
+      <span data-step="invoice" data-index="2">Invoice &amp; PO</span>
+      <span data-step="review" data-index="3">Match &amp; review</span>
+      <span data-step="confirmation" data-index="4">Posted</span>
+    </nav>
+    <!-- HOME -->
+    <section id="step-home" class="panel dashboard-panel" data-step="home">
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">Accounts payable · Invoice-to-pay</p>
+          <h1>AP operations overview</h1>
+          <p class="muted">Monitor invoice intake, matching exceptions, approvals, and payment readiness.</p>
+        </div>
+        <div class="heading-actions">
+          <button class="btn" type="button" id="btn-export">Export register</button>
+          <button id="btn-post-invoice" class="btn primary" type="button"><span aria-hidden="true">＋</span> Enter vendor invoice</button>
+        </div>
+      </div>
+
+      <div class="close-banner">
+        <span class="close-date">SEP <strong>30</strong></span>
+        <div><strong>Month-end close in 5 business days</strong><small>7 invoice exceptions totaling $31,382 require resolution before AP subledger close.</small></div>
+        <button type="button" data-nav="close">View close checklist <span>→</span></button>
+      </div>
+
+      <div class="kpi-grid" aria-label="Accounts payable key performance indicators">
+        <article class="kpi-card"><div class="kpi-title"><span>Open AP balance</span><i class="kpi-icon navy">$</i></div><strong>$184,620</strong><p><b class="trend down">↓ 8.4%</b> vs prior period</p><div class="sparkline navy-line" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article>
+        <article class="kpi-card"><div class="kpi-title"><span>Invoices in process</span><i class="kpi-icon blue">#</i></div><strong>42</strong><p><b>18</b> ready to post</p><div class="kpi-progress"><i style="width:68%"></i></div></article>
+        <article class="kpi-card"><div class="kpi-title"><span>Exception value</span><i class="kpi-icon amber">!</i></div><strong>$31,382</strong><p><b class="trend warning">7 invoices</b> need attention</p><div class="kpi-progress amber-bar"><i style="width:34%"></i></div></article>
+        <article class="kpi-card"><div class="kpi-title"><span>Due within 7 days</span><i class="kpi-icon red">⌁</i></div><strong>$68,944</strong><p><b class="trend danger">$12,740</b> due today</p><div class="kpi-progress red-bar"><i style="width:52%"></i></div></article>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="workbench-card">
+          <div class="card-header">
+            <div><h2>Invoice workbench</h2><p>September 2026 · All operating units</p></div>
+            <span class="record-count" id="record-count">10 records</span>
+          </div>
+          <div class="table-tabs" role="tablist" aria-label="Invoice views">
+            <button class="active" type="button" data-filter="all">All invoices <span>42</span></button>
+            <button type="button" data-filter="ready">Ready to post <span>18</span></button>
+            <button type="button" data-filter="exception">Exceptions <span>7</span></button>
+            <button type="button" data-filter="approval">Awaiting approval <span>6</span></button>
+          </div>
+          <div class="table-tools">
+            <label class="table-search"><span aria-hidden="true">⌕</span><input id="invoice-search" type="search" placeholder="Search invoice, vendor, or PO" /></label>
+            <button class="filter-button" type="button">Status: All <span>⌄</span></button>
+            <button class="filter-button" type="button">Due date <span>⌄</span></button>
+            <button class="icon-button" type="button" aria-label="More filters">≡</button>
+          </div>
+          <div class="table-scroll">
+            <table class="grid invoice-grid" id="postings-table">
+              <thead>
+                <tr><th><input type="checkbox" aria-label="Select all invoices" /></th><th>Invoice / Supplier</th><th>Purchase order</th><th>Invoice date</th><th>Due date</th><th class="num">Gross amount</th><th>Match status</th><th>Workflow status</th><th></th></tr>
+              </thead>
+              <tbody id="postings-body"></tbody>
+            </table>
+          </div>
+          <div class="table-footer"><span>Showing 1–10 of 42 invoices</span><div><button type="button" disabled>‹</button><button type="button" class="current">1</button><button type="button">2</button><button type="button">3</button><button type="button">›</button></div></div>
+        </section>
+
+        <aside class="insights-column">
+          <section class="insight-card">
+            <div class="card-header compact"><div><h2>AP aging</h2><p>Open balance by due date</p></div><button type="button" aria-label="More options">•••</button></div>
+            <div class="aging-total"><span>Total outstanding</span><strong>$184,620</strong></div>
+            <div class="aging-bars">
+              <div><span><b>Current</b><em>$112.4k · 61%</em></span><i><b style="width:61%"></b></i></div>
+              <div><span><b>1–30 days</b><em>$48.7k · 26%</em></span><i><b style="width:26%"></b></i></div>
+              <div><span><b>31–60 days</b><em>$17.3k · 9%</em></span><i><b style="width:9%"></b></i></div>
+              <div><span><b>61+ days</b><em>$6.2k · 4%</em></span><i><b class="risk" style="width:4%"></b></i></div>
+            </div>
+            <button class="text-link" type="button">Open aging report <span>→</span></button>
+          </section>
+          <section class="insight-card">
+            <div class="card-header compact"><div><h2>Exceptions requiring action</h2><p>Prioritized by payment impact</p></div><span class="alert-count">7</span></div>
+            <div class="exception-list">
+              <button type="button" data-filter-jump="exception"><span class="exception-icon red">!</span><span><strong>PO price variance</strong><small>3 invoices · $21,687</small></span><b>3</b></button>
+              <button type="button" data-filter-jump="exception"><span class="exception-icon amber">GR</span><span><strong>Missing goods receipt</strong><small>2 invoices · $5,749</small></span><b>2</b></button>
+              <button type="button" data-filter-jump="approval"><span class="exception-icon blue">AP</span><span><strong>Approval overdue</strong><small>2 invoices · $3,946</small></span><b>2</b></button>
+            </div>
+            <button class="text-link" type="button" data-filter-jump="exception">Review all exceptions <span>→</span></button>
+          </section>
+          <section class="insight-card payment-card">
+            <div class="card-header compact"><div><h2>Next payment run</h2><p>ACH Domestic · PAY-US-0924</p></div><span class="status-badge scheduled">Scheduled</span></div>
+            <div class="payment-summary"><div><span>Execution</span><strong>Sep 24 · 3:00 PM</strong></div><div><span>Invoices</span><strong>14</strong></div><div><span>Net payment</span><strong>$58,204</strong></div></div>
+            <button class="btn secondary wide" type="button" data-nav="payments">Review payment proposal</button>
+          </section>
+        </aside>
+      </div>
+    </section>
+
+    <!-- STEP 1 · VENDOR -->
+    <section id="step-vendor" class="panel" data-step="vendor" hidden>
+      <header class="workflow-header">
+        <div><p class="eyebrow">AP invoice journal · Draft</p><h1>Create vendor invoice</h1><p class="muted">Establish the supplier and posting entity before entering invoice details.</p></div>
+        <div class="document-meta"><span>Journal batch</span><strong>AP-US01-0926</strong></div>
+      </header>
+      <div class="workflow-body">
+        <div class="context-grid">
+          <div><span>Legal entity</span><strong>US01 · Globex Manufacturing USA</strong></div>
+          <div><span>Business unit</span><strong>MFG-CORP · Corporate Operations</strong></div>
+          <div><span>Document type</span><strong>KR · Vendor invoice</strong></div>
+        </div>
+        <div class="section-heading"><div><h2>Supplier account</h2><p>Search the vendor master by legal name or tax ID.</p></div><span class="required-note">* Required fields</span></div>
+        <div class="row vendor-search-row">
+          <label for="input-vendor-name">Vendor name *</label>
+          <input id="input-vendor-name" name="vendorName" type="text" autocomplete="off" placeholder="Search vendor master…" />
+          <button id="btn-search" class="btn secondary" type="button">Search vendor</button>
+        </div>
+        <p id="vendor-search-message" class="muted search-message" role="status">Active and blocked supplier records are included in the master-data search.</p>
+        <div class="table-scroll">
+          <table class="grid vendor-grid" id="vendor-results" hidden>
+            <thead><tr><th></th><th>Vendor account</th><th>Legal name</th><th>Tax ID</th><th>Terms</th><th>Status</th><th>Open POs</th></tr></thead>
+            <tbody id="vendor-results-body"></tbody>
+          </table>
+        </div>
+        <div class="actions">
+          <button id="btn-cancel-1" class="btn ghost" type="button">Cancel draft</button>
+          <button id="btn-next-1" class="btn primary" type="button" disabled>Continue to invoice details <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2 · INVOICE -->
+    <section id="step-invoice" class="panel" data-step="invoice" hidden>
+      <header class="workflow-header">
+        <div><p class="eyebrow">AP invoice journal · Draft</p><h1>Invoice header and purchase order</h1><p class="muted">Enter the supplier document references and amount to run the three-way match.</p></div>
+        <div class="document-meta"><span>Journal batch</span><strong>AP-US01-0926</strong></div>
+      </header>
+      <div class="workflow-body">
+        <div class="vendor-summary">
+          <span class="vendor-monogram" aria-hidden="true">V</span>
+          <div><span>Selected supplier</span><strong id="invoice-vendor-name"></strong><small><span id="invoice-vendor-id"></span> · USD · Payment terms from vendor master</small></div>
+          <button id="btn-back-1" class="text-button" type="button">Change supplier</button>
+        </div>
+        <div class="section-heading"><div><h2>Invoice header</h2><p>Fields marked with an asterisk are required for posting.</p></div></div>
+        <div class="form invoice-form">
+          <div class="field"><label for="input-invoice-number">Supplier invoice number *</label><input id="input-invoice-number" name="invoiceNumber" type="text" autocomplete="off" placeholder="As printed on invoice" /></div>
+          <div class="field"><label for="input-invoice-date">Invoice date *</label><input id="input-invoice-date" type="text" value="09/22/2026" /></div>
+          <div class="field"><label for="input-accounting-date">Accounting date *</label><input id="input-accounting-date" type="text" value="09/22/2026" /></div>
+          <div class="field"><label for="input-po-number">Purchase order *</label><input id="input-po-number" name="poNumber" type="text" autocomplete="off" placeholder="PO-2026-0000" /></div>
+          <div class="field"><label for="input-total-amount">Gross invoice amount *</label><div class="currency-input"><span>USD</span><input id="input-total-amount" name="totalAmount" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" /></div></div>
+          <div class="field"><label for="input-reference">Reference / assignment</label><input id="input-reference" type="text" placeholder="Optional internal reference" /></div>
+          <div class="field span-two"><label for="input-description">Header text</label><input id="input-description" type="text" value="Vendor invoice — operating expense" /></div>
+          <div class="field"><label for="input-payment-method">Payment method</label><input id="input-payment-method" type="text" value="ACH — Domestic" readonly /></div>
+        </div>
+        <div class="coding-preview">
+          <div><span>Proposed GL account</span><strong>210100 · Trade accounts payable</strong></div>
+          <div><span>Tax treatment</span><strong>US0 · Non-taxable</strong></div>
+          <div><span>Payment block</span><strong>None</strong></div>
+        </div>
+        <p id="invoice-message" class="error" role="alert"></p>
+        <div class="actions"><button class="btn ghost" type="button" data-cancel-flow>Cancel draft</button><button id="btn-next-2" class="btn primary" type="button">Run match &amp; review <span aria-hidden="true">→</span></button></div>
+      </div>
+    </section>
+
+    <!-- STEP 3 · REVIEW -->
+    <section id="step-review" class="panel" data-step="review" hidden>
+      <header class="workflow-header">
+        <div><p class="eyebrow">AP invoice journal · Validation</p><h1>Match, coding, and posting review</h1><p class="muted">Confirm control checks and accounting impact before releasing the voucher.</p></div>
+        <div class="document-meta"><span>Journal batch</span><strong>AP-US01-0926</strong></div>
+      </header>
+      <div class="workflow-body review-layout">
+        <div>
+          <div class="section-heading"><div><h2>Document summary</h2><p>Supplier invoice mapped to one purchase order.</p></div><span class="status-badge processing">Validation running</span></div>
+          <dl class="review">
+            <dt>Supplier account</dt><dd id="review-vendor"></dd>
+            <dt>Supplier invoice</dt><dd id="review-invoice-number"></dd>
+            <dt>Purchase order</dt><dd id="review-po-number"></dd>
+            <dt>Gross amount</dt><dd id="review-total-amount"></dd>
+            <dt>Accounting date</dt><dd>Sep 22, 2026 · Period 09 open</dd>
+          </dl>
+          <div class="section-heading spaced"><div><h2>Accounting distribution</h2><p>System-proposed journal entry on posting.</p></div><span class="balance-indicator">Debit = Credit</span></div>
+          <table class="grid journal-grid"><thead><tr><th>Line</th><th>GL account</th><th>Cost center</th><th>Debit</th><th>Credit</th></tr></thead><tbody><tr><td>1</td><td>610420 · Purchased services</td><td>CC-110 · Operations</td><td id="journal-debit">—</td><td>—</td></tr><tr><td>2</td><td>210100 · Trade accounts payable</td><td>—</td><td>—</td><td id="journal-credit">—</td></tr></tbody></table>
+        </div>
+        <aside class="control-panel">
+          <h2>Control checks</h2>
+          <p id="review-po-status" class="control-status pending">Checking purchase order…</p>
+          <ul class="control-list"><li class="pass"><span>✓</span><div><strong>Duplicate invoice check</strong><small>No duplicate found in US01</small></div></li><li class="pass"><span>✓</span><div><strong>Accounting period</strong><small>Period 09 / FY2026 is open</small></div></li><li class="pass"><span>✓</span><div><strong>Vendor payment block</strong><small>No active payment block</small></div></li></ul>
+          <div class="posting-summary"><span>Posting action</span><strong>Create AP voucher</strong><small>Release to next eligible payment run</small></div>
+        </aside>
+        <div class="actions full-width"><button id="btn-back-2" class="btn ghost" type="button">Back to invoice details</button><button id="btn-submit-payment" class="btn primary" type="button">Post voucher &amp; release for payment</button></div>
+      </div>
+    </section>
+
+    <!-- STEP 4 · CONFIRMATION -->
+    <section id="step-confirmation" class="panel" data-step="confirmation" hidden>
+      <header class="workflow-header"><div><p class="eyebrow">AP invoice journal · Posted</p><h1>Voucher posted successfully</h1><p class="muted">The subledger entry is complete and eligible for payment selection.</p></div></header>
+      <div class="workflow-body confirmation-body">
+        <div class="confirm" id="confirmation">
+          <span class="success-mark" aria-hidden="true">✓</span>
+          <div><p class="big"><span id="confirmation-status">Submitted for payment</span></p><p>Accounting document <strong id="confirmation-id"></strong> was posted to company code US01.</p><p class="muted" id="confirmation-detail"></p></div>
+        </div>
+        <div class="confirmation-grid"><div><span>Document status</span><strong>Posted</strong></div><div><span>Payment status</span><strong>Open · Eligible</strong></div><div><span>Payment method</span><strong>ACH Domestic</strong></div><div><span>Next payment run</span><strong>PAY-US-0924</strong></div></div>
+        <div class="audit-note"><span aria-hidden="true">i</span><div><strong>Audit trail created</strong><p>Vendor invoice, validation results, and posting event are retained in the AP subledger.</p></div></div>
+        <div class="actions"><button id="btn-home" class="btn ghost" type="button">Return to AP overview</button><button id="btn-post-another" class="btn primary" type="button">Enter another invoice</button></div>
+      </div>
+    </section>
+      </main>
+      <footer class="foot"><span><i></i> Training environment · Synthetic financial data</span><span>Globex ERP 2026.09 · Element IDs stable for UI Automation</span></footer>
+    </div>
+  </div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="portal.js"></script>
+</body>
+</html>

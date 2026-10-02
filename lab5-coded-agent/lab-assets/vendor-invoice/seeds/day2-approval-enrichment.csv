@@ -1,0 +1,7 @@
+InvoiceReference,GLAccount,CostCenter,Approver,PaymentTerms,VendorRiskScore,ReceiptReference,InvoiceLineSummary
+AP-TRAIN-1001,6120-Office Supplies,CC-410 Facilities,Jordan Example,Net 30,Low,GR-2026-0501-01,Ergonomic chairs x25; standing desks x10
+AP-TRAIN-1002,5210-Freight,CC-220 Supply Chain,Casey Fixture,Net 45,Medium,,Inbound freight March; fuel surcharge
+AP-TRAIN-1003,6410-Cloud Hosting,CC-310 IT,Riley Sample,Net 30,Low,GR-2026-0503-03,Compute reservation Q1; object storage
+AP-TRAIN-1004,5110-Raw Materials,CC-110 Production,Morgan Demo,Net 30,Medium,GR-2026-0504-02,Steel coil 12t; cutting service
+AP-TRAIN-1005,,CC-410 Facilities,,Net 30,Low,GR-2026-0505-01,HVAC quarterly maintenance; filter replacement
+AP-TRAIN-1006,6520-Software Subscriptions,CC-330 Finance Systems,Taylor Training,Net 45,Low,GR-2026-0506-01,Analytics platform annual license; onboarding

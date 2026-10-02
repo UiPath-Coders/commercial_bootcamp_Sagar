@@ -1,0 +1,14 @@
+{
+  "name": "commercial-bootcamp-mock-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mock ERP for the UiPath Commercial Bootcamp (Office of the CFO · Invoice-to-Pay): PO-lookup API for Lab 3 and the AP portal Lab 4 automates. Zero dependencies.",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.mjs",
+    "smoke": "node smoke.mjs",
+    "token": "node create-access-token.mjs"
+  },
+  "license": "UNLICENSED"
+}

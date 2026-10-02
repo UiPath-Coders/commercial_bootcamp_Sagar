@@ -1,0 +1,660 @@
+{
+  "version": "1.0",
+  "id": "vendor-invoice-approval-smoke",
+  "name": "Vendor Invoice Approval Smoke Tests",
+  "description": "Deterministic gate paths for the six synthetic AP-TRAIN invoices. Data Fabric and the LLM are mocked (mockito) so the set runs offline; expected outputs come from decision-cases.json.",
+  "evaluatorRefs": [
+    "JsonSimilarityEvaluator"
+  ],
+  "evaluations": [
+    {
+      "id": "test-1-ap-train-1001",
+      "name": "Complete evidence - ready for approval",
+      "inputs": {
+        "recordId": "AP-TRAIN-1001"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "invoice_reference": "AP-TRAIN-1001",
+            "approval_evidence_state": "COMPLETE",
+            "missing_approval_fields": [],
+            "recommendation": "READY_FOR_APPROVAL",
+            "invoice_lifecycle_state": "READY_FOR_APPROVAL"
+          }
+        }
+      },
+      "mockingStrategy": {
+        "type": "mockito",
+        "config": [
+          {
+            "function": "read_invoice_record",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1001",
+                  "ProcessedTimestamp": "2026-03-02T09:15:00Z",
+                  "VendorName": "Northwind Office Supplies Inc.",
+                  "VendorTaxId": "47-2013865",
+                  "InvoiceNumber": "TRAIN-NW-1001",
+                  "InvoiceDate": "2026-03-01",
+                  "PONumber": "PO-2026-0501",
+                  "TotalAmount": "14850.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-03-31",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "6120-Office Supplies",
+                  "CostCenter": "CC-410 Facilities",
+                  "Approver": "Jordan Example",
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0501-01",
+                  "InvoiceLineSummary": "Ergonomic chairs x25; standing desks x10",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1001"
+                }
+              }
+            ]
+          },
+          {
+            "function": "write_agent_outputs",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1001",
+                  "ProcessedTimestamp": "2026-03-02T09:15:00Z",
+                  "VendorName": "Northwind Office Supplies Inc.",
+                  "VendorTaxId": "47-2013865",
+                  "InvoiceNumber": "TRAIN-NW-1001",
+                  "InvoiceDate": "2026-03-01",
+                  "PONumber": "PO-2026-0501",
+                  "TotalAmount": "14850.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-03-31",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "6120-Office Supplies",
+                  "CostCenter": "CC-410 Facilities",
+                  "Approver": "Jordan Example",
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0501-01",
+                  "InvoiceLineSummary": "Ergonomic chairs x25; standing desks x10",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1001",
+                  "Mocked": true
+                }
+              }
+            ]
+          },
+          {
+            "function": "generate_narrative",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "summary": "Invoice TRAIN-NW-1001 from Northwind Office Supplies Inc. for 14850.00 USD is matched to PO-2026-0501; evidence complete (mocked narrative).",
+                  "risk_flags": [],
+                  "confidence": "high",
+                  "source": "mock",
+                  "model": "mock",
+                  "reason": null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-2-ap-train-1002",
+      "name": "Missing receipt reference - AP review required",
+      "inputs": {
+        "recordId": "AP-TRAIN-1002"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "invoice_reference": "AP-TRAIN-1002",
+            "approval_evidence_state": "INCOMPLETE",
+            "missing_approval_fields": [
+              "ReceiptReference"
+            ],
+            "recommendation": "NEEDS_AP_REVIEW",
+            "invoice_lifecycle_state": "NEEDS_AP_REVIEW"
+          }
+        }
+      },
+      "mockingStrategy": {
+        "type": "mockito",
+        "config": [
+          {
+            "function": "read_invoice_record",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1002",
+                  "ProcessedTimestamp": "2026-03-02T09:20:00Z",
+                  "VendorName": "Contoso Logistics LLC",
+                  "VendorTaxId": "82-4471900",
+                  "InvoiceNumber": "TRAIN-CL-1002",
+                  "InvoiceDate": "2026-03-03",
+                  "PONumber": "PO-2026-0502",
+                  "TotalAmount": "23400.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-17",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "5210-Freight",
+                  "CostCenter": "CC-220 Supply Chain",
+                  "Approver": "Casey Fixture",
+                  "PaymentTerms": "Net 45",
+                  "VendorRiskScore": "Medium",
+                  "ReceiptReference": null,
+                  "InvoiceLineSummary": "Inbound freight March; fuel surcharge",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1002"
+                }
+              }
+            ]
+          },
+          {
+            "function": "write_agent_outputs",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1002",
+                  "ProcessedTimestamp": "2026-03-02T09:20:00Z",
+                  "VendorName": "Contoso Logistics LLC",
+                  "VendorTaxId": "82-4471900",
+                  "InvoiceNumber": "TRAIN-CL-1002",
+                  "InvoiceDate": "2026-03-03",
+                  "PONumber": "PO-2026-0502",
+                  "TotalAmount": "23400.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-17",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "5210-Freight",
+                  "CostCenter": "CC-220 Supply Chain",
+                  "Approver": "Casey Fixture",
+                  "PaymentTerms": "Net 45",
+                  "VendorRiskScore": "Medium",
+                  "ReceiptReference": null,
+                  "InvoiceLineSummary": "Inbound freight March; fuel surcharge",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1002",
+                  "Mocked": true
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-3-ap-train-1003",
+      "name": "Under threshold and matched - auto-approved",
+      "inputs": {
+        "recordId": "AP-TRAIN-1003"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "invoice_reference": "AP-TRAIN-1003",
+            "approval_evidence_state": "NOT_REQUIRED",
+            "missing_approval_fields": [],
+            "recommendation": "AUTO_APPROVED",
+            "invoice_lifecycle_state": "AUTO_APPROVED"
+          }
+        }
+      },
+      "mockingStrategy": {
+        "type": "mockito",
+        "config": [
+          {
+            "function": "read_invoice_record",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1003",
+                  "ProcessedTimestamp": "2026-03-02T09:25:00Z",
+                  "VendorName": "Meridian Cloud Services Corp.",
+                  "VendorTaxId": "91-3320764",
+                  "InvoiceNumber": "TRAIN-MC-1003",
+                  "InvoiceDate": "2026-03-01",
+                  "PONumber": "PO-2026-0503",
+                  "TotalAmount": "7980.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-03-31",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "False",
+                  "PostedToERP": "False",
+                  "GLAccount": "6410-Cloud Hosting",
+                  "CostCenter": "CC-310 IT",
+                  "Approver": "Riley Sample",
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0503-03",
+                  "InvoiceLineSummary": "Compute reservation Q1; object storage",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1003"
+                }
+              }
+            ]
+          },
+          {
+            "function": "write_agent_outputs",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1003",
+                  "ProcessedTimestamp": "2026-03-02T09:25:00Z",
+                  "VendorName": "Meridian Cloud Services Corp.",
+                  "VendorTaxId": "91-3320764",
+                  "InvoiceNumber": "TRAIN-MC-1003",
+                  "InvoiceDate": "2026-03-01",
+                  "PONumber": "PO-2026-0503",
+                  "TotalAmount": "7980.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-03-31",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "False",
+                  "PostedToERP": "False",
+                  "GLAccount": "6410-Cloud Hosting",
+                  "CostCenter": "CC-310 IT",
+                  "Approver": "Riley Sample",
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0503-03",
+                  "InvoiceLineSummary": "Compute reservation Q1; object storage",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1003",
+                  "Mocked": true
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-4-ap-train-1004",
+      "name": "PO mismatch - hold",
+      "inputs": {
+        "recordId": "AP-TRAIN-1004"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "invoice_reference": "AP-TRAIN-1004",
+            "approval_evidence_state": "NOT_EVALUATED",
+            "missing_approval_fields": [],
+            "recommendation": "HOLD_PO_MISMATCH",
+            "invoice_lifecycle_state": "HOLD_PO_MISMATCH"
+          }
+        }
+      },
+      "mockingStrategy": {
+        "type": "mockito",
+        "config": [
+          {
+            "function": "read_invoice_record",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1004",
+                  "ProcessedTimestamp": "2026-03-02T09:30:00Z",
+                  "VendorName": "Great Lakes Steel Supply Inc.",
+                  "VendorTaxId": "38-4410927",
+                  "InvoiceNumber": "TRAIN-RS-1004",
+                  "InvoiceDate": "2026-03-04",
+                  "PONumber": "PO-2026-0504",
+                  "TotalAmount": "31200.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-03",
+                  "POMatched": "False",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "5110-Raw Materials",
+                  "CostCenter": "CC-110 Production",
+                  "Approver": "Morgan Demo",
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Medium",
+                  "ReceiptReference": "GR-2026-0504-02",
+                  "InvoiceLineSummary": "Steel coil 12t; cutting service",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1004"
+                }
+              }
+            ]
+          },
+          {
+            "function": "write_agent_outputs",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1004",
+                  "ProcessedTimestamp": "2026-03-02T09:30:00Z",
+                  "VendorName": "Great Lakes Steel Supply Inc.",
+                  "VendorTaxId": "38-4410927",
+                  "InvoiceNumber": "TRAIN-RS-1004",
+                  "InvoiceDate": "2026-03-04",
+                  "PONumber": "PO-2026-0504",
+                  "TotalAmount": "31200.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-03",
+                  "POMatched": "False",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "5110-Raw Materials",
+                  "CostCenter": "CC-110 Production",
+                  "Approver": "Morgan Demo",
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Medium",
+                  "ReceiptReference": "GR-2026-0504-02",
+                  "InvoiceLineSummary": "Steel coil 12t; cutting service",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1004",
+                  "Mocked": true
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-5-ap-train-1005",
+      "name": "Missing GL account and approver - AP review required",
+      "inputs": {
+        "recordId": "AP-TRAIN-1005"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "invoice_reference": "AP-TRAIN-1005",
+            "approval_evidence_state": "INCOMPLETE",
+            "missing_approval_fields": [
+              "GLAccount",
+              "Approver"
+            ],
+            "recommendation": "NEEDS_AP_REVIEW",
+            "invoice_lifecycle_state": "NEEDS_AP_REVIEW"
+          }
+        }
+      },
+      "mockingStrategy": {
+        "type": "mockito",
+        "config": [
+          {
+            "function": "read_invoice_record",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1005",
+                  "ProcessedTimestamp": "2026-03-02T09:35:00Z",
+                  "VendorName": "Summit Facilities Group",
+                  "VendorTaxId": "45-6612093",
+                  "InvoiceNumber": "TRAIN-SF-1005",
+                  "InvoiceDate": "2026-03-05",
+                  "PONumber": "PO-2026-0505",
+                  "TotalAmount": "12600.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-04",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": null,
+                  "CostCenter": "CC-410 Facilities",
+                  "Approver": null,
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0505-01",
+                  "InvoiceLineSummary": "HVAC quarterly maintenance; filter replacement",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1005"
+                }
+              }
+            ]
+          },
+          {
+            "function": "write_agent_outputs",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1005",
+                  "ProcessedTimestamp": "2026-03-02T09:35:00Z",
+                  "VendorName": "Summit Facilities Group",
+                  "VendorTaxId": "45-6612093",
+                  "InvoiceNumber": "TRAIN-SF-1005",
+                  "InvoiceDate": "2026-03-05",
+                  "PONumber": "PO-2026-0505",
+                  "TotalAmount": "12600.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-04",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": null,
+                  "CostCenter": "CC-410 Facilities",
+                  "Approver": null,
+                  "PaymentTerms": "Net 30",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0505-01",
+                  "InvoiceLineSummary": "HVAC quarterly maintenance; filter replacement",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1005",
+                  "Mocked": true
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-6-ap-train-1006",
+      "name": "Complete evidence - second ready-for-approval case",
+      "inputs": {
+        "recordId": "AP-TRAIN-1006"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "invoice_reference": "AP-TRAIN-1006",
+            "approval_evidence_state": "COMPLETE",
+            "missing_approval_fields": [],
+            "recommendation": "READY_FOR_APPROVAL",
+            "invoice_lifecycle_state": "READY_FOR_APPROVAL"
+          }
+        }
+      },
+      "mockingStrategy": {
+        "type": "mockito",
+        "config": [
+          {
+            "function": "read_invoice_record",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1006",
+                  "ProcessedTimestamp": "2026-03-02T09:40:00Z",
+                  "VendorName": "Vertex Analytics Corp.",
+                  "VendorTaxId": "88-2245107",
+                  "InvoiceNumber": "TRAIN-VA-1006",
+                  "InvoiceDate": "2026-03-02",
+                  "PONumber": "PO-2026-0506",
+                  "TotalAmount": "22700.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-16",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "6520-Software Subscriptions",
+                  "CostCenter": "CC-330 Finance Systems",
+                  "Approver": "Taylor Training",
+                  "PaymentTerms": "Net 45",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0506-01",
+                  "InvoiceLineSummary": "Analytics platform annual license; onboarding",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1006"
+                }
+              }
+            ]
+          },
+          {
+            "function": "write_agent_outputs",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "InvoiceReference": "AP-TRAIN-1006",
+                  "ProcessedTimestamp": "2026-03-02T09:40:00Z",
+                  "VendorName": "Vertex Analytics Corp.",
+                  "VendorTaxId": "88-2245107",
+                  "InvoiceNumber": "TRAIN-VA-1006",
+                  "InvoiceDate": "2026-03-02",
+                  "PONumber": "PO-2026-0506",
+                  "TotalAmount": "22700.00",
+                  "Currency": "USD",
+                  "DueDate": "2026-04-16",
+                  "POMatched": "True",
+                  "ApprovalNeeded": "True",
+                  "PostedToERP": "False",
+                  "GLAccount": "6520-Software Subscriptions",
+                  "CostCenter": "CC-330 Finance Systems",
+                  "Approver": "Taylor Training",
+                  "PaymentTerms": "Net 45",
+                  "VendorRiskScore": "Low",
+                  "ReceiptReference": "GR-2026-0506-01",
+                  "InvoiceLineSummary": "Analytics platform annual license; onboarding",
+                  "ApprovalEvidenceState": null,
+                  "MissingApprovalFields": null,
+                  "AgentRecommendation": null,
+                  "ApprovalPackageJson": null,
+                  "AgentProcessedAt": null,
+                  "InvoiceLifecycleState": null,
+                  "ReviewedBy": null,
+                  "ReviewedAt": null,
+                  "Id": "AP-TRAIN-1006",
+                  "Mocked": true
+                }
+              }
+            ]
+          },
+          {
+            "function": "generate_narrative",
+            "then": [
+              {
+                "type": "return",
+                "value": {
+                  "summary": "Invoice TRAIN-VA-1006 from Vertex Analytics Corp. for 22700.00 USD is matched to PO-2026-0506; evidence complete (mocked narrative).",
+                  "risk_flags": [],
+                  "confidence": "high",
+                  "source": "mock",
+                  "model": "mock",
+                  "reason": null
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

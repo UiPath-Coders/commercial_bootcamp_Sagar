@@ -108,7 +108,7 @@
       </If.Then>
       <If.Else>
         <Sequence DisplayName="Create new AP invoice">
-          <uda:CreateEntityRecord x:TypeArguments="local:AP_Invoice_Reference" ContinueOnError="False" DisplayName="Create AP_Invoice_Reference record" EntityId="dadab581-76ef-5e29-8352-a8dffcd0b1b3" ExpansionDepth="2" InputEntityInFieldView="[New AP_Invoice_Reference() With {.ProcessedTimestamp = DateTimeOffset.UtcNow, .VendorName = in_VendorName, .VendorTaxId = in_VendorTaxId, .InvoiceNumber = in_InvoiceNumber, .InvoiceDate = invoiceDateValue, .PONumber = in_PONumber, .TotalAmount = in_TotalAmount, .Currency = in_Currency, .DueDate = dueDateValue}]" IsInRecordView="[False]" OutputEntity="[createdRecord]" TimeoutInMs="60000" VisibleDynamicPropertiesInfo="{x:Null}">
+          <uda:CreateEntityRecord x:TypeArguments="local:AP_Invoice_Reference" ContinueOnError="False" DisplayName="Create AP_Invoice_Reference record" EntityId="dadab581-76ef-5e29-8352-a8dffcd0b1b3" ExpansionDepth="2" InputEntityInFieldView="[New AP_Invoice_Reference() With {.ProcessedTimestamp = DateTimeOffset.UtcNow, .VendorName = in_VendorName, .VendorTaxId = in_VendorTaxId, .InvoiceNumber = in_InvoiceNumber, .InvoiceDate = invoiceDateValue, .PONumber = in_PONumber, .TotalAmount = in_TotalAmount, .Currency = in_Currency, .DueDate = dueDateValue, .InvoiceLifecycleState = &quot;EXTRACTED&quot;}]" IsInRecordView="[False]" OutputEntity="[createdRecord]" TimeoutInMs="60000" VisibleDynamicPropertiesInfo="{x:Null}">
             <uda:CreateEntityRecord.State>
               <udam:RecordState IsInRecordView="False" RequiredFieldCount="0">
                 <udam:RecordState.SelectedFields>
@@ -122,6 +122,7 @@
                     <udam:DynamicEntityField Id="b101b66d-932d-5328-bfdb-5b9cdd371d6c" IsRequired="False" Name="TotalAmount"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:Decimal">[in_TotalAmount]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
                     <udam:DynamicEntityField Id="c257bbae-0422-59c5-a978-b508f8994a54" IsRequired="False" Name="Currency"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[in_Currency]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
                     <udam:DynamicEntityField Id="ef091e0c-0749-5d43-82f6-f92a4ee519da" IsRequired="False" Name="DueDate"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[dueDateValue]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="5a1ac5a0-c024-519f-968d-e99c2314c7f5" IsRequired="False" Name="InvoiceLifecycleState"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">["EXTRACTED"]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
                   </scg:List>
                 </udam:RecordState.SelectedFields>
               </udam:RecordState>

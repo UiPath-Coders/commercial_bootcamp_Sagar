@@ -1,0 +1,120 @@
+{
+  "version": "2.0",
+  "resources": [
+    {
+      "resource": "process",
+      "key": "Agentic Bootcamp/APAutomation_Reference.Invoice_Intake_RPA_Reference",
+      "value": {
+        "name": {
+          "defaultValue": "Invoice_Intake_RPA_Reference",
+          "isExpression": false,
+          "displayName": "Process name"
+        },
+        "folderPath": {
+          "defaultValue": "Agentic Bootcamp/APAutomation_Reference",
+          "isExpression": false,
+          "displayName": "Process folder path"
+        }
+      },
+      "metadata": {
+        "ActivityName": "Invoice_Intake_RPA_Reference",
+        "BindingsVersion": "2.2",
+        "DisplayLabel": "Invoice_Intake_RPA_Reference",
+        "SubType": "Process",
+        "solutionsSupport": "true"
+      }
+    },
+    {
+      "resource": "process",
+      "key": "Agentic Bootcamp/APAutomation_Reference.POMatch_Reference_process_invoice",
+      "value": {
+        "name": {
+          "defaultValue": "POMatch_Reference_process_invoice",
+          "isExpression": false,
+          "displayName": "Process name"
+        },
+        "folderPath": {
+          "defaultValue": "Agentic Bootcamp/APAutomation_Reference",
+          "isExpression": false,
+          "displayName": "Process folder path"
+        }
+      },
+      "metadata": {
+        "ActivityName": "POMatch_Reference_process_invoice",
+        "BindingsVersion": "2.2",
+        "DisplayLabel": "POMatch_Reference_process_invoice",
+        "SubType": "Function",
+        "solutionsSupport": "true"
+      }
+    },
+    {
+      "resource": "process",
+      "key": "Agentic Bootcamp/APAutomation_Reference.POMatch_Reference_get_invoice_status",
+      "value": {
+        "name": {
+          "defaultValue": "POMatch_Reference_get_invoice_status",
+          "isExpression": false,
+          "displayName": "Process name"
+        },
+        "folderPath": {
+          "defaultValue": "Agentic Bootcamp/APAutomation_Reference",
+          "isExpression": false,
+          "displayName": "Process folder path"
+        }
+      },
+      "metadata": {
+        "ActivityName": "POMatch_Reference_get_invoice_status",
+        "BindingsVersion": "2.2",
+        "DisplayLabel": "POMatch_Reference_get_invoice_status",
+        "SubType": "Function",
+        "solutionsSupport": "true"
+      }
+    },
+    {
+      "resource": "process",
+      "key": "Agentic Bootcamp/APAutomation_Reference.PostToERP_Reference",
+      "value": {
+        "name": {
+          "defaultValue": "PostToERP_Reference",
+          "isExpression": false,
+          "displayName": "Process name"
+        },
+        "folderPath": {
+          "defaultValue": "Agentic Bootcamp/APAutomation_Reference",
+          "isExpression": false,
+          "displayName": "Process folder path"
+        }
+      },
+      "metadata": {
+        "ActivityName": "PostToERP_Reference",
+        "BindingsVersion": "2.2",
+        "DisplayLabel": "PostToERP_Reference",
+        "SubType": "Process",
+        "solutionsSupport": "true"
+      }
+    },
+    {
+      "resource": "process",
+      "key": "Agentic Bootcamp/APAutomation_Reference.Invoice_Approval_Agent_Reference",
+      "value": {
+        "name": {
+          "defaultValue": "Invoice_Approval_Agent_Reference",
+          "isExpression": false,
+          "displayName": "Process name"
+        },
+        "folderPath": {
+          "defaultValue": "Agentic Bootcamp/APAutomation_Reference",
+          "isExpression": false,
+          "displayName": "Process folder path"
+        }
+      },
+      "metadata": {
+        "ActivityName": "Invoice_Approval_Agent_Reference",
+        "BindingsVersion": "2.2",
+        "DisplayLabel": "Invoice_Approval_Agent_Reference",
+        "SubType": "Agent",
+        "solutionsSupport": "true"
+      }
+    }
+  ]
+}

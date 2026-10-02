@@ -1,0 +1,112 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="MarkInvoicePosted" mva:VisualBasic.Settings="{x:Null}"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:local="clr-namespace:PostToERP_Reference;assembly=DataService.PostToERP_Reference"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+ xmlns:uda="clr-namespace:UiPath.DataService.Activities;assembly=UiPath.DataService.Activities.Core"
+ xmlns:udam="clr-namespace:UiPath.DataService.Activities.Models;assembly=UiPath.DataService.Activities.Core"
+ xmlns:ui="http://schemas.uipath.com/workflow/activities"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_RecordId" Type="InArgument(s:Guid)" />
+    <x:Property Name="in_PostingId" Type="InArgument(x:String)" />
+    <x:Property Name="in_PostingStatus" Type="InArgument(x:String)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.DataService.Activities</x:String>
+      <x:String>UiPath.DataService.Activities.Models</x:String>
+      <x:String>UiPath.DataService.Definition</x:String>
+      <x:String>PostToERP_Reference</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Activities.Core</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Definition</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>DataService.PostToERP_Reference</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="MarkInvoicePosted - set PostedToERP = true and InvoiceLifecycleState = POSTED" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <ui:LogMessage DisplayName="Log update" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_1" Message="[&quot;Marking AP_Invoice_Reference record &quot; &amp; in_RecordId.ToString() &amp; &quot; as posted (portal posting &quot; &amp; in_PostingId &amp; &quot;, &quot; &amp; in_PostingStatus &amp; &quot;)&quot;]" />
+    <ui:RetryScope DisplayName="Retry Scope - Data Fabric update (idempotent)" NumberOfRetries="3" RetryInterval="00:00:05" sap2010:WorkflowViewState.IdRef="RetryScope_1">
+      <ui:RetryScope.ActivityBody>
+        <ActivityAction>
+          <Sequence DisplayName="Action" sap2010:WorkflowViewState.IdRef="Sequence_2">
+            <uda:UpdateEntityRecord x:TypeArguments="local:AP_Invoice_Reference" ContinueOnError="False" DisplayName="Update AP_Invoice_Reference Record - PostedToERP + POSTED" EntityId="dadab581-76ef-5e29-8352-a8dffcd0b1b3" ExpansionDepth="2" sap2010:WorkflowViewState.IdRef="UpdateEntityRecord_1" sap2010:Annotation.AnnotationText="The record Id is set on the entity object as well as in RecordId, so the field-view update always targets the selected record." InputEntityInFieldView="[New AP_Invoice_Reference() With {.Id = in_RecordId, .PostedToERP = True, .InvoiceLifecycleState = &quot;POSTED&quot;}]" IsInRecordView="[False]" OutputEntity="{x:Null}" RecordId="[in_RecordId]" TimeoutInMs="60000" VisibleDynamicPropertiesInfo="{x:Null}">
+              <uda:UpdateEntityRecord.State>
+                <udam:RecordState IsInRecordView="False" RequiredFieldCount="0">
+                  <udam:RecordState.SelectedFields>
+                    <scg:List x:TypeArguments="udam:DynamicEntityField">
+                      <udam:DynamicEntityField Id="92f2c2e8-ee20-5541-bc41-5319e4a57b68" IsRequired="False" Name="PostedToERP">
+                        <udam:DynamicEntityField.ArgumentValue>
+                          <InArgument x:TypeArguments="x:Boolean">[True]</InArgument>
+                        </udam:DynamicEntityField.ArgumentValue>
+                      </udam:DynamicEntityField>
+                      <udam:DynamicEntityField Id="5a1ac5a0-c024-519f-968d-e99c2314c7f5" IsRequired="False" Name="InvoiceLifecycleState">
+                        <udam:DynamicEntityField.ArgumentValue>
+                          <InArgument x:TypeArguments="x:String">["POSTED"]</InArgument>
+                        </udam:DynamicEntityField.ArgumentValue>
+                      </udam:DynamicEntityField>
+                    </scg:List>
+                  </udam:RecordState.SelectedFields>
+                </udam:RecordState>
+              </uda:UpdateEntityRecord.State>
+            </uda:UpdateEntityRecord>
+          </Sequence>
+        </ActivityAction>
+      </ui:RetryScope.ActivityBody>
+      <ui:RetryScope.Condition>
+        <ActivityFunc x:TypeArguments="x:Boolean" />
+      </ui:RetryScope.Condition>
+    </ui:RetryScope>
+    <ui:LogMessage DisplayName="Log updated" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_2" Message="[&quot;Record &quot; &amp; in_RecordId.ToString() &amp; &quot; updated: PostedToERP = true, InvoiceLifecycleState = POSTED&quot;]" />
+  </Sequence>
+</Activity>

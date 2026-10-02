@@ -1,0 +1,23 @@
+[project]
+name = "POMatch_Reference"
+version = "0.1.0"
+# NOTE: do not use & or < in description or authors: `uip function pack` writes them unescaped into the .nuspec.
+description = "Lab 3 reference solution - Match PO and Check Approval (Commercial Bootcamp, Invoice-to-Pay)"
+authors = [{ name = "Commercial Bootcamp facilitators" }]
+requires-python = ">=3.11"
+dependencies = [
+    "uipath>=2.14.0, <2.15.0",
+    "httpx>=0.28",
+    "pydantic>=2",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"

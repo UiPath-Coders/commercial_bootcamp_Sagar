@@ -1,0 +1,27 @@
+{
+  "$schema": "https://cloud.uipath.com/draft/2024-12/entry-point",
+  "$id": "entry-points.json",
+  "entryPoints": [
+    {
+      "filePath": "/content/InvoiceApprovalProcess_Reference.bpmn#Event_start",
+      "uniqueId": "43243790-b173-4500-b64a-8b1fb60fe2c1",
+      "type": "ProcessOrchestration",
+      "input": {
+        "type": "object",
+        "properties": {
+          "FileName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "FileName"
+        ]
+      },
+      "output": {
+        "type": "object",
+        "properties": {}
+      },
+      "displayName": "Manual trigger"
+    }
+  ]
+}

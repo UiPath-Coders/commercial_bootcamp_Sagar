@@ -1,0 +1,155 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" mva:VisualBasic.Settings="{x:Null}"
+ this:Main.in_PortalUrl="http://localhost:8080/portal/"
+ this:Main.in_StepDelaySeconds="2"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+ xmlns:this="clr-namespace:"
+ xmlns:ui="http://schemas.uipath.com/workflow/activities"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_PortalUrl" Type="InArgument(x:String)" />
+    <x:Property Name="in_StepDelaySeconds" Type="InArgument(x:Double)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="PostToERP_Reference - Post the next ready invoice to the AP portal" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:Boolean" Name="recordFound" Default="False" />
+      <Variable x:TypeArguments="s:Guid" Name="recordId" />
+      <Variable x:TypeArguments="x:String" Name="invoiceNumber" />
+      <Variable x:TypeArguments="x:String" Name="vendorName" />
+      <Variable x:TypeArguments="x:String" Name="poNumber" />
+      <Variable x:TypeArguments="x:String" Name="totalAmountText" />
+      <Variable x:TypeArguments="x:String" Name="postingId" />
+      <Variable x:TypeArguments="x:String" Name="postingStatus" />
+    </Sequence.Variables>
+    <ui:LogMessage DisplayName="Log start" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_1" Message="[&quot;PostToERP_Reference started. Portal: &quot; &amp; in_PortalUrl &amp; &quot; | step delay: &quot; &amp; in_StepDelaySeconds.ToString() &amp; &quot;s&quot;]" />
+    <ui:InvokeWorkflowFile DisplayName="GetNextReadyInvoice - Invoke Workflow File" WorkflowFileName="GetNextReadyInvoice.xaml" UnSafe="False" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1">
+      <ui:InvokeWorkflowFile.Arguments>
+        <OutArgument x:TypeArguments="x:Boolean" x:Key="out_RecordFound">[recordFound]</OutArgument>
+        <OutArgument x:TypeArguments="s:Guid" x:Key="out_RecordId">[recordId]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_InvoiceNumber">[invoiceNumber]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_VendorName">[vendorName]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_PONumber">[poNumber]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_TotalAmountText">[totalAmountText]</OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <If DisplayName="If nothing is ready to post" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">[Not recordFound]</InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Then - end the job" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <ui:LogMessage DisplayName="Log Nothing ready to post" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_2" Message="Nothing ready to post" />
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Else - post the invoice" sap2010:WorkflowViewState.IdRef="Sequence_3">
+          <ui:LogMessage DisplayName="Log selected record" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_3" Message="[&quot;Posting invoice &quot; &amp; invoiceNumber &amp; &quot; from &quot; &amp; vendorName &amp; &quot; (PO &quot; &amp; poNumber &amp; &quot;, total &quot; &amp; totalAmountText &amp; &quot;) | AP_Invoice_Reference Id &quot; &amp; recordId.ToString()]" />
+          <TryCatch DisplayName="Try Catch - portal posting and record update" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+            <TryCatch.Try>
+              <Sequence DisplayName="Try" sap2010:WorkflowViewState.IdRef="Sequence_4">
+                <ui:InvokeWorkflowFile DisplayName="PostInvoiceInPortal - Invoke Workflow File" WorkflowFileName="PostInvoiceInPortal.xaml" UnSafe="False" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_2">
+                  <ui:InvokeWorkflowFile.Arguments>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_PortalUrl">[in_PortalUrl]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_VendorName">[vendorName]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_InvoiceNumber">[invoiceNumber]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_PONumber">[poNumber]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_TotalAmountText">[totalAmountText]</InArgument>
+                    <InArgument x:TypeArguments="x:Double" x:Key="in_StepDelaySeconds">[in_StepDelaySeconds]</InArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_PostingId">[postingId]</OutArgument>
+                    <OutArgument x:TypeArguments="x:String" x:Key="out_PostingStatus">[postingStatus]</OutArgument>
+                  </ui:InvokeWorkflowFile.Arguments>
+                </ui:InvokeWorkflowFile>
+                <ui:InvokeWorkflowFile DisplayName="MarkInvoicePosted - Invoke Workflow File" WorkflowFileName="MarkInvoicePosted.xaml" UnSafe="False" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_3">
+                  <ui:InvokeWorkflowFile.Arguments>
+                    <InArgument x:TypeArguments="s:Guid" x:Key="in_RecordId">[recordId]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_PostingId">[postingId]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="in_PostingStatus">[postingStatus]</InArgument>
+                  </ui:InvokeWorkflowFile.Arguments>
+                </ui:InvokeWorkflowFile>
+                <ui:LogMessage DisplayName="Log posting result" Level="Info" sap2010:WorkflowViewState.IdRef="LogMessage_4" Message="[&quot;Invoice &quot; &amp; invoiceNumber &amp; &quot; posted. Portal posting id: &quot; &amp; postingId &amp; &quot; | status: &quot; &amp; postingStatus &amp; &quot; | PostedToERP = true on record &quot; &amp; recordId.ToString()]" />
+              </Sequence>
+            </TryCatch.Try>
+            <TryCatch.Catches>
+              <Catch x:TypeArguments="ui:BusinessRuleException" sap2010:WorkflowViewState.IdRef="Catch_1">
+                <ActivityAction x:TypeArguments="ui:BusinessRuleException">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="ui:BusinessRuleException" Name="businessException" />
+                  </ActivityAction.Argument>
+                  <Sequence DisplayName="Catch business rule exception" sap2010:WorkflowViewState.IdRef="Sequence_5">
+                    <ui:LogMessage DisplayName="Log business exception" Level="Warn" sap2010:WorkflowViewState.IdRef="LogMessage_5" Message="[&quot;Business rule violation for record &quot; &amp; recordId.ToString() &amp; &quot; - the invoice needs a human: &quot; &amp; businessException.Message]" />
+                    <Rethrow DisplayName="Rethrow business-rule exception" sap2010:WorkflowViewState.IdRef="Rethrow_1" />
+                  </Sequence>
+                </ActivityAction>
+              </Catch>
+              <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch_2">
+                <ActivityAction x:TypeArguments="s:Exception">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="s:Exception" Name="systemException" />
+                  </ActivityAction.Argument>
+                  <Sequence DisplayName="Catch system exception" sap2010:WorkflowViewState.IdRef="Sequence_6">
+                    <ui:LogMessage DisplayName="Log system exception" Level="Error" sap2010:WorkflowViewState.IdRef="LogMessage_6" Message="[&quot;Posting failed for record &quot; &amp; recordId.ToString() &amp; &quot; (invoice &quot; &amp; invoiceNumber &amp; &quot;). PostedToERP was NOT set; rerun the job after the cause is fixed. &quot; &amp; If(systemException IsNot Nothing, systemException.ToString(), &quot;&lt;missing&gt;&quot;)]" />
+                    <Rethrow DisplayName="Rethrow system exception" sap2010:WorkflowViewState.IdRef="Rethrow_2" />
+                  </Sequence>
+                </ActivityAction>
+              </Catch>
+            </TryCatch.Catches>
+          </TryCatch>
+        </Sequence>
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>

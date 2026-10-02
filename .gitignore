@@ -1,0 +1,34 @@
+.DS_Store
+**/.DS_Store
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+*.nupkg
+# Solution manifests (*.uipx) are source: keep them. Ignore only the build zips that
+# `uip solution pack` writes (<Name>_<version>.zip in <Name>_out/ or the --output folder).
+**/*_out/
+**/*_[0-9]*.[0-9]*.[0-9]*.zip
+**/.local/
+# Coded-agent local runtime state (LangGraph checkpoint DB written by uip codedagent run) — never commit
+**/__uipath/
+# uipath Python SDK / coded app local state (uipath auth writes the access and refresh token to .uipath/.auth.json)
+**/.uipath/
+# Lab 9 audit exports contain actor emails
+**/audit-export/*.csv
+**/audit-export/**/*.json
+# Maestro debug overwrites carry tenant and user ids; deploy configs and token files are per tenant
+**/userProfile/
+deploy-config*.json
+*.token
+# Lab 10: `uip solution resources refresh` regenerates resources/ (feed URLs, tenant ids and, before
+# stripping, the signed ERP token)
+lab10-maestro-bpmn/*/resources/
+# Challenge (homework): `uip solution resources refresh` regenerates resources/ the same way as Lab 10
+challenge-maestro-flow/*/resources/

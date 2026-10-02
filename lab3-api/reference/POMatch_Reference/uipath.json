@@ -1,0 +1,10 @@
+{
+  "id": "98d7ae70-1e43-4017-b1dd-f04e7a66c135",
+  "runtimeOptions": { "isConversational": false },
+  "functions": {
+    "po_lookup": "main.py:po_lookup",
+    "process_invoice": "main.py:process_invoice",
+    "process_invoice_queue": "main.py:process_invoice_queue",
+    "get_invoice_status": "main.py:get_invoice_status"
+  }
+}

@@ -1,0 +1,25 @@
+[project]
+name = "Invoice_Approval_Agent_Reference"
+version = "0.0.1"
+description = "Commercial Bootcamp Lab 5 reference: deterministic approval gates + LLM narrative written back to the AP_Invoice record"
+authors = [{ name = "Commercial Bootcamp Facilitators" }]
+dependencies = [
+    "uipath-langchain>=0.17.0, <0.18.0",
+    "langgraph>=1.0.4",
+]
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = [
+    "uipath-dev",
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::FutureWarning",
+    "ignore::DeprecationWarning",
+]

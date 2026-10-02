@@ -1,0 +1,17 @@
+# dependencies and build output
+node_modules/
+dist/
+
+# uip codedapp artifacts (pack/publish write here); project.json is kept
+.uipath/*
+!.uipath/project.json
+*.nupkg
+
+# local env / editor / OS
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.vscode/
+.idea/

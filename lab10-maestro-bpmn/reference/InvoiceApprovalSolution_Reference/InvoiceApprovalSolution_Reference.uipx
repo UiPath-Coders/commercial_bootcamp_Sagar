@@ -1,0 +1,12 @@
+{
+    "DocVersion": "1.0.0",
+    "StudioMinVersion": "2025.10.0",
+    "SolutionId": "29a85fdd-6853-4773-0da8-08df1fa24c8c",
+    "Projects": [
+        {
+            "Type": "processOrchestration",
+            "ProjectRelativePath": "InvoiceApprovalProcess_Reference/project.uiproj",
+            "Id": "6c6e4b99-413e-4fb7-8229-4937235582d0"
+        }
+    ]
+}

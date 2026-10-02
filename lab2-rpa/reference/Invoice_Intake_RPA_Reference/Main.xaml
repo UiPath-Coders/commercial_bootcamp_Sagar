@@ -1,9 +1,6 @@
 <Activity mc:Ignorable="sap sap2010" x:Class="Main" mva:VisualBasic.Settings="{x:Null}"
  xmlns:this="clr-namespace:"
- this:Main.in_StorageBucketName="InvoiceInbox_Reference"
- this:Main.in_BucketDirectory="\"
- this:Main.in_AgentProcessName="Invoice_Extraction_Agent_Reference"
- this:Main.in_QueueName="InvoiceQueue_Reference"
+ this:Main.CreateQueueItem="True"
  xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
  xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
@@ -18,21 +15,27 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <!--
     Main.xaml - Lab 2 reference (Commercial Bootcamp, Invoice-to-Pay / Office of the CFO).
-    Process step "Validate & Create Record" + the "Valid?" gateway, as a background (unattended, cross-platform) job.
-    Lists the InvoiceInbox_Reference storage bucket, then processes the files strictly one at a time through
-    ProcessInvoiceFile.xaml. Each file is its own transaction: a bad file is logged and skipped, the batch continues.
-    Resource names use the _Reference suffix; participants' resources use _<user_name> (see README.md).
+    Two modes, one per-file workflow (ProcessInvoiceFile.xaml):
+      * FileName blank  -> standalone batch: list InvoiceInbox_Reference and process every file one at a time; each newly
+                           created valid record gets one InvoiceQueue_Reference item whose Reference is the record Id (Lab 3).
+      * FileName given  -> single-invoice contract for Maestro (Lab 10): process exactly that file; add a queue item only
+                           when CreateQueueItem is True and the record was newly created.
+    Contract argument names (FileName, CreateQueueItem, RecordId, IsValid, WasDuplicate, ErrorMessage, ProcessedCount,
+    CreatedCount, RejectedCount) intentionally do not follow the in_/out_ prefix rule. Local variables use n*/cfg*/item*
+    names so that no variable shadows an argument (VB is case-insensitive).
+    Resource settings live in the cfg* variables and use the _Reference suffix; participants' resources use
+    _<user_name> (see README.md).
   -->
   <x:Members>
-    <x:Property Name="in_StorageBucketName" Type="InArgument(x:String)" />
-    <x:Property Name="in_BucketDirectory" Type="InArgument(x:String)" />
-    <x:Property Name="in_AgentProcessName" Type="InArgument(x:String)" />
-    <x:Property Name="in_QueueName" Type="InArgument(x:String)" />
-    <x:Property Name="out_ProcessedCount" Type="OutArgument(x:Int32)" />
-    <x:Property Name="out_CreatedCount" Type="OutArgument(x:Int32)" />
-    <x:Property Name="out_RejectedCount" Type="OutArgument(x:Int32)" />
-    <x:Property Name="out_DuplicateCount" Type="OutArgument(x:Int32)" />
-    <x:Property Name="out_FailedCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="FileName" Type="InArgument(x:String)" />
+    <x:Property Name="CreateQueueItem" Type="InArgument(x:Boolean)" />
+    <x:Property Name="RecordId" Type="OutArgument(x:String)" />
+    <x:Property Name="IsValid" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="WasDuplicate" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="ErrorMessage" Type="OutArgument(x:String)" />
+    <x:Property Name="ProcessedCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="CreatedCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="RejectedCount" Type="OutArgument(x:Int32)" />
   </x:Members>
   <TextExpression.NamespacesForImplementation>
     <sco:Collection x:TypeArguments="x:String">
@@ -86,322 +89,343 @@
   </TextExpression.ReferencesForImplementation>
   <Sequence DisplayName="Invoice Intake - Main" sap2010:WorkflowViewState.IdRef="Sequence_1">
     <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="cfgBucketName" Default="InvoiceInbox_Reference" />
+      <Variable x:TypeArguments="x:String" Name="cfgBucketDirectory" Default="\" />
+      <Variable x:TypeArguments="x:String" Name="cfgAgentProcessName" Default="Invoice_Extraction_Agent_Reference" />
+      <Variable x:TypeArguments="x:String" Name="cfgAgentFolderPath" Default="Agentic Bootcamp/APAutomation_Reference/Invoice_Extraction_Agent_Reference" />
+      <Variable x:TypeArguments="x:String" Name="cfgQueueName" Default="InvoiceQueue_Reference" />
       <Variable x:TypeArguments="scg:IEnumerable(ucas:StorageFileInfo)" Name="storageFiles" />
       <Variable x:TypeArguments="x:String" Name="downloadFolder" />
       <Variable x:TypeArguments="x:String" Name="itemStatus" />
       <Variable x:TypeArguments="x:String" Name="itemRecordId" />
-      <Variable x:TypeArguments="x:Int32" Name="processedCount" Default="0" />
-      <Variable x:TypeArguments="x:Int32" Name="createdCount" Default="0" />
-      <Variable x:TypeArguments="x:Int32" Name="rejectedCount" Default="0" />
-      <Variable x:TypeArguments="x:Int32" Name="duplicateCount" Default="0" />
-      <Variable x:TypeArguments="x:Int32" Name="failedCount" Default="0" />
+      <Variable x:TypeArguments="x:Boolean" Name="itemIsValid" />
+      <Variable x:TypeArguments="x:Boolean" Name="itemWasDuplicate" />
+      <Variable x:TypeArguments="x:String" Name="itemError" />
+      <Variable x:TypeArguments="x:Int32" Name="nProcessed" Default="0" />
+      <Variable x:TypeArguments="x:Int32" Name="nCreated" Default="0" />
+      <Variable x:TypeArguments="x:Int32" Name="nRejected" Default="0" />
+      <Variable x:TypeArguments="x:Int32" Name="nDuplicate" Default="0" />
+      <Variable x:TypeArguments="x:Int32" Name="nFailed" Default="0" />
     </Sequence.Variables>
     <ui:LogMessage Level="Info" DisplayName="Log - start">
       <ui:LogMessage.Message>
         <InArgument x:TypeArguments="x:Object">
-          <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Invoice intake started. Bucket=&quot; &amp; in_StorageBucketName &amp; &quot; Directory=&quot; &amp; in_BucketDirectory &amp; &quot; Agent=&quot; &amp; in_AgentProcessName &amp; &quot; Queue=&quot; &amp; in_QueueName &amp; &quot; (all resolved in the job's Orchestrator folder)&quot;" />
+          <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Invoice intake started. Mode=&quot; &amp; If(String.IsNullOrWhiteSpace(FileName), &quot;batch&quot;, &quot;single&quot;) &amp; &quot; FileName=&quot; &amp; If(FileName, String.Empty) &amp; &quot; CreateQueueItem=&quot; &amp; CreateQueueItem.ToString() &amp; &quot; Bucket=&quot; &amp; cfgBucketName &amp; &quot; Queue=&quot; &amp; cfgQueueName" />
         </InArgument>
       </ui:LogMessage.Message>
     </ui:LogMessage>
     <Assign x:TypeArguments="x:String" DisplayName="Assign - downloadFolder (temp)">
-      <Assign.To>
-        <OutArgument x:TypeArguments="x:String">
-          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="downloadFolder" />
-        </OutArgument>
-      </Assign.To>
-      <Assign.Value>
-        <InArgument x:TypeArguments="x:String">
-          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="Path.Combine(Path.GetTempPath(), &quot;InvoiceIntake_&quot; &amp; DateTime.Now.ToString(&quot;yyyyMMdd_HHmmss&quot;))" />
-        </InArgument>
-      </Assign.Value>
+      <Assign.To><OutArgument x:TypeArguments="x:String"><VisualBasicReference x:TypeArguments="x:String" ExpressionText="downloadFolder" /></OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String"><VisualBasicValue x:TypeArguments="x:String" ExpressionText="Path.Combine(Path.GetTempPath(), &quot;InvoiceIntake_&quot; &amp; DateTime.Now.ToString(&quot;yyyyMMdd_HHmmss&quot;))" /></InArgument></Assign.Value>
     </Assign>
     <ui:CreateDirectory DisplayName="Create Folder - download folder" Path="[downloadFolder]" />
-    <ucas:ListStorageFiles DisplayName="List Storage Files - InvoiceInbox" StorageBucketName="[in_StorageBucketName]" Directory="[in_BucketDirectory]" Recursive="True" Result="[storageFiles]" />
-    <ui:LogMessage Level="Info" DisplayName="Log - file count">
-      <ui:LogMessage.Message>
-        <InArgument x:TypeArguments="x:Object">
-          <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Found &quot; &amp; If(storageFiles Is Nothing, 0, storageFiles.Count()).ToString() &amp; &quot; file(s) in &quot; &amp; in_StorageBucketName" />
-        </InArgument>
-      </ui:LogMessage.Message>
-    </ui:LogMessage>
-    <ui:ForEach x:TypeArguments="ucas:StorageFileInfo" DisplayName="For Each file in bucket (one at a time)">
-      <ui:ForEach.Values>
-        <InArgument x:TypeArguments="sc:IEnumerable">
-          <VisualBasicValue x:TypeArguments="sc:IEnumerable" ExpressionText="storageFiles" />
-        </InArgument>
-      </ui:ForEach.Values>
-      <ui:ForEach.Body>
-        <ActivityAction x:TypeArguments="ucas:StorageFileInfo">
-          <ActivityAction.Argument>
-            <DelegateInArgument x:TypeArguments="ucas:StorageFileInfo" Name="storageFile" />
-          </ActivityAction.Argument>
-          <Sequence DisplayName="Body">
-            <Assign x:TypeArguments="x:String" DisplayName="Assign - reset itemStatus">
-              <Assign.To>
-                <OutArgument x:TypeArguments="x:String">
-                  <VisualBasicReference x:TypeArguments="x:String" ExpressionText="itemStatus" />
-                </OutArgument>
-              </Assign.To>
-              <Assign.Value>
-                <InArgument x:TypeArguments="x:String">
-                  <VisualBasicValue x:TypeArguments="x:String" ExpressionText="String.Empty" />
-                </InArgument>
-              </Assign.Value>
-            </Assign>
-            <Assign x:TypeArguments="x:String" DisplayName="Assign - reset itemRecordId">
-              <Assign.To>
-                <OutArgument x:TypeArguments="x:String">
-                  <VisualBasicReference x:TypeArguments="x:String" ExpressionText="itemRecordId" />
-                </OutArgument>
-              </Assign.To>
-              <Assign.Value>
-                <InArgument x:TypeArguments="x:String">
-                  <VisualBasicValue x:TypeArguments="x:String" ExpressionText="String.Empty" />
-                </InArgument>
-              </Assign.Value>
-            </Assign>
-            <!-- Transaction boundary: one Try/Catch per file so a single bad invoice never aborts the batch. -->
-            <TryCatch DisplayName="Try Catch - one invoice file">
-              <TryCatch.Try>
-                <Sequence DisplayName="Try">
-                  <ui:InvokeWorkflowFile DisplayName="Invoke ProcessInvoiceFile.xaml" WorkflowFileName="ProcessInvoiceFile.xaml" UnSafe="False">
-                    <ui:InvokeWorkflowFile.Arguments>
-                      <InArgument x:TypeArguments="x:String" x:Key="in_FileFullPath">[storageFile.FileFullPath]</InArgument>
-                      <InArgument x:TypeArguments="x:String" x:Key="in_StorageBucketName">[in_StorageBucketName]</InArgument>
-                      <InArgument x:TypeArguments="x:String" x:Key="in_AgentProcessName">[in_AgentProcessName]</InArgument>
-                      <InArgument x:TypeArguments="x:String" x:Key="in_QueueName">[in_QueueName]</InArgument>
-                      <InArgument x:TypeArguments="x:String" x:Key="in_DownloadFolder">[downloadFolder]</InArgument>
-                      <OutArgument x:TypeArguments="x:String" x:Key="out_Status">[itemStatus]</OutArgument>
-                      <OutArgument x:TypeArguments="x:String" x:Key="out_RecordId">[itemRecordId]</OutArgument>
-                    </ui:InvokeWorkflowFile.Arguments>
-                  </ui:InvokeWorkflowFile>
-                  <Switch x:TypeArguments="x:String" DisplayName="Switch - count by status">
-                    <Switch.Expression>
-                      <InArgument x:TypeArguments="x:String">
-                        <VisualBasicValue x:TypeArguments="x:String" ExpressionText="If(itemStatus, String.Empty)" />
-                      </InArgument>
-                    </Switch.Expression>
-                    <Sequence x:Key="Created" DisplayName="Case Created">
-                      <Assign x:TypeArguments="x:Int32" DisplayName="Assign - createdCount + 1">
-                        <Assign.To>
-                          <OutArgument x:TypeArguments="x:Int32">
-                            <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="createdCount" />
-                          </OutArgument>
-                        </Assign.To>
-                        <Assign.Value>
-                          <InArgument x:TypeArguments="x:Int32">
-                            <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="createdCount + 1" />
-                          </InArgument>
-                        </Assign.Value>
-                      </Assign>
-                    </Sequence>
-                    <Sequence x:Key="Rejected" DisplayName="Case Rejected">
-                      <Assign x:TypeArguments="x:Int32" DisplayName="Assign - rejectedCount + 1 (system exception)">
-                        <Assign.To>
-                          <OutArgument x:TypeArguments="x:Int32">
-                            <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="rejectedCount" />
-                          </OutArgument>
-                        </Assign.To>
-                        <Assign.Value>
-                          <InArgument x:TypeArguments="x:Int32">
-                            <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="rejectedCount + 1" />
-                          </InArgument>
-                        </Assign.Value>
-                      </Assign>
-                    </Sequence>
-                    <Sequence x:Key="Duplicate" DisplayName="Case Duplicate">
-                      <Assign x:TypeArguments="x:Int32" DisplayName="Assign - duplicateCount + 1">
-                        <Assign.To>
-                          <OutArgument x:TypeArguments="x:Int32">
-                            <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="duplicateCount" />
-                          </OutArgument>
-                        </Assign.To>
-                        <Assign.Value>
-                          <InArgument x:TypeArguments="x:Int32">
-                            <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="duplicateCount + 1" />
-                          </InArgument>
-                        </Assign.Value>
-                      </Assign>
-                    </Sequence>
-                    <Switch.Default>
-                      <Sequence DisplayName="Default - unexpected status">
-                        <ui:LogMessage Level="Warn" DisplayName="Log - unexpected status">
-                          <ui:LogMessage.Message>
-                            <InArgument x:TypeArguments="x:Object">
-                              <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Unexpected status '&quot; &amp; If(itemStatus, String.Empty) &amp; &quot;' for &quot; &amp; storageFile.FileFullPath" />
-                            </InArgument>
-                          </ui:LogMessage.Message>
-                        </ui:LogMessage>
-                      </Sequence>
-                    </Switch.Default>
-                  </Switch>
-                </Sequence>
-              </TryCatch.Try>
-              <TryCatch.Catches>
-                <Catch x:TypeArguments="ui:BusinessRuleException">
-                  <ActivityAction x:TypeArguments="ui:BusinessRuleException">
-                    <ActivityAction.Argument>
-                      <DelegateInArgument x:TypeArguments="ui:BusinessRuleException" Name="businessException" />
-                    </ActivityAction.Argument>
-                    <Sequence DisplayName="Catch - business rule (bad data, no retry)">
-                      <ui:LogMessage Level="Warn" DisplayName="Log - business exception">
-                        <ui:LogMessage.Message>
-                          <InArgument x:TypeArguments="x:Object">
-                            <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Rejected: &quot; &amp; storageFile.FileFullPath &amp; &quot; - &quot; &amp; businessException.Message" />
-                          </InArgument>
-                        </ui:LogMessage.Message>
-                      </ui:LogMessage>
-                      <Assign x:TypeArguments="x:Int32" DisplayName="Assign - rejectedCount + 1">
-                        <Assign.To>
-                          <OutArgument x:TypeArguments="x:Int32">
-                            <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="rejectedCount" />
-                          </OutArgument>
-                        </Assign.To>
-                        <Assign.Value>
-                          <InArgument x:TypeArguments="x:Int32">
-                            <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="rejectedCount + 1" />
-                          </InArgument>
-                        </Assign.Value>
-                      </Assign>
-                    </Sequence>
-                  </ActivityAction>
-                </Catch>
-                <Catch x:TypeArguments="s:Exception">
-                  <ActivityAction x:TypeArguments="s:Exception">
-                    <ActivityAction.Argument>
-                      <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
-                    </ActivityAction.Argument>
-                    <Sequence DisplayName="Catch - system exception (log, continue with next file)">
-                      <ui:LogMessage Level="Error" DisplayName="Log - system exception">
-                        <ui:LogMessage.Message>
-                          <InArgument x:TypeArguments="x:Object">
-                            <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Failed: &quot; &amp; storageFile.FileFullPath &amp; &quot; - &quot; &amp; If(exception IsNot Nothing, exception.ToString(), &quot;&lt;missing&gt;&quot;)" />
-                          </InArgument>
-                        </ui:LogMessage.Message>
-                      </ui:LogMessage>
-                      <Assign x:TypeArguments="x:Int32" DisplayName="Assign - failedCount + 1">
-                        <Assign.To>
-                          <OutArgument x:TypeArguments="x:Int32">
-                            <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="failedCount" />
-                          </OutArgument>
-                        </Assign.To>
-                        <Assign.Value>
-                          <InArgument x:TypeArguments="x:Int32">
-                            <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="failedCount + 1" />
-                          </InArgument>
-                        </Assign.Value>
-                      </Assign>
-                    </Sequence>
-                  </ActivityAction>
-                </Catch>
-              </TryCatch.Catches>
-              <TryCatch.Finally>
-                <Sequence DisplayName="Finally">
-                  <Assign x:TypeArguments="x:Int32" DisplayName="Assign - processedCount + 1">
-                    <Assign.To>
-                      <OutArgument x:TypeArguments="x:Int32">
-                        <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="processedCount" />
-                      </OutArgument>
-                    </Assign.To>
-                    <Assign.Value>
-                      <InArgument x:TypeArguments="x:Int32">
-                        <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="processedCount + 1" />
-                      </InArgument>
-                    </Assign.Value>
-                  </Assign>
-                </Sequence>
-              </TryCatch.Finally>
-            </TryCatch>
-          </Sequence>
-        </ActivityAction>
-      </ui:ForEach.Body>
-    </ui:ForEach>
-    <Assign x:TypeArguments="x:Int32" DisplayName="Assign - out_ProcessedCount">
-      <Assign.To>
-        <OutArgument x:TypeArguments="x:Int32">
-          <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="out_ProcessedCount" />
-        </OutArgument>
-      </Assign.To>
-      <Assign.Value>
-        <InArgument x:TypeArguments="x:Int32">
-          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="processedCount" />
-        </InArgument>
-      </Assign.Value>
-    </Assign>
-    <Assign x:TypeArguments="x:Int32" DisplayName="Assign - out_CreatedCount">
-      <Assign.To>
-        <OutArgument x:TypeArguments="x:Int32">
-          <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="out_CreatedCount" />
-        </OutArgument>
-      </Assign.To>
-      <Assign.Value>
-        <InArgument x:TypeArguments="x:Int32">
-          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="createdCount" />
-        </InArgument>
-      </Assign.Value>
-    </Assign>
-    <Assign x:TypeArguments="x:Int32" DisplayName="Assign - out_RejectedCount">
-      <Assign.To>
-        <OutArgument x:TypeArguments="x:Int32">
-          <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="out_RejectedCount" />
-        </OutArgument>
-      </Assign.To>
-      <Assign.Value>
-        <InArgument x:TypeArguments="x:Int32">
-          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="rejectedCount" />
-        </InArgument>
-      </Assign.Value>
-    </Assign>
-    <Assign x:TypeArguments="x:Int32" DisplayName="Assign - out_DuplicateCount">
-      <Assign.To>
-        <OutArgument x:TypeArguments="x:Int32">
-          <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="out_DuplicateCount" />
-        </OutArgument>
-      </Assign.To>
-      <Assign.Value>
-        <InArgument x:TypeArguments="x:Int32">
-          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="duplicateCount" />
-        </InArgument>
-      </Assign.Value>
-    </Assign>
-    <Assign x:TypeArguments="x:Int32" DisplayName="Assign - out_FailedCount">
-      <Assign.To>
-        <OutArgument x:TypeArguments="x:Int32">
-          <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="out_FailedCount" />
-        </OutArgument>
-      </Assign.To>
-      <Assign.Value>
-        <InArgument x:TypeArguments="x:Int32">
-          <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="failedCount" />
-        </InArgument>
-      </Assign.Value>
-    </Assign>
-    <ui:LogMessage Level="Info" DisplayName="Log - summary">
-      <ui:LogMessage.Message>
-        <InArgument x:TypeArguments="x:Object">
-          <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Invoice intake finished. Processed=&quot; &amp; processedCount.ToString() &amp; &quot; Created=&quot; &amp; createdCount.ToString() &amp; &quot; Rejected=&quot; &amp; rejectedCount.ToString() &amp; &quot; Duplicate=&quot; &amp; duplicateCount.ToString() &amp; &quot; Failed=&quot; &amp; failedCount.ToString()" />
-        </InArgument>
-      </ui:LogMessage.Message>
-    </ui:LogMessage>
-    <!-- Escalate: if any file hit a system exception, fault the job so Orchestrator surfaces it. A rerun is safe:
-         CreateInvoiceRecord.xaml checks for an existing record by InvoiceNumber + VendorName before inserting. -->
-    <If DisplayName="If - any system failures">
+    <If DisplayName="If - FileName blank (standalone batch mode)">
       <If.Condition>
         <InArgument x:TypeArguments="x:Boolean">
-          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="failedCount &gt; 0" />
+          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="String.IsNullOrWhiteSpace(FileName)" />
         </InArgument>
       </If.Condition>
       <If.Then>
-        <Sequence DisplayName="Then - fault the job">
-          <Throw DisplayName="Throw - system failures occurred">
-            <Throw.Exception>
-              <InArgument x:TypeArguments="s:Exception">
-                <VisualBasicValue x:TypeArguments="s:Exception" ExpressionText="New ApplicationException(failedCount.ToString() &amp; &quot; invoice file(s) failed with system exceptions (see Error logs). Records and queue items for the other files were kept; rerunning the job is safe because existing invoices are skipped.&quot;)" />
+        <Sequence DisplayName="Batch - every file in InvoiceInbox_Reference">
+          <ucas:ListStorageFiles DisplayName="List Storage Files - InvoiceInbox" StorageBucketName="[cfgBucketName]" Directory="[cfgBucketDirectory]" Recursive="True" Result="[storageFiles]" />
+          <ui:LogMessage Level="Info" DisplayName="Log - file count">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Found &quot; &amp; If(storageFiles Is Nothing, 0, storageFiles.Count()).ToString() &amp; &quot; file(s) in &quot; &amp; cfgBucketName" />
               </InArgument>
-            </Throw.Exception>
-          </Throw>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+        <ui:ForEach x:TypeArguments="ucas:StorageFileInfo" DisplayName="For Each file in bucket (one at a time)">
+          <ui:ForEach.Values>
+            <InArgument x:TypeArguments="sc:IEnumerable">
+              <VisualBasicValue x:TypeArguments="sc:IEnumerable" ExpressionText="storageFiles" />
+            </InArgument>
+          </ui:ForEach.Values>
+          <ui:ForEach.Body>
+            <ActivityAction x:TypeArguments="ucas:StorageFileInfo">
+              <ActivityAction.Argument>
+                <DelegateInArgument x:TypeArguments="ucas:StorageFileInfo" Name="storageFile" />
+              </ActivityAction.Argument>
+              <Sequence DisplayName="Body">
+                <Assign x:TypeArguments="x:String" DisplayName="Assign - reset itemStatus">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:String">
+                      <VisualBasicReference x:TypeArguments="x:String" ExpressionText="itemStatus" />
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:String">
+                      <VisualBasicValue x:TypeArguments="x:String" ExpressionText="String.Empty" />
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+                <Assign x:TypeArguments="x:String" DisplayName="Assign - reset itemRecordId">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:String">
+                      <VisualBasicReference x:TypeArguments="x:String" ExpressionText="itemRecordId" />
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:String">
+                      <VisualBasicValue x:TypeArguments="x:String" ExpressionText="String.Empty" />
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+                <!-- Transaction boundary: one Try/Catch per file so a single bad invoice never aborts the batch. -->
+                <TryCatch DisplayName="Try Catch - one invoice file">
+                  <TryCatch.Try>
+                    <Sequence DisplayName="Try">
+                      <ui:InvokeWorkflowFile DisplayName="Invoke ProcessInvoiceFile.xaml" WorkflowFileName="ProcessInvoiceFile.xaml" UnSafe="False">
+                        <ui:InvokeWorkflowFile.Arguments>
+                          <InArgument x:TypeArguments="x:String" x:Key="in_FileName">[storageFile.FileFullPath]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="in_StorageBucketName">[cfgBucketName]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="in_AgentProcessName">[cfgAgentProcessName]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="in_AgentFolderPath">[cfgAgentFolderPath]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="in_QueueName">[cfgQueueName]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="in_DownloadFolder">[downloadFolder]</InArgument>
+                          <InArgument x:TypeArguments="x:Boolean" x:Key="in_CreateQueueItem">[True]</InArgument>
+                          <OutArgument x:TypeArguments="x:String" x:Key="out_Status">[itemStatus]</OutArgument>
+                          <OutArgument x:TypeArguments="x:String" x:Key="out_RecordId">[itemRecordId]</OutArgument>
+                          <OutArgument x:TypeArguments="x:Boolean" x:Key="out_IsValid">[itemIsValid]</OutArgument>
+                          <OutArgument x:TypeArguments="x:Boolean" x:Key="out_WasDuplicate">[itemWasDuplicate]</OutArgument>
+                          <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[itemError]</OutArgument>
+                        </ui:InvokeWorkflowFile.Arguments>
+                      </ui:InvokeWorkflowFile>
+                      <Switch x:TypeArguments="x:String" DisplayName="Switch - count by status">
+                        <Switch.Expression>
+                          <InArgument x:TypeArguments="x:String">
+                            <VisualBasicValue x:TypeArguments="x:String" ExpressionText="If(itemStatus, String.Empty)" />
+                          </InArgument>
+                        </Switch.Expression>
+                        <Sequence x:Key="Created" DisplayName="Case Created">
+                          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - nCreated + 1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">
+                                <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="nCreated" />
+                              </OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">
+                                <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nCreated + 1" />
+                              </InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </Sequence>
+                        <Sequence x:Key="Rejected" DisplayName="Case Rejected">
+                          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - nRejected + 1 (system exception)">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">
+                                <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="nRejected" />
+                              </OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">
+                                <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nRejected + 1" />
+                              </InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </Sequence>
+                        <Sequence x:Key="Duplicate" DisplayName="Case Duplicate">
+                          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - nDuplicate + 1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">
+                                <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="nDuplicate" />
+                              </OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">
+                                <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nDuplicate + 1" />
+                              </InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </Sequence>
+                        <Switch.Default>
+                          <Sequence DisplayName="Default - unexpected status">
+                            <ui:LogMessage Level="Warn" DisplayName="Log - unexpected status">
+                              <ui:LogMessage.Message>
+                                <InArgument x:TypeArguments="x:Object">
+                                  <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Unexpected status '&quot; &amp; If(itemStatus, String.Empty) &amp; &quot;' for &quot; &amp; storageFile.FileFullPath" />
+                                </InArgument>
+                              </ui:LogMessage.Message>
+                            </ui:LogMessage>
+                          </Sequence>
+                        </Switch.Default>
+                      </Switch>
+                    </Sequence>
+                  </TryCatch.Try>
+                  <TryCatch.Catches>
+                    <Catch x:TypeArguments="ui:BusinessRuleException">
+                      <ActivityAction x:TypeArguments="ui:BusinessRuleException">
+                        <ActivityAction.Argument>
+                          <DelegateInArgument x:TypeArguments="ui:BusinessRuleException" Name="businessException" />
+                        </ActivityAction.Argument>
+                        <Sequence DisplayName="Catch - business rule (bad data, no retry)">
+                          <ui:LogMessage Level="Warn" DisplayName="Log - business exception">
+                            <ui:LogMessage.Message>
+                              <InArgument x:TypeArguments="x:Object">
+                                <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Rejected: &quot; &amp; storageFile.FileFullPath &amp; &quot; - &quot; &amp; businessException.Message" />
+                              </InArgument>
+                            </ui:LogMessage.Message>
+                          </ui:LogMessage>
+                          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - nRejected + 1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">
+                                <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="nRejected" />
+                              </OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">
+                                <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nRejected + 1" />
+                              </InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </Sequence>
+                      </ActivityAction>
+                    </Catch>
+                    <Catch x:TypeArguments="s:Exception">
+                      <ActivityAction x:TypeArguments="s:Exception">
+                        <ActivityAction.Argument>
+                          <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
+                        </ActivityAction.Argument>
+                        <Sequence DisplayName="Catch - system exception (log, continue with next file)">
+                          <ui:LogMessage Level="Error" DisplayName="Log - system exception">
+                            <ui:LogMessage.Message>
+                              <InArgument x:TypeArguments="x:Object">
+                                <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Failed: &quot; &amp; storageFile.FileFullPath &amp; &quot; - &quot; &amp; If(exception IsNot Nothing, exception.ToString(), &quot;&lt;missing&gt;&quot;)" />
+                              </InArgument>
+                            </ui:LogMessage.Message>
+                          </ui:LogMessage>
+                          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - nFailed + 1">
+                            <Assign.To>
+                              <OutArgument x:TypeArguments="x:Int32">
+                                <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="nFailed" />
+                              </OutArgument>
+                            </Assign.To>
+                            <Assign.Value>
+                              <InArgument x:TypeArguments="x:Int32">
+                                <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nFailed + 1" />
+                              </InArgument>
+                            </Assign.Value>
+                          </Assign>
+                        </Sequence>
+                      </ActivityAction>
+                    </Catch>
+                  </TryCatch.Catches>
+                  <TryCatch.Finally>
+                    <Sequence DisplayName="Finally">
+                      <Assign x:TypeArguments="x:Int32" DisplayName="Assign - nProcessed + 1">
+                        <Assign.To>
+                          <OutArgument x:TypeArguments="x:Int32">
+                            <VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="nProcessed" />
+                          </OutArgument>
+                        </Assign.To>
+                        <Assign.Value>
+                          <InArgument x:TypeArguments="x:Int32">
+                            <VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nProcessed + 1" />
+                          </InArgument>
+                        </Assign.Value>
+                      </Assign>
+                    </Sequence>
+                  </TryCatch.Finally>
+                </TryCatch>
+              </Sequence>
+            </ActivityAction>
+          </ui:ForEach.Body>
+        </ui:ForEach>
+          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - ProcessedCount">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32"><VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="ProcessedCount" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32"><VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nProcessed" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - CreatedCount">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32"><VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="CreatedCount" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32"><VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nCreated" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - RejectedCount">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32"><VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="RejectedCount" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32"><VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="nRejected" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign - RecordId (blank in batch mode)">
+            <Assign.To><OutArgument x:TypeArguments="x:String"><VisualBasicReference x:TypeArguments="x:String" ExpressionText="RecordId" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:String"><VisualBasicValue x:TypeArguments="x:String" ExpressionText="String.Empty" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Assign - IsValid (no rejections or failures)">
+            <Assign.To><OutArgument x:TypeArguments="x:Boolean"><VisualBasicReference x:TypeArguments="x:Boolean" ExpressionText="IsValid" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Boolean"><VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="nRejected = 0 AndAlso nFailed = 0" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Assign - WasDuplicate (False in batch mode)">
+            <Assign.To><OutArgument x:TypeArguments="x:Boolean"><VisualBasicReference x:TypeArguments="x:Boolean" ExpressionText="WasDuplicate" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Boolean"><VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="False" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign - ErrorMessage">
+            <Assign.To><OutArgument x:TypeArguments="x:String"><VisualBasicReference x:TypeArguments="x:String" ExpressionText="ErrorMessage" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:String"><VisualBasicValue x:TypeArguments="x:String" ExpressionText="If(nFailed &gt; 0, nFailed.ToString() &amp; &quot; file(s) failed&quot;, If(nRejected &gt; 0, nRejected.ToString() &amp; &quot; file(s) rejected&quot;, String.Empty))" /></InArgument></Assign.Value>
+          </Assign>
+          <ui:LogMessage Level="Info" DisplayName="Log - batch summary">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Invoice intake finished. Processed=&quot; &amp; nProcessed.ToString() &amp; &quot; Created=&quot; &amp; nCreated.ToString() &amp; &quot; Rejected=&quot; &amp; nRejected.ToString() &amp; &quot; Duplicate=&quot; &amp; nDuplicate.ToString() &amp; &quot; Failed=&quot; &amp; nFailed.ToString()" />
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <If DisplayName="If - any system failures">
+            <If.Condition>
+              <InArgument x:TypeArguments="x:Boolean">
+                <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="nFailed &gt; 0" />
+              </InArgument>
+            </If.Condition>
+            <If.Then>
+              <Sequence DisplayName="Then - fault the job">
+                <Throw DisplayName="Throw - system failures occurred">
+                  <Throw.Exception>
+                    <InArgument x:TypeArguments="s:Exception">
+                      <VisualBasicValue x:TypeArguments="s:Exception" ExpressionText="New ApplicationException(nFailed.ToString() &amp; &quot; invoice file(s) failed with system exceptions (see Error logs). Rerunning is safe: existing invoices are skipped by InvoiceNumber.&quot;)" />
+                    </InArgument>
+                  </Throw.Exception>
+                </Throw>
+              </Sequence>
+            </If.Then>
+          </If>
         </Sequence>
       </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Single invoice - exactly FileName (Maestro contract)">
+          <ui:InvokeWorkflowFile DisplayName="Invoke ProcessInvoiceFile.xaml (single)" WorkflowFileName="ProcessInvoiceFile.xaml" UnSafe="False">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="in_FileName">[FileName.Trim()]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_StorageBucketName">[cfgBucketName]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_AgentProcessName">[cfgAgentProcessName]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_AgentFolderPath">[cfgAgentFolderPath]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_QueueName">[cfgQueueName]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_DownloadFolder">[downloadFolder]</InArgument>
+              <InArgument x:TypeArguments="x:Boolean" x:Key="in_CreateQueueItem">[CreateQueueItem]</InArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_Status">[itemStatus]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_RecordId">[RecordId]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_IsValid">[IsValid]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_WasDuplicate">[WasDuplicate]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[ErrorMessage]</OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - ProcessedCount = 1">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32"><VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="ProcessedCount" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32"><VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="1" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - CreatedCount (single)">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32"><VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="CreatedCount" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32"><VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="If(itemStatus = &quot;Created&quot;, 1, 0)" /></InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Int32" DisplayName="Assign - RejectedCount (single)">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32"><VisualBasicReference x:TypeArguments="x:Int32" ExpressionText="RejectedCount" /></OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32"><VisualBasicValue x:TypeArguments="x:Int32" ExpressionText="If(itemStatus = &quot;Rejected&quot;, 1, 0)" /></InArgument></Assign.Value>
+          </Assign>
+          <ui:LogMessage Level="Info" DisplayName="Log - single result">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Single invoice &quot; &amp; FileName &amp; &quot;: Status=&quot; &amp; itemStatus &amp; &quot; RecordId=&quot; &amp; If(RecordId, String.Empty) &amp; &quot; IsValid=&quot; &amp; IsValid.ToString() &amp; &quot; WasDuplicate=&quot; &amp; WasDuplicate.ToString()" />
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+        </Sequence>
+      </If.Else>
     </If>
   </Sequence>
 </Activity>

@@ -1,11 +1,11 @@
 # Lab 1 reference — Vendor Invoice IXP project
 
-Facilitator-only reference for **Lab 1 — IXP / Document Understanding** of the UiPath Commercial Bootcamp
+Reference for **Lab 1 — IXP / Document Understanding** of the UiPath Commercial Bootcamp
 (Office of the CFO, Invoice-to-Pay, process step *Extract Invoice Data*). Lab 1 has no code deliverable: a participant
 pastes prompts into Claude Code and the `uipath-ixp` skill creates the project in the tenant. This folder holds the
 concrete artifacts needed to verify that what landed in the tenant is right.
 
-Nothing here is used by participants during the lab; keep it out of the prompts.
+Participants use expected-extractions.json in the last check step; the other files are facilitator material.
 
 ## Contents
 

@@ -34,7 +34,7 @@ Follow the skill's verdicts (CONFIRMED / CORRECTED / MISSING / NOT CONFIRMED). C
 | Invoice Number | Full prefixed number (`GLS-2026-0442`, `AF19427`, `MCS-Q1-20418`) | The PO number, or the number with prefix stripped |
 | Invoice Date | Normalized `YYYY-MM-DDT00:00:00Z` of the printed MM/DD/YYYY | The due date (both sit in the same meta block) |
 | PO Number | `PO-2026-NNNN` with prefix | Invoice number, or `PO Box 5591` from the bill-to address |
-| Total Amount | Grand total incl. tax (the TOTAL DUE / BALANCE DUE / TOTAL (USD) row). `Number` type reads back bare (`17988.20`); `Monetary Quantity` reads back `17988.20 USD` | The Subtotal, the Sales Tax, or a line-item amount. This is the planted Lab 1 defect: expect Subtotal on several documents before step 4 |
+| Total Amount | Grand total incl. tax (the TOTAL DUE / BALANCE DUE / TOTAL (USD) row). `Number` type reads back bare (`17988.20`); `Monetary Quantity` reads back `17988.20 USD` | The Subtotal, the Sales Tax, or a line-item amount. The planted Lab 1 defect. The current model (gemini_2_5_flash + table_mini) often extracts the grand total correctly on all five before step 4; a perfect Total Amount is not suspicious |
 | Currency | `USD` | Empty on banded invoices is *not* MISSING — the code is printed as the suffix of AMOUNT DUE / BALANCE DUE and in "All amounts in USD" |
 | Due Date | Normalized form of the printed due date | The invoice date, or a date computed from Terms that does not match the printed one |
 

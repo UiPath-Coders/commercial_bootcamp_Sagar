@@ -1,7 +1,7 @@
 {
   "_format": "uip-ixp-cli-mirror",
   "_format_note": "This is NOT one of the two import-taxonomy file formats ({field_types,label_group} or {entity_defs,label_groups}); the uipath-ixp skill (v1.200.0) documents those only by their top-level keys, not their full nested schema, so an import file could not be authored precisely from the skill alone. Instead this mirrors, key for key, the parameters of the commands the lab actually runs: `uip ixp groups add --name --instructions --fields '[{name,type,instructions}]'`, `uip ixp fields add --group --field --type --instructions`, and `uip ixp projects update-prompt --prompt`. `type` values are the names of the project's built-in data types (entity_defs) listed in cli-reference.md, Default data types.",
-  "_source": "commercial_bootcamp_lab_assets/lab1-ixp/fields-to-extract.md (field names, types, what/where text) and bootcamp-site/src/data/labs.ts lab1 uipChain (command shapes).",
+  "_source": "Field and group instructions: bootcamp-site/src/data/labs.ts LAB1_IXP_SETUP_PROMPT (the single source; lab1-ixp/fields-to-extract.md and payloads/groups-add-fields.json carry the same text). Command shapes: bootcamp-site/src/data/labs.ts lab1 uipChain.",
   "project": {
     "title_pattern": "Vendor Invoice <user_name>",
     "create_command": "uip ixp projects create \"Vendor Invoice <user_name>\" . --skip-taxonomy --output json",
@@ -16,38 +16,38 @@
   "field_groups": [
     {
       "name": "Vendor Invoice",
-      "instructions": "Extract the vendor identity and tax registration, the invoice and purchase-order references, and the total payable amount, currency, and dates needed to match and approve the invoice.",
+      "instructions": "Extract the vendor identity and tax registration, invoice and purchase-order references, total payable amount, currency, and dates needed to match and approve a vendor invoice.",
       "add_command": "uip ixp groups add <project-name> --name \"Vendor Invoice\" --instructions \"<instructions>\" --fields \"$(cat payloads/groups-add-fields.json)\" --output json",
       "fields": [
         {
           "name": "Vendor Name",
           "type": "Exact Text",
           "type_source": "fields-to-extract.md: Exact Text",
-          "instructions": "The supplier's full legal name exactly as shown. Where to look: Vendor, Supplier, From, Remit To, letterhead, or Supplier of Record section."
+          "instructions": "Extract the supplier's full legal name exactly as shown in the vendor, supplier, from, remit-to, letterhead, or supplier-of-record area."
         },
         {
           "name": "Vendor Tax ID",
           "type": "Exact Text",
           "type_source": "fields-to-extract.md: Exact Text",
-          "instructions": "The vendor's US tax identifier (EIN) formatted NN-NNNNNNN. Preserve all characters and leading zeros. Where to look: Tax ID, Tax Ref, EIN, VAT, Supplier Tax ID / VAT, or supplier registration section."
+          "instructions": "Extract the vendor's US EIN in NN-NNNNNNN format. Preserve leading zeros; do not capture a phone or account number."
         },
         {
           "name": "Invoice Number",
           "type": "Exact Text",
           "type_source": "fields-to-extract.md: Exact Text",
-          "instructions": "The vendor's invoice or document number, including any prefix and punctuation. Where to look: Invoice No., Invoice #, Document Number, or the invoice header."
+          "instructions": "Extract the invoice or document number, including prefixes and punctuation."
         },
         {
           "name": "Invoice Date",
           "type": "Date",
           "type_source": "fields-to-extract.md: Date",
-          "instructions": "The date the invoice was issued. Where to look: Invoice Date, Date, Issued, or the invoice header. Do not use the order date, ship date, or service date."
+          "instructions": "Extract the invoice issue date only, not the purchase-order, ship, or service date. Normalize it to MM/DD/YYYY."
         },
         {
           "name": "PO Number",
           "type": "Exact Text",
           "type_source": "fields-to-extract.md: Exact Text",
-          "instructions": "The purchase-order reference the invoice bills against, including its prefix. Preserve all digits and leading zeros. Where to look: Customer PO, PO, PO Reference, Purchase Order, or the procurement section."
+          "instructions": "Extract the complete purchase-order reference, including its prefix and leading zeros. Watch for OCR confusion between O and 0."
         },
         {
           "name": "Total Amount",
@@ -55,19 +55,19 @@
           "type_source": "fields-to-extract.md: Number",
           "accepted_alternative_type": "Monetary Quantity",
           "type_note": "fields-to-extract.md says Number. The uipath-ixp skill's Critical Rule 17 steers Claude Code to reuse the built-in Monetary Quantity type for any currency amount, so participant projects will legitimately show either. Accept both; the normalized prediction differs (Number -> '17988.20', Monetary Quantity -> '17988.20 USD').",
-          "instructions": "The grand total payable, including tax. Extract the final total, not the subtotal or amount before tax. Where to look: Total Due, Total, Gross Payable, Amount Due, or the totals block."
+          "instructions": "Extract the final grand total payable including tax, never the subtotal or amount before tax."
         },
         {
           "name": "Currency",
           "type": "Exact Text",
           "type_source": "fields-to-extract.md: Exact Text",
-          "instructions": "The three-letter currency code (USD on every packet), or the currency implied by the invoice's currency symbol. Where to look: Currency, Billing Currency, the currency symbol on the total, or the totals block."
+          "instructions": "Extract the three-letter currency code. When only a dollar sign is present, return USD."
         },
         {
           "name": "Due Date",
           "type": "Date",
           "type_source": "fields-to-extract.md: Date",
-          "instructions": "The date payment is due. Where to look: Payment Due By, Net Due Date, Due Date, or derived from the invoice date plus the payment terms."
+          "instructions": "Extract the payment due date, or derive it from the invoice date and explicit payment terms. Normalize it to MM/DD/YYYY."
         }
       ]
     }

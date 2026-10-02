@@ -1,0 +1,6 @@
+{
+  "ProjectType": "Agent",
+  "Name": "Invoice_Approval_Agent_Reference",
+  "Description": "Commercial Bootcamp Lab 5 reference: deterministic approval gates + LLM narrative written back to the AP_Invoice record",
+  "MainFile": null
+}

@@ -1,0 +1,162 @@
+{
+  "service": "erp-po-api",
+  "description": "Deterministic responses the mock ERP PO-lookup API must return, keyed by poNumber. Lab 3's po_lookup applies: matched = found && vendorActive && |invoiceTotal - openAmount| <= 2% of openAmount; approvalRequired = !matched || invoiceTotal > 10000. Unknown PO numbers return found: false.",
+  "health": {
+    "ok": true,
+    "service": "erp-po-api"
+  },
+  "responses": {
+    "PO-2026-0431": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 4200.0,
+        "currency": "USD"
+      },
+      "note": "Northwind 4155.40 → matched, under threshold → auto-approved"
+    },
+    "PO-2026-0447": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 12740.0,
+        "currency": "USD"
+      },
+      "note": "Contoso 12740.00 → matched, over threshold → approval needed. Also used by invoice 011 (CLL-2026-3418, 12720.00, homework Challenge reviewer path): matched, over threshold → approval needed"
+    },
+    "PO-2026-0452": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 4100.0,
+        "currency": "USD"
+      },
+      "note": "Ableton 4026.88 → matched → auto-approved"
+    },
+    "PO-2026-0399": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 16980.0,
+        "currency": "USD"
+      },
+      "note": "Meridian 16980.00 → matched, over threshold → approval needed"
+    },
+    "PO-2026-0461": {
+      "po": {
+        "found": true,
+        "vendorActive": false,
+        "openAmount": 2954.0,
+        "currency": "USD"
+      },
+      "note": "Blue Harbor → vendor inactive → not matched → approval needed (HOLD_PO_MISMATCH)"
+    },
+    "PO-2026-0470": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 16900.0,
+        "currency": "USD"
+      },
+      "note": "Great Lakes Steel 17988.20 → over tolerance → not matched → approval needed (HOLD_PO_MISMATCH)"
+    },
+    "PO-2026-0476": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 5000.0,
+        "currency": "USD"
+      },
+      "note": "Liberty Print 4946.40 → matched → auto-approved"
+    },
+    "PO-2026-0468": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 3750.0,
+        "currency": "USD"
+      },
+      "note": "Summit 3699.26 → matched → auto-approved"
+    },
+    "PO-2026-0405": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 22700.0,
+        "currency": "USD"
+      },
+      "note": "Vertex 22700.00 → matched, over threshold → approval needed"
+    },
+    "PO-2026-0489": {
+      "po": {
+        "found": false,
+        "vendorActive": false,
+        "openAmount": 0,
+        "currency": "USD"
+      },
+      "note": "Pacific Timber → PO not found → not matched → approval needed (HOLD_PO_MISMATCH)"
+    },
+    "PO-2026-0501": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 14850.0,
+        "currency": "USD"
+      },
+      "note": "AP-TRAIN-1001 → matched, approval needed, complete evidence → READY_FOR_APPROVAL"
+    },
+    "PO-2026-0502": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 23400.0,
+        "currency": "USD"
+      },
+      "note": "AP-TRAIN-1002 → matched, approval needed, missing receipt → NEEDS_AP_REVIEW"
+    },
+    "PO-2026-0503": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 7980.0,
+        "currency": "USD"
+      },
+      "note": "AP-TRAIN-1003 → matched, under threshold → AUTO_APPROVED"
+    },
+    "PO-2026-0504": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 28000.0,
+        "currency": "USD"
+      },
+      "note": "AP-TRAIN-1004 31200.00 → over tolerance → HOLD_PO_MISMATCH"
+    },
+    "PO-2026-0505": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 12600.0,
+        "currency": "USD"
+      },
+      "note": "AP-TRAIN-1005 → matched, approval needed, missing GL account and approver → NEEDS_AP_REVIEW"
+    },
+    "PO-2026-0506": {
+      "po": {
+        "found": true,
+        "vendorActive": true,
+        "openAmount": 22700.0,
+        "currency": "USD"
+      },
+      "note": "AP-TRAIN-1006 → matched, approval needed, complete evidence → READY_FOR_APPROVAL"
+    }
+  },
+  "default": {
+    "po": {
+      "found": false,
+      "vendorActive": false,
+      "openAmount": 0,
+      "currency": "USD"
+    }
+  }
+}
