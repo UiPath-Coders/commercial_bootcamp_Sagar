@@ -1,0 +1,137 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="CreateInvoiceRecord" mva:VisualBasic.Settings="{x:Null}"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:local="clr-namespace:Invoice_Intake_RPA_Reference;assembly=DataService.Invoice_Intake_RPA_Reference"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+ xmlns:uda="clr-namespace:UiPath.DataService.Activities;assembly=UiPath.DataService.Activities.Core"
+ xmlns:udam="clr-namespace:UiPath.DataService.Activities.Models;assembly=UiPath.DataService.Activities.Core"
+ xmlns:ui="http://schemas.uipath.com/workflow/activities"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Create one AP invoice and return its Data Fabric Id. The InvoiceNumber query makes reruns idempotent. -->
+  <x:Members>
+    <x:Property Name="in_VendorName" Type="InArgument(x:String)" />
+    <x:Property Name="in_VendorTaxId" Type="InArgument(x:String)" />
+    <x:Property Name="in_InvoiceNumber" Type="InArgument(x:String)" />
+    <x:Property Name="in_InvoiceDate" Type="InArgument(x:String)" />
+    <x:Property Name="in_PONumber" Type="InArgument(x:String)" />
+    <x:Property Name="in_TotalAmount" Type="InArgument(x:Decimal)" />
+    <x:Property Name="in_Currency" Type="InArgument(x:String)" />
+    <x:Property Name="in_DueDate" Type="InArgument(x:String)" />
+    <x:Property Name="in_SourceFileName" Type="InArgument(x:String)" />
+    <x:Property Name="out_RecordId" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Created" Type="OutArgument(x:Boolean)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.DataService.Activities</x:String>
+      <x:String>UiPath.DataService.Activities.Models</x:String>
+      <x:String>UiPath.DataService.Definition</x:String>
+      <x:String>Invoice_Intake_RPA_Reference</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Activities.Core</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Definition</AssemblyReference>
+      <AssemblyReference>DataService.Invoice_Intake_RPA_Reference</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Create invoice record (idempotent)" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="scg:IList(local:AP_Invoice_Reference)" Name="duplicates" />
+      <Variable x:TypeArguments="x:Int64" Name="duplicateCount" Default="0" />
+      <Variable x:TypeArguments="local:AP_Invoice_Reference" Name="createdRecord" />
+      <Variable x:TypeArguments="s:Nullable(s:DateTime)" Name="invoiceDateValue" />
+      <Variable x:TypeArguments="s:Nullable(s:DateTime)" Name="dueDateValue" />
+    </Sequence.Variables>
+    <Assign x:TypeArguments="s:Nullable(s:DateTime)" DisplayName="Parse optional invoice date">
+      <Assign.To><OutArgument x:TypeArguments="s:Nullable(s:DateTime)">[invoiceDateValue]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[If(String.IsNullOrWhiteSpace(in_InvoiceDate), CType(Nothing, Nullable(Of DateTime)), CType(DateTime.Parse(in_InvoiceDate, CultureInfo.InvariantCulture).Date, Nullable(Of DateTime)))]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="s:Nullable(s:DateTime)" DisplayName="Parse optional due date">
+      <Assign.To><OutArgument x:TypeArguments="s:Nullable(s:DateTime)">[dueDateValue]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[If(String.IsNullOrWhiteSpace(in_DueDate), CType(Nothing, Nullable(Of DateTime)), CType(DateTime.Parse(in_DueDate, CultureInfo.InvariantCulture).Date, Nullable(Of DateTime)))]</InArgument></Assign.Value>
+    </Assign>
+    <uda:QueryEntityRecords x:TypeArguments="local:AP_Invoice_Reference" ContinueOnError="False" DisplayName="Find existing invoice number" EntityId="dadab581-76ef-5e29-8352-a8dffcd0b1b3" ExpansionDepth="2" OutputRecords="[duplicates]" Skip="0" TimeoutInMs="60000" Top="1" TotalRecords="[duplicateCount]">
+      <uda:QueryEntityRecords.FilterArguments>
+        <uda:FilterArgument FilterActivityType="{x:Null}">
+          <uda:FilterArgument.Filter>
+            <uda:GroupFilter Index="0" Operator="AND">
+              <uda:GroupFilter.Filters>
+                <scg:List x:TypeArguments="uda:SimpleFilter" Capacity="1">
+                  <uda:SimpleFilter ExpressionValue="{x:Null}" FieldName="InvoiceNumber" FieldType="UiPath.DataService.Core.Models.EntityField" Operator="=" ValueIndex="0" />
+                </scg:List>
+              </uda:GroupFilter.Filters>
+              <uda:GroupFilter.Groups><scg:List x:TypeArguments="uda:GroupFilter" Capacity="0" /></uda:GroupFilter.Groups>
+            </uda:GroupFilter>
+          </uda:FilterArgument.Filter>
+        </uda:FilterArgument>
+      </uda:QueryEntityRecords.FilterArguments>
+      <uda:QueryEntityRecords.FilterValues>
+        <scg:List x:TypeArguments="InArgument" Capacity="1"><InArgument x:TypeArguments="x:String">[in_InvoiceNumber]</InArgument></scg:List>
+      </uda:QueryEntityRecords.FilterValues>
+    </uda:QueryEntityRecords>
+    <If DisplayName="If invoice number already exists">
+      <If.Condition><InArgument x:TypeArguments="x:Boolean">[duplicates IsNot Nothing AndAlso duplicates.Count &gt; 0]</InArgument></If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Return existing record">
+          <Assign x:TypeArguments="x:String" DisplayName="Return existing record Id"><Assign.To><OutArgument x:TypeArguments="x:String">[out_RecordId]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:String">[duplicates(0).Id.ToString()]</InArgument></Assign.Value></Assign>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Mark as duplicate"><Assign.To><OutArgument x:TypeArguments="x:Boolean">[out_Created]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:Boolean">[False]</InArgument></Assign.Value></Assign>
+          <ui:LogMessage DisplayName="Log duplicate" Level="Warn" Message="[&quot;Duplicate invoice &quot; &amp; in_InvoiceNumber &amp; &quot; skipped; existing record Id &quot; &amp; out_RecordId]" />
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Create new AP invoice">
+          <uda:CreateEntityRecord x:TypeArguments="local:AP_Invoice_Reference" ContinueOnError="False" DisplayName="Create AP_Invoice_Reference record" EntityId="dadab581-76ef-5e29-8352-a8dffcd0b1b3" ExpansionDepth="2" InputEntityInFieldView="[New AP_Invoice_Reference() With {.ProcessedTimestamp = DateTimeOffset.UtcNow, .VendorName = in_VendorName, .VendorTaxId = in_VendorTaxId, .InvoiceNumber = in_InvoiceNumber, .InvoiceDate = invoiceDateValue, .PONumber = in_PONumber, .TotalAmount = in_TotalAmount, .Currency = in_Currency, .DueDate = dueDateValue}]" IsInRecordView="[False]" OutputEntity="[createdRecord]" TimeoutInMs="60000" VisibleDynamicPropertiesInfo="{x:Null}">
+            <uda:CreateEntityRecord.State>
+              <udam:RecordState IsInRecordView="False" RequiredFieldCount="0">
+                <udam:RecordState.SelectedFields>
+                  <scg:List x:TypeArguments="udam:DynamicEntityField">
+                    <udam:DynamicEntityField Id="39f1de24-57ec-5093-ad87-96df26b8a084" IsRequired="False" Name="ProcessedTimestamp"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="s:DateTimeOffset">[DateTimeOffset.UtcNow]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="982fb27c-9a7d-51e3-9f51-026f18466b8b" IsRequired="False" Name="VendorName"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[in_VendorName]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="f44c18c2-7814-5596-9dcf-e43df68de418" IsRequired="False" Name="VendorTaxId"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[in_VendorTaxId]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="2db834db-f7da-5b99-8347-192e588cc0f2" IsRequired="False" Name="InvoiceNumber"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[in_InvoiceNumber]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="78fb95fd-8cf4-5a97-a345-b4b14685a8ca" IsRequired="False" Name="InvoiceDate"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[invoiceDateValue]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="de4efdab-82c7-5e0b-ba56-4e79652573cf" IsRequired="False" Name="PONumber"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[in_PONumber]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="b101b66d-932d-5328-bfdb-5b9cdd371d6c" IsRequired="False" Name="TotalAmount"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:Decimal">[in_TotalAmount]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="c257bbae-0422-59c5-a978-b508f8994a54" IsRequired="False" Name="Currency"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[in_Currency]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                    <udam:DynamicEntityField Id="ef091e0c-0749-5d43-82f6-f92a4ee519da" IsRequired="False" Name="DueDate"><udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[dueDateValue]</InArgument></udam:DynamicEntityField.ArgumentValue></udam:DynamicEntityField>
+                  </scg:List>
+                </udam:RecordState.SelectedFields>
+              </udam:RecordState>
+            </uda:CreateEntityRecord.State>
+          </uda:CreateEntityRecord>
+          <Assign x:TypeArguments="x:String" DisplayName="Return created record Id"><Assign.To><OutArgument x:TypeArguments="x:String">[out_RecordId]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:String">[createdRecord.Id.ToString()]</InArgument></Assign.Value></Assign>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Mark as created"><Assign.To><OutArgument x:TypeArguments="x:Boolean">[out_Created]</OutArgument></Assign.To><Assign.Value><InArgument x:TypeArguments="x:Boolean">[True]</InArgument></Assign.Value></Assign>
+          <ui:LogMessage DisplayName="Log created record" Level="Info" Message="[&quot;Created AP invoice &quot; &amp; in_InvoiceNumber &amp; &quot; from &quot; &amp; in_SourceFileName &amp; &quot;; record Id &quot; &amp; out_RecordId]" />
+        </Sequence>
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>

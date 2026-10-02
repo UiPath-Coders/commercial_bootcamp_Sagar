@@ -1,0 +1,6 @@
+{
+  "Name": "Invoice_Intake_RPA_Reference",
+  "ProjectType": "Process",
+  "Description": "Lab 2 reference: bucket -> extraction agent -> validate -> Data Fabric record -> queue item",
+  "MainFile": "Main.xaml"
+}

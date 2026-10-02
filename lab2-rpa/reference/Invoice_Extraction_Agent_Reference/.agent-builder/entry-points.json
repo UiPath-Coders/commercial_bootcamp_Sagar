@@ -1,0 +1,100 @@
+{
+  "$schema": "https://cloud.uipath.com/draft/2024-12/entry-point",
+  "$id": "entry-points.json",
+  "entryPoints": [
+    {
+      "filePath": "/content/agent.json",
+      "uniqueId": "3cc1a6c1-133f-4495-bdad-9c4a2ded18b0",
+      "type": "agent",
+      "input": {
+        "type": "object",
+        "properties": {
+          "SourceFile": {
+            "$ref": "#/definitions/job-attachment",
+            "description": "One vendor-invoice PDF to extract with the published live IXP model."
+          }
+        },
+        "required": [
+          "SourceFile"
+        ],
+        "definitions": {
+          "job-attachment": {
+            "type": "object",
+            "properties": {
+              "ID": {
+                "type": "string",
+                "description": "Orchestrator attachment key"
+              },
+              "FullName": {
+                "type": "string",
+                "description": "File name"
+              },
+              "MimeType": {
+                "type": "string",
+                "description": "MIME type, e.g. application/pdf or image/png"
+              },
+              "Metadata": {
+                "type": "object",
+                "description": "Dictionary<string, string> of metadata",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "ID"
+            ],
+            "x-uipath-resource-kind": "JobAttachment"
+          }
+        }
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "VendorName": {
+            "type": "string",
+            "description": "Vendor legal or trading name printed on the invoice."
+          },
+          "VendorTaxId": {
+            "type": "string",
+            "description": "Vendor US EIN in NN-NNNNNNN format."
+          },
+          "InvoiceNumber": {
+            "type": "string",
+            "description": "Invoice number exactly as printed."
+          },
+          "InvoiceDate": {
+            "type": "string",
+            "description": "Invoice issue date normalized to MM/DD/YYYY."
+          },
+          "PONumber": {
+            "type": "string",
+            "description": "Purchase-order number exactly as printed."
+          },
+          "TotalAmount": {
+            "type": "string",
+            "description": "Invoice grand total as a decimal string without a currency symbol or thousands separators."
+          },
+          "Currency": {
+            "type": "string",
+            "description": "Three-letter currency code; USD for the bootcamp invoices."
+          },
+          "DueDate": {
+            "type": "string",
+            "description": "Payment due date normalized to MM/DD/YYYY."
+          }
+        },
+        "required": [
+          "VendorName",
+          "VendorTaxId",
+          "InvoiceNumber",
+          "InvoiceDate",
+          "PONumber",
+          "TotalAmount",
+          "Currency",
+          "DueDate"
+        ]
+      }
+    }
+  ]
+}

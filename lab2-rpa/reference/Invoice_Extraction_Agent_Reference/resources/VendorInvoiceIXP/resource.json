@@ -1,0 +1,27 @@
+{
+  "$resourceType": "tool",
+  "id": "8a697c93-5b5f-4a9a-a915-c453fd5f4d65",
+  "name": "VendorInvoiceIXP",
+  "description": "Extract the eight Commercial Bootcamp invoice fields from one PDF with the published live IXP project Vendor Invoice <user_name>. Replace <user_name> when binding this reference in Studio Web.",
+  "type": "ixp",
+  "isEnabled": true,
+  "location": "external",
+  "inputSchema": {
+    "type": "object",
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {}
+  },
+  "settings": {},
+  "guardrail": {
+    "policies": []
+  },
+  "argumentProperties": {},
+  "properties": {
+    "projectName": "Vendor Invoice <user_name>",
+    "versionTag": "live",
+    "exampleCalls": []
+  }
+}

@@ -1,0 +1,357 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="ProcessInvoiceFile" mva:VisualBasic.Settings="{x:Null}"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:local="clr-namespace:Invoice_Intake_RPA_Sagar;assembly=DataService.Invoice_Intake_RPA_Sagar"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+ xmlns:uasj="clr-namespace:UiPath.Activities.System.Jobs;assembly=UiPath.System.Activities"
+ xmlns:uca="clr-namespace:UiPath.Core.Activities;assembly=UiPath.System.Activities"
+ xmlns:ucas="clr-namespace:UiPath.Core.Activities.Storage;assembly=UiPath.System.Activities"
+ xmlns:uda="clr-namespace:UiPath.DataService.Activities;assembly=UiPath.DataService.Activities.Core"
+ xmlns:udam="clr-namespace:UiPath.DataService.Activities.Models;assembly=UiPath.DataService.Activities.Core"
+ xmlns:ui="http://schemas.uipath.com/workflow/activities"
+ xmlns:upr="clr-namespace:UiPath.Platform.ResourceHandling;assembly=UiPath.Platform"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    ProcessInvoiceFile.xaml - one invoice file from the InvoiceInbox_Sagar storage bucket:
+      download -> Invoice_Extraction_Agent_Sagar (Run Job, SourceFile) -> validate (PONumber, numeric TotalAmount)
+      -> AP_Invoice_Sagar lookup by InvoiceNumber -> insert (EXTRACTED) -> optional InvoiceQueue_Sagar item (Reference = RecordId).
+    Invalid extraction: out_IsValid = False, out_ErrorMessage set, no record, no queue item.
+    Duplicate InvoiceNumber: existing Id returned with out_WasDuplicate = True, no record, no queue item.
+    System exceptions (bucket, agent job, Data Fabric, queue) propagate to the caller.
+  -->
+  <x:Members>
+    <x:Property Name="in_FileName" Type="InArgument(x:String)" />
+    <x:Property Name="in_BucketName" Type="InArgument(x:String)" />
+    <x:Property Name="in_BucketFolderPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_AgentProcessName" Type="InArgument(x:String)" />
+    <x:Property Name="in_AgentFolderPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_QueueName" Type="InArgument(x:String)" />
+    <x:Property Name="in_QueueFolderPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_CreateQueueItem" Type="InArgument(x:Boolean)" />
+    <x:Property Name="out_RecordId" Type="OutArgument(x:String)" />
+    <x:Property Name="out_IsValid" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="out_WasDuplicate" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="out_ErrorMessage" Type="OutArgument(x:String)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Text.RegularExpressions</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Core.Activities.Storage</x:String>
+      <x:String>UiPath.Activities.System.Jobs</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+      <x:String>UiPath.DataService.Activities</x:String>
+      <x:String>UiPath.DataService.Activities.Models</x:String>
+      <x:String>UiPath.DataService.Definition</x:String>
+      <x:String>Invoice_Intake_RPA_Sagar</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Text.RegularExpressions</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Activities.Core</AssemblyReference>
+      <AssemblyReference>UiPath.DataService.Definition</AssemblyReference>
+      <AssemblyReference>DataService.Invoice_Intake_RPA_Sagar</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Process Invoice File" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="displayFileName" />
+      <Variable x:TypeArguments="x:String" Name="localPath" />
+      <Variable x:TypeArguments="upr:ILocalResource" Name="localFile" />
+      <Variable x:TypeArguments="uca:OrchestratorJob" Name="agentJob" />
+      <Variable x:TypeArguments="x:String" Name="vendorName" />
+      <Variable x:TypeArguments="x:String" Name="vendorTaxId" />
+      <Variable x:TypeArguments="x:String" Name="invoiceNumber" />
+      <Variable x:TypeArguments="x:String" Name="invoiceDateText" />
+      <Variable x:TypeArguments="x:String" Name="poNumber" />
+      <Variable x:TypeArguments="x:String" Name="totalAmountText" />
+      <Variable x:TypeArguments="x:String" Name="currency" />
+      <Variable x:TypeArguments="x:String" Name="dueDateText" />
+      <Variable x:TypeArguments="x:String" Name="amountClean" />
+      <Variable x:TypeArguments="x:String" Name="validationError" />
+      <Variable x:TypeArguments="x:Decimal" Name="totalAmount" />
+      <Variable x:TypeArguments="s:Nullable(s:DateTime)" Name="invoiceDateValue" />
+      <Variable x:TypeArguments="s:Nullable(s:DateTime)" Name="dueDateValue" />
+      <Variable x:TypeArguments="scg:IList(local:AP_Invoice_Sagar)" Name="existingRecords" />
+      <Variable x:TypeArguments="x:Int64" Name="existingCount" />
+      <Variable x:TypeArguments="local:AP_Invoice_Sagar" Name="createdRecord" />
+      <Variable x:TypeArguments="x:String" Name="recordId" />
+    </Sequence.Variables>
+    <Assign x:TypeArguments="x:String" DisplayName="Init out_RecordId">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[out_RecordId]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[String.Empty]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:Boolean" DisplayName="Init out_IsValid">
+      <Assign.To><OutArgument x:TypeArguments="x:Boolean">[out_IsValid]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:Boolean">[False]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:Boolean" DisplayName="Init out_WasDuplicate">
+      <Assign.To><OutArgument x:TypeArguments="x:Boolean">[out_WasDuplicate]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:Boolean">[False]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Init out_ErrorMessage">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[out_ErrorMessage]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[String.Empty]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign displayFileName">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[displayFileName]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[Path.GetFileName(in_FileName.Replace("\"c, "/"c))]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign localPath (unique temp file)">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[localPath]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") &amp; "_" &amp; displayFileName)]</InArgument></Assign.Value>
+    </Assign>
+    <ui:LogMessage Level="Info" DisplayName="Log processing file">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">["Processing invoice file " &amp; displayFileName]</InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
+    <!-- Download overwrites the local copy, so transient Orchestrator errors are safe to retry. -->
+    <ui:RetryScope DisplayName="Retry Scope - download from bucket">
+      <ui:RetryScope.NumberOfRetries>
+        <InArgument x:TypeArguments="x:Int32">[3]</InArgument>
+      </ui:RetryScope.NumberOfRetries>
+      <ui:RetryScope.RetryInterval>
+        <InArgument x:TypeArguments="s:TimeSpan">[TimeSpan.FromSeconds(5)]</InArgument>
+      </ui:RetryScope.RetryInterval>
+      <ui:RetryScope.ActivityBody>
+        <ActivityAction>
+          <Sequence DisplayName="Action">
+            <ucas:DownloadStorageFile DisplayName="Download invoice from InvoiceInbox bucket" StorageBucketName="[in_BucketName]" FolderPath="[in_BucketFolderPath]" Path="[in_FileName]" Destination="[localPath]" Result="[localFile]" />
+          </Sequence>
+        </ActivityAction>
+      </ui:RetryScope.ActivityBody>
+      <ui:RetryScope.Condition>
+        <ActivityFunc x:TypeArguments="x:Boolean" />
+      </ui:RetryScope.Condition>
+    </ui:RetryScope>
+    <!-- Busy = start the agent job and wait. Dictionary keys match the deployed agent's entry point:
+         input SourceFile (job attachment), outputs are the eight string fields. A faulted job throws. -->
+    <uasj:RunJob DisplayName="Run Job - Invoice_Extraction_Agent_Sagar" ProcessName="[in_AgentProcessName]" FolderPath="[in_AgentFolderPath]" ExecutionMode="Busy" FailWhenFaulted="True" TimeoutMS="[600000]" Job="[agentJob]">
+      <uasj:RunJob.Arguments>
+        <scg:Dictionary x:TypeArguments="x:String, Argument">
+          <InArgument x:TypeArguments="upr:IResource" x:Key="SourceFile">[localFile]</InArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="VendorName">[vendorName]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="VendorTaxId">[vendorTaxId]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="InvoiceNumber">[invoiceNumber]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="InvoiceDate">[invoiceDateText]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="PONumber">[poNumber]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="TotalAmount">[totalAmountText]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="Currency">[currency]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="DueDate">[dueDateText]</OutArgument>
+        </scg:Dictionary>
+      </uasj:RunJob.Arguments>
+    </uasj:RunJob>
+    <!-- Validate before writing: PONumber present, TotalAmount present and numeric (thousands separators tolerated). -->
+    <Assign x:TypeArguments="x:String" DisplayName="Assign amountClean">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[amountClean]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[If(totalAmountText, String.Empty).Trim().Replace(",", String.Empty)]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign validationError">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[validationError]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[String.Join("; ", New String() {If(String.IsNullOrWhiteSpace(poNumber), "PONumber is empty", Nothing), If(String.IsNullOrWhiteSpace(totalAmountText), "TotalAmount is empty", If(Regex.IsMatch(amountClean, "^-?[0-9]+(\.[0-9]+)?$"), Nothing, "TotalAmount is not numeric"))}.Where(Function(reason) reason IsNot Nothing))]</InArgument></Assign.Value>
+    </Assign>
+    <If DisplayName="If extraction is invalid">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">[Not String.IsNullOrEmpty(validationError)]</InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Invalid - no record, no queue item">
+          <Assign x:TypeArguments="x:String" DisplayName="Return out_ErrorMessage">
+            <Assign.To><OutArgument x:TypeArguments="x:String">[out_ErrorMessage]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:String">[validationError]</InArgument></Assign.Value>
+          </Assign>
+          <ui:LogMessage Level="Warn" DisplayName="Log rejected (file name and reason only)">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">["Rejected " &amp; displayFileName &amp; ": " &amp; validationError]</InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Valid - lookup, insert, queue">
+          <Assign x:TypeArguments="x:Boolean" DisplayName="Return out_IsValid = True">
+            <Assign.To><OutArgument x:TypeArguments="x:Boolean">[out_IsValid]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Boolean">[True]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Decimal" DisplayName="Parse totalAmount">
+            <Assign.To><OutArgument x:TypeArguments="x:Decimal">[totalAmount]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Decimal">[Decimal.Parse(amountClean, NumberStyles.Number, CultureInfo.InvariantCulture)]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="s:Nullable(s:DateTime)" DisplayName="Parse optional invoice date">
+            <Assign.To><OutArgument x:TypeArguments="s:Nullable(s:DateTime)">[invoiceDateValue]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[If(Regex.IsMatch(If(invoiceDateText, String.Empty).Trim(), "^([0-9]{1,2}/[0-9]{1,2}/[0-9]{4}|[0-9]{4}-[0-9]{2}-[0-9]{2})$"), CType(DateTime.ParseExact(invoiceDateText.Trim(), New String() {"M/d/yyyy", "yyyy-MM-dd"}, CultureInfo.InvariantCulture, DateTimeStyles.None), Nullable(Of DateTime)), CType(Nothing, Nullable(Of DateTime)))]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="s:Nullable(s:DateTime)" DisplayName="Parse optional due date">
+            <Assign.To><OutArgument x:TypeArguments="s:Nullable(s:DateTime)">[dueDateValue]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[If(Regex.IsMatch(If(dueDateText, String.Empty).Trim(), "^([0-9]{1,2}/[0-9]{1,2}/[0-9]{4}|[0-9]{4}-[0-9]{2}-[0-9]{2})$"), CType(DateTime.ParseExact(dueDateText.Trim(), New String() {"M/d/yyyy", "yyyy-MM-dd"}, CultureInfo.InvariantCulture, DateTimeStyles.None), Nullable(Of DateTime)), CType(Nothing, Nullable(Of DateTime)))]</InArgument></Assign.Value>
+          </Assign>
+          <uda:QueryEntityRecords x:TypeArguments="local:AP_Invoice_Sagar" ContinueOnError="False" DisplayName="Query AP_Invoice_Sagar by InvoiceNumber" EntityId="5c5aadee-d6bd-f111-a6a9-6045bddc9767" ExpansionDepth="2" OutputRecords="[existingRecords]" TotalRecords="[existingCount]" Skip="0" Top="1" TimeoutInMs="60000">
+            <uda:QueryEntityRecords.FilterArguments>
+              <uda:FilterArgument FilterActivityType="{x:Null}">
+                <uda:FilterArgument.Filter>
+                  <uda:GroupFilter Index="0" Operator="AND">
+                    <uda:GroupFilter.Filters>
+                      <scg:List x:TypeArguments="uda:SimpleFilter" Capacity="1">
+                        <uda:SimpleFilter ExpressionValue="{x:Null}" FieldName="InvoiceNumber" FieldType="UiPath.DataService.Core.Models.EntityField" Operator="=" ValueIndex="0" />
+                      </scg:List>
+                    </uda:GroupFilter.Filters>
+                    <uda:GroupFilter.Groups>
+                      <scg:List x:TypeArguments="uda:GroupFilter" Capacity="0" />
+                    </uda:GroupFilter.Groups>
+                  </uda:GroupFilter>
+                </uda:FilterArgument.Filter>
+              </uda:FilterArgument>
+            </uda:QueryEntityRecords.FilterArguments>
+            <uda:QueryEntityRecords.FilterValues>
+              <scg:List x:TypeArguments="InArgument" Capacity="1">
+                <InArgument x:TypeArguments="x:String">[If(invoiceNumber, String.Empty)]</InArgument>
+              </scg:List>
+            </uda:QueryEntityRecords.FilterValues>
+          </uda:QueryEntityRecords>
+          <If DisplayName="If InvoiceNumber already exists">
+            <If.Condition>
+              <InArgument x:TypeArguments="x:Boolean">[existingRecords IsNot Nothing AndAlso existingRecords.Count &gt; 0]</InArgument>
+            </If.Condition>
+            <If.Then>
+              <Sequence DisplayName="Duplicate - return existing Id">
+                <Assign x:TypeArguments="x:String" DisplayName="Assign recordId (existing)">
+                  <Assign.To><OutArgument x:TypeArguments="x:String">[recordId]</OutArgument></Assign.To>
+                  <Assign.Value><InArgument x:TypeArguments="x:String">[existingRecords(0).Id.ToString()]</InArgument></Assign.Value>
+                </Assign>
+                <Assign x:TypeArguments="x:Boolean" DisplayName="Return out_WasDuplicate = True">
+                  <Assign.To><OutArgument x:TypeArguments="x:Boolean">[out_WasDuplicate]</OutArgument></Assign.To>
+                  <Assign.Value><InArgument x:TypeArguments="x:Boolean">[True]</InArgument></Assign.Value>
+                </Assign>
+                <ui:LogMessage Level="Info" DisplayName="Log duplicate">
+                  <ui:LogMessage.Message>
+                    <InArgument x:TypeArguments="x:Object">["Duplicate " &amp; displayFileName &amp; ": InvoiceNumber already recorded as " &amp; recordId &amp; "; no record or queue item created"]</InArgument>
+                  </ui:LogMessage.Message>
+                </ui:LogMessage>
+              </Sequence>
+            </If.Then>
+            <If.Else>
+              <Sequence DisplayName="New - insert record">
+                <uda:CreateEntityRecord x:TypeArguments="local:AP_Invoice_Sagar" ContinueOnError="False" DisplayName="Create AP_Invoice_Sagar record (EXTRACTED)" EntityId="5c5aadee-d6bd-f111-a6a9-6045bddc9767" ExpansionDepth="2" InputEntityInFieldView="[New AP_Invoice_Sagar() With {.ProcessedTimestamp = DateTimeOffset.Now, .VendorName = vendorName, .VendorTaxId = vendorTaxId, .InvoiceNumber = invoiceNumber, .InvoiceDate = invoiceDateValue, .PONumber = poNumber, .TotalAmount = totalAmount, .Currency = currency, .DueDate = dueDateValue, .InvoiceLifecycleState = &quot;EXTRACTED&quot;}]" IsInRecordView="[False]" OutputEntity="[createdRecord]" TimeoutInMs="60000" VisibleDynamicPropertiesInfo="{x:Null}">
+                  <uda:CreateEntityRecord.State>
+                    <udam:RecordState IsInRecordView="False" RequiredFieldCount="0">
+                      <udam:RecordState.SelectedFields>
+                        <scg:List x:TypeArguments="udam:DynamicEntityField" Capacity="10">
+                          <udam:DynamicEntityField Id="665aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="ProcessedTimestamp">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="s:DateTimeOffset">[DateTimeOffset.Now]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="675aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="VendorName">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[vendorName]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="685aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="VendorTaxId">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[vendorTaxId]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="695aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="InvoiceNumber">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[invoiceNumber]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="6a5aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="InvoiceDate">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[invoiceDateValue]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="6b5aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="PONumber">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[poNumber]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="6c5aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="TotalAmount">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:Decimal">[totalAmount]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="6d5aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="Currency">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">[currency]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="6e5aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="DueDate">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="s:Nullable(s:DateTime)">[dueDateValue]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                          <udam:DynamicEntityField Id="725aadee-d6bd-f111-a6a9-6045bddc9767" IsRequired="False" Name="InvoiceLifecycleState">
+                            <udam:DynamicEntityField.ArgumentValue><InArgument x:TypeArguments="x:String">["EXTRACTED"]</InArgument></udam:DynamicEntityField.ArgumentValue>
+                          </udam:DynamicEntityField>
+                        </scg:List>
+                      </udam:RecordState.SelectedFields>
+                    </udam:RecordState>
+                  </uda:CreateEntityRecord.State>
+                </uda:CreateEntityRecord>
+                <Assign x:TypeArguments="x:String" DisplayName="Assign recordId (system-generated)">
+                  <Assign.To><OutArgument x:TypeArguments="x:String">[recordId]</OutArgument></Assign.To>
+                  <Assign.Value><InArgument x:TypeArguments="x:String">[createdRecord.Id.ToString()]</InArgument></Assign.Value>
+                </Assign>
+                <ui:LogMessage Level="Info" DisplayName="Log created record">
+                  <ui:LogMessage.Message>
+                    <InArgument x:TypeArguments="x:Object">["Created AP_Invoice_Sagar record " &amp; recordId &amp; " from " &amp; displayFileName]</InArgument>
+                  </ui:LogMessage.Message>
+                </ui:LogMessage>
+                <If DisplayName="If CreateQueueItem">
+                  <If.Condition>
+                    <InArgument x:TypeArguments="x:Boolean">[in_CreateQueueItem]</InArgument>
+                  </If.Condition>
+                  <If.Then>
+                    <Sequence DisplayName="Queue the new record">
+                      <!-- Not retried: a queue item is a non-idempotent write. Reference = RecordId (queue enforces unique references). -->
+                      <ui:AddQueueItem DisplayName="Add Queue Item - InvoiceQueue_Sagar" QueueType="[in_QueueName]" FolderPath="[in_QueueFolderPath]" Priority="Normal" Reference="[recordId]">
+                        <ui:AddQueueItem.ItemInformation>
+                          <InArgument x:TypeArguments="x:String" x:Key="RecordId">[recordId]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="InvoiceNumber">[invoiceNumber]</InArgument>
+                          <InArgument x:TypeArguments="x:String" x:Key="SourceFile">[in_FileName]</InArgument>
+                        </ui:AddQueueItem.ItemInformation>
+                      </ui:AddQueueItem>
+                      <ui:LogMessage Level="Info" DisplayName="Log queued">
+                        <ui:LogMessage.Message>
+                          <InArgument x:TypeArguments="x:Object">["Queued record " &amp; recordId &amp; " to " &amp; in_QueueName]</InArgument>
+                        </ui:LogMessage.Message>
+                      </ui:LogMessage>
+                    </Sequence>
+                  </If.Then>
+                </If>
+              </Sequence>
+            </If.Else>
+          </If>
+          <Assign x:TypeArguments="x:String" DisplayName="Return out_RecordId">
+            <Assign.To><OutArgument x:TypeArguments="x:String">[out_RecordId]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:String">[recordId]</InArgument></Assign.Value>
+          </Assign>
+        </Sequence>
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>

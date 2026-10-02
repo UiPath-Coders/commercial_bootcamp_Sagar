@@ -1,0 +1,27 @@
+{
+  "$resourceType": "tool",
+  "id": "d9c68128-e0ba-43da-b2d9-2d280f6656e3",
+  "name": "VendorInvoiceIXP",
+  "description": "Extract the eight Commercial Bootcamp invoice fields (Vendor Name, Vendor Tax ID, Invoice Number, Invoice Date, PO Number, Total Amount, Currency, Due Date) from one PDF with the published live IXP project Vendor Invoice Sagar.",
+  "type": "ixp",
+  "isEnabled": true,
+  "location": "external",
+  "inputSchema": {
+    "type": "object",
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {}
+  },
+  "settings": {},
+  "guardrail": {
+    "policies": []
+  },
+  "argumentProperties": {},
+  "properties": {
+    "projectName": "Vendor Invoice Sagar",
+    "versionTag": "live",
+    "exampleCalls": []
+  }
+}

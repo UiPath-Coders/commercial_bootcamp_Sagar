@@ -1,0 +1,57 @@
+{
+  "docVersion": "1.0.0",
+  "resource": {
+    "name": "Invoice_Extraction_Agent_Sagar",
+    "kind": "process",
+    "type": "agent",
+    "apiVersion": "orchestrator.uipath.com/v1",
+    "projectKey": "e91174fb-cbd1-4cd9-b137-9bb8421f4370",
+    "isOverridable": true,
+    "dependencies": [
+      {
+        "kind": "package",
+        "name": "Invoice_Extraction_Agent_Sagar"
+      }
+    ],
+    "runtimeDependencies": [
+      {
+        "bindingType": "ixp",
+        "bindingKey": "Vendor Invoice Sagar",
+        "bindingValues": {
+          "name": {
+            "defaultValue": "Vendor Invoice Sagar",
+            "isExpression": false
+          },
+          "version": {
+            "defaultValue": "live",
+            "isExpression": false
+          }
+        },
+        "bindingMetadata": {
+          "bindingsVersion": "2.2"
+        },
+        "resourceKind": "IXP"
+      }
+    ],
+    "folders": [
+      {
+        "fullyQualifiedName": "solution_folder"
+      }
+    ],
+    "spec": {
+      "type": "Agent",
+      "name": "Invoice_Extraction_Agent_Sagar",
+      "package": {
+        "key": "4bfc6c8c-aa0c-4c67-ab47-5eb327ff296a"
+      },
+      "targetFrameworkValue": "Portable",
+      "retentionAction": "Delete",
+      "retentionPeriod": 30,
+      "staleRetentionAction": "Delete",
+      "staleRetentionPeriod": 180
+    },
+    "locks": [],
+    "key": "93532afd-8bbd-47fa-a25e-8f5d0b9b95dc",
+    "files": []
+  }
+}

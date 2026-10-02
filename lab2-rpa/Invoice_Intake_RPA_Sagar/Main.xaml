@@ -1,0 +1,329 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" mva:VisualBasic.Settings="{x:Null}"
+ xmlns:this="clr-namespace:"
+ this:Main.CreateQueueItem="True"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:sc="clr-namespace:System.Collections;assembly=System.Private.CoreLib"
+ xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+ xmlns:ucas="clr-namespace:UiPath.Core.Activities.Storage;assembly=UiPath.System.Activities"
+ xmlns:ui="http://schemas.uipath.com/workflow/activities"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    Main.xaml - Invoice_Intake_RPA_Sagar entry point.
+      FileName blank  -> batch mode: list InvoiceInbox_Sagar, call ProcessInvoiceFile once per file, always queue new records.
+      FileName given  -> single-file mode: process exactly that file, queue only when CreateQueueItem is True.
+    Resource bindings (discovered in tenant Training):
+      bucket InvoiceInbox_Sagar + queue InvoiceQueue_Sagar  in  Agentic Bootcamp/APAutomation_Sagar
+      agent process Invoice_Extraction_Agent_Sagar          in  Agentic Bootcamp/APAutomation_Sagar/Invoice_Extraction_Agent_Sagar
+      entity AP_Invoice_Sagar (tenant scope, 5c5aadee-d6bd-f111-a6a9-6045bddc9767)
+  -->
+  <x:Members>
+    <x:Property Name="FileName" Type="InArgument(x:String)" />
+    <x:Property Name="CreateQueueItem" Type="InArgument(x:Boolean)" />
+    <x:Property Name="RecordId" Type="OutArgument(x:String)" />
+    <x:Property Name="IsValid" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="WasDuplicate" Type="OutArgument(x:Boolean)" />
+    <x:Property Name="ErrorMessage" Type="OutArgument(x:String)" />
+    <x:Property Name="ProcessedCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="CreatedCount" Type="OutArgument(x:Int32)" />
+    <x:Property Name="RejectedCount" Type="OutArgument(x:Int32)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Core.Activities.Storage</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Invoice Intake - Main" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="bucketName" Default="InvoiceInbox_Sagar" />
+      <Variable x:TypeArguments="x:String" Name="queueName" Default="InvoiceQueue_Sagar" />
+      <Variable x:TypeArguments="x:String" Name="resourceFolderPath" Default="Agentic Bootcamp/APAutomation_Sagar" />
+      <Variable x:TypeArguments="x:String" Name="agentProcessName" Default="Invoice_Extraction_Agent_Sagar" />
+      <Variable x:TypeArguments="x:String" Name="agentFolderPath" Default="Agentic Bootcamp/APAutomation_Sagar/Invoice_Extraction_Agent_Sagar" />
+      <Variable x:TypeArguments="scg:IEnumerable(ucas:StorageFileInfo)" Name="storageFiles" />
+      <Variable x:TypeArguments="x:String" Name="itemRecordId" />
+      <Variable x:TypeArguments="x:Boolean" Name="itemIsValid" />
+      <Variable x:TypeArguments="x:Boolean" Name="itemWasDuplicate" />
+      <Variable x:TypeArguments="x:String" Name="itemErrorMessage" />
+      <Variable x:TypeArguments="x:String" Name="batchErrors" Default="" />
+      <Variable x:TypeArguments="x:Int32" Name="totalProcessed" Default="0" />
+      <Variable x:TypeArguments="x:Int32" Name="totalCreated" Default="0" />
+      <Variable x:TypeArguments="x:Int32" Name="totalRejected" Default="0" />
+      <Variable x:TypeArguments="x:Int32" Name="totalFailed" Default="0" />
+    </Sequence.Variables>
+    <Assign x:TypeArguments="x:String" DisplayName="Init RecordId">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[RecordId]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[String.Empty]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:Boolean" DisplayName="Init IsValid">
+      <Assign.To><OutArgument x:TypeArguments="x:Boolean">[IsValid]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:Boolean">[False]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:Boolean" DisplayName="Init WasDuplicate">
+      <Assign.To><OutArgument x:TypeArguments="x:Boolean">[WasDuplicate]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:Boolean">[False]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Init ErrorMessage">
+      <Assign.To><OutArgument x:TypeArguments="x:String">[ErrorMessage]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:String">[String.Empty]</InArgument></Assign.Value>
+    </Assign>
+    <If DisplayName="If FileName is blank (standalone batch mode)">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">[String.IsNullOrWhiteSpace(FileName)]</InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Batch - every file in InvoiceInbox_Sagar">
+          <ucas:ListStorageFiles DisplayName="List Storage Files - InvoiceInbox_Sagar" StorageBucketName="[bucketName]" FolderPath="[resourceFolderPath]" Directory="\" Recursive="True" Result="[storageFiles]" />
+          <ui:LogMessage Level="Info" DisplayName="Log file count">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">["Batch mode: " &amp; If(storageFiles Is Nothing, 0, storageFiles.Count()).ToString() &amp; " file(s) in " &amp; bucketName]</InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <ui:ForEach x:TypeArguments="ucas:StorageFileInfo" DisplayName="For Each file in bucket">
+            <ui:ForEach.Values>
+              <InArgument x:TypeArguments="sc:IEnumerable">[If(storageFiles, Enumerable.Empty(Of StorageFileInfo)())]</InArgument>
+            </ui:ForEach.Values>
+            <ui:ForEach.Body>
+              <ActivityAction x:TypeArguments="ucas:StorageFileInfo">
+                <ActivityAction.Argument>
+                  <DelegateInArgument x:TypeArguments="ucas:StorageFileInfo" Name="storageFile" />
+                </ActivityAction.Argument>
+                <Sequence DisplayName="Body">
+                  <!-- Transaction boundary: one Try/Catch per file so a single failure never aborts the batch. -->
+                  <TryCatch DisplayName="Try Catch - one invoice file">
+                    <TryCatch.Try>
+                      <Sequence DisplayName="Try">
+                        <ui:InvokeWorkflowFile DisplayName="Invoke ProcessInvoiceFile.xaml (batch item)" WorkflowFileName="ProcessInvoiceFile.xaml" UnSafe="False">
+                          <ui:InvokeWorkflowFile.Arguments>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_FileName">[storageFile.FileFullPath]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_BucketName">[bucketName]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_BucketFolderPath">[resourceFolderPath]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_AgentProcessName">[agentProcessName]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_AgentFolderPath">[agentFolderPath]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_QueueName">[queueName]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_QueueFolderPath">[resourceFolderPath]</InArgument>
+                            <InArgument x:TypeArguments="x:Boolean" x:Key="in_CreateQueueItem">[True]</InArgument>
+                            <OutArgument x:TypeArguments="x:String" x:Key="out_RecordId">[itemRecordId]</OutArgument>
+                            <OutArgument x:TypeArguments="x:Boolean" x:Key="out_IsValid">[itemIsValid]</OutArgument>
+                            <OutArgument x:TypeArguments="x:Boolean" x:Key="out_WasDuplicate">[itemWasDuplicate]</OutArgument>
+                            <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[itemErrorMessage]</OutArgument>
+                          </ui:InvokeWorkflowFile.Arguments>
+                        </ui:InvokeWorkflowFile>
+                        <If DisplayName="If file was rejected">
+                          <If.Condition>
+                            <InArgument x:TypeArguments="x:Boolean">[Not itemIsValid]</InArgument>
+                          </If.Condition>
+                          <If.Then>
+                            <Sequence DisplayName="Rejected">
+                              <Assign x:TypeArguments="x:Int32" DisplayName="totalRejected + 1">
+                                <Assign.To><OutArgument x:TypeArguments="x:Int32">[totalRejected]</OutArgument></Assign.To>
+                                <Assign.Value><InArgument x:TypeArguments="x:Int32">[totalRejected + 1]</InArgument></Assign.Value>
+                              </Assign>
+                              <Assign x:TypeArguments="x:String" DisplayName="Append batch error">
+                                <Assign.To><OutArgument x:TypeArguments="x:String">[batchErrors]</OutArgument></Assign.To>
+                                <Assign.Value><InArgument x:TypeArguments="x:String">[batchErrors &amp; If(batchErrors = "", "", " | ") &amp; Path.GetFileName(storageFile.FileFullPath) &amp; ": " &amp; itemErrorMessage]</InArgument></Assign.Value>
+                              </Assign>
+                            </Sequence>
+                          </If.Then>
+                          <If.Else>
+                            <Sequence DisplayName="Valid">
+                              <If DisplayName="If newly created">
+                                <If.Condition>
+                                  <InArgument x:TypeArguments="x:Boolean">[Not itemWasDuplicate]</InArgument>
+                                </If.Condition>
+                                <If.Then>
+                                  <Sequence DisplayName="Created">
+                                    <Assign x:TypeArguments="x:Int32" DisplayName="totalCreated + 1">
+                                      <Assign.To><OutArgument x:TypeArguments="x:Int32">[totalCreated]</OutArgument></Assign.To>
+                                      <Assign.Value><InArgument x:TypeArguments="x:Int32">[totalCreated + 1]</InArgument></Assign.Value>
+                                    </Assign>
+                                  </Sequence>
+                                </If.Then>
+                              </If>
+                            </Sequence>
+                          </If.Else>
+                        </If>
+                      </Sequence>
+                    </TryCatch.Try>
+                    <TryCatch.Catches>
+                      <Catch x:TypeArguments="s:Exception">
+                        <ActivityAction x:TypeArguments="s:Exception">
+                          <ActivityAction.Argument>
+                            <DelegateInArgument x:TypeArguments="s:Exception" Name="exception" />
+                          </ActivityAction.Argument>
+                          <Sequence DisplayName="Catch - system failure (log, count as failed, continue with next file)">
+                            <ui:LogMessage Level="Error" DisplayName="Log failed file">
+                              <ui:LogMessage.Message>
+                                <InArgument x:TypeArguments="x:Object">["Failed " &amp; Path.GetFileName(storageFile.FileFullPath) &amp; ": " &amp; exception.GetType().Name &amp; " - " &amp; exception.Message]</InArgument>
+                              </ui:LogMessage.Message>
+                            </ui:LogMessage>
+                            <Assign x:TypeArguments="x:Int32" DisplayName="totalFailed + 1 (system failure, not a Valid? rejection)">
+                              <Assign.To><OutArgument x:TypeArguments="x:Int32">[totalFailed]</OutArgument></Assign.To>
+                              <Assign.Value><InArgument x:TypeArguments="x:Int32">[totalFailed + 1]</InArgument></Assign.Value>
+                            </Assign>
+                            <Assign x:TypeArguments="x:String" DisplayName="Append batch error (system failure)">
+                              <Assign.To><OutArgument x:TypeArguments="x:String">[batchErrors]</OutArgument></Assign.To>
+                              <Assign.Value><InArgument x:TypeArguments="x:String">[batchErrors &amp; If(batchErrors = "", "", " | ") &amp; Path.GetFileName(storageFile.FileFullPath) &amp; ": processing failed (" &amp; exception.Message &amp; ")"]</InArgument></Assign.Value>
+                            </Assign>
+                          </Sequence>
+                        </ActivityAction>
+                      </Catch>
+                    </TryCatch.Catches>
+                    <TryCatch.Finally>
+                      <Sequence DisplayName="Finally">
+                        <Assign x:TypeArguments="x:Int32" DisplayName="totalProcessed + 1">
+                          <Assign.To><OutArgument x:TypeArguments="x:Int32">[totalProcessed]</OutArgument></Assign.To>
+                          <Assign.Value><InArgument x:TypeArguments="x:Int32">[totalProcessed + 1]</InArgument></Assign.Value>
+                        </Assign>
+                      </Sequence>
+                    </TryCatch.Finally>
+                  </TryCatch>
+                </Sequence>
+              </ActivityAction>
+            </ui:ForEach.Body>
+          </ui:ForEach>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="IsValid = no rejected or failed files">
+            <Assign.To><OutArgument x:TypeArguments="x:Boolean">[IsValid]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Boolean">[totalRejected = 0 AndAlso totalFailed = 0]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="ErrorMessage = batch errors">
+            <Assign.To><OutArgument x:TypeArguments="x:String">[ErrorMessage]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:String">[batchErrors]</InArgument></Assign.Value>
+          </Assign>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Single file - exactly FileName">
+          <!-- No Try/Catch: a system failure faults the job so the caller (Maestro, Lab 10) sees it. -->
+          <ui:InvokeWorkflowFile DisplayName="Invoke ProcessInvoiceFile.xaml (single file)" WorkflowFileName="ProcessInvoiceFile.xaml" UnSafe="False">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="in_FileName">[FileName.Trim()]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_BucketName">[bucketName]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_BucketFolderPath">[resourceFolderPath]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_AgentProcessName">[agentProcessName]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_AgentFolderPath">[agentFolderPath]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_QueueName">[queueName]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_QueueFolderPath">[resourceFolderPath]</InArgument>
+              <InArgument x:TypeArguments="x:Boolean" x:Key="in_CreateQueueItem">[CreateQueueItem]</InArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_RecordId">[itemRecordId]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_IsValid">[itemIsValid]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_WasDuplicate">[itemWasDuplicate]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_ErrorMessage">[itemErrorMessage]</OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <Assign x:TypeArguments="x:String" DisplayName="RecordId">
+            <Assign.To><OutArgument x:TypeArguments="x:String">[RecordId]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:String">[itemRecordId]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="IsValid">
+            <Assign.To><OutArgument x:TypeArguments="x:Boolean">[IsValid]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Boolean">[itemIsValid]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Boolean" DisplayName="WasDuplicate">
+            <Assign.To><OutArgument x:TypeArguments="x:Boolean">[WasDuplicate]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Boolean">[itemWasDuplicate]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="ErrorMessage">
+            <Assign.To><OutArgument x:TypeArguments="x:String">[ErrorMessage]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:String">[If(itemErrorMessage, String.Empty)]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Int32" DisplayName="totalProcessed = 1">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32">[totalProcessed]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32">[1]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Int32" DisplayName="totalCreated">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32">[totalCreated]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32">[If(itemIsValid AndAlso Not itemWasDuplicate, 1, 0)]</InArgument></Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:Int32" DisplayName="totalRejected">
+            <Assign.To><OutArgument x:TypeArguments="x:Int32">[totalRejected]</OutArgument></Assign.To>
+            <Assign.Value><InArgument x:TypeArguments="x:Int32">[If(itemIsValid, 0, 1)]</InArgument></Assign.Value>
+          </Assign>
+        </Sequence>
+      </If.Else>
+    </If>
+    <Assign x:TypeArguments="x:Int32" DisplayName="ProcessedCount">
+      <Assign.To><OutArgument x:TypeArguments="x:Int32">[ProcessedCount]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:Int32">[totalProcessed]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:Int32" DisplayName="CreatedCount">
+      <Assign.To><OutArgument x:TypeArguments="x:Int32">[CreatedCount]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:Int32">[totalCreated]</InArgument></Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:Int32" DisplayName="RejectedCount">
+      <Assign.To><OutArgument x:TypeArguments="x:Int32">[RejectedCount]</OutArgument></Assign.To>
+      <Assign.Value><InArgument x:TypeArguments="x:Int32">[totalRejected]</InArgument></Assign.Value>
+    </Assign>
+    <ui:LogMessage Level="Info" DisplayName="Log summary">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">["Invoice intake finished. Processed=" &amp; totalProcessed.ToString() &amp; " Created=" &amp; totalCreated.ToString() &amp; " Rejected=" &amp; totalRejected.ToString() &amp; " Failed=" &amp; totalFailed.ToString()]</InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
+    <!-- Escalate (as the reference does): system failures fault the job so Orchestrator surfaces them.
+         Records/queue items for the other files are kept; a rerun is safe because existing InvoiceNumbers are skipped. -->
+    <If DisplayName="If any file failed with a system exception">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">[totalFailed &gt; 0]</InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Then - fault the job">
+          <Throw DisplayName="Throw - system failures occurred">
+            <Throw.Exception>
+              <InArgument x:TypeArguments="s:Exception">[New ApplicationException(totalFailed.ToString() &amp; " invoice file(s) failed with system exceptions: " &amp; batchErrors &amp; ". Records and queue items for the other files were kept; rerunning is safe because existing invoices are skipped.")]</InArgument>
+            </Throw.Exception>
+          </Throw>
+        </Sequence>
+      </If.Then>
+    </If>
+  </Sequence>
+</Activity>

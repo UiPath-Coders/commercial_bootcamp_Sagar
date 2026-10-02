@@ -1,0 +1,173 @@
+{
+  "fileName": "evaluation-set-default.json",
+  "id": "1754a168-6943-4866-9fd8-c5adad91d7c7",
+  "name": "Default Evaluation Set",
+  "batchSize": 10,
+  "evaluatorRefs": [
+    "25be1350-b285-487c-a784-c4dfbf0ee55d",
+    "801f6b8b-df68-4ef5-802f-a2d49a8258cb"
+  ],
+  "evaluations": [
+    {
+      "id": "87c60540-7cbb-4d53-b9be-19cc5e40b201",
+      "name": "invoice-001-northwind",
+      "inputs": {
+        "SourceFile": {
+          "ID": "reference-invoice-001",
+          "FullName": "commercial-invoice-001-northwind.pdf",
+          "MimeType": "application/pdf",
+          "Metadata": {}
+        }
+      },
+      "expectedOutput": {
+        "VendorName": "Northwind Office Supplies Inc.",
+        "VendorTaxId": "47-2013865",
+        "InvoiceNumber": "NW-88214",
+        "InvoiceDate": "03/04/2026",
+        "PONumber": "PO-2026-0431",
+        "TotalAmount": "4155.40",
+        "Currency": "USD",
+        "DueDate": "04/03/2026"
+      },
+      "simulationInstructions": "Simulate VendorInvoiceIXP returning exactly the expected values for the named synthetic invoice.",
+      "expectedAgentBehavior": "Call VendorInvoiceIXP exactly once with SourceFile, copy only grounded IXP values, and return all eight output fields.",
+      "simulateInput": false,
+      "inputGenerationInstructions": "",
+      "simulateTools": true,
+      "evalSetId": "1754a168-6943-4866-9fd8-c5adad91d7c7",
+      "createdAt": "2026-09-07T01:32:08.689Z",
+      "updatedAt": "2026-09-07T01:32:08.689Z",
+      "source": "manual"
+    },
+    {
+      "id": "907789b4-7f63-4b16-9494-945aa8ec3f83",
+      "name": "invoice-002-contoso",
+      "inputs": {
+        "SourceFile": {
+          "ID": "reference-invoice-002",
+          "FullName": "commercial-invoice-002-contoso-logistics.pdf",
+          "MimeType": "application/pdf",
+          "Metadata": {}
+        }
+      },
+      "expectedOutput": {
+        "VendorName": "Contoso Logistics LLC",
+        "VendorTaxId": "82-4471900",
+        "InvoiceNumber": "CLL-2026-3391",
+        "InvoiceDate": "03/06/2026",
+        "PONumber": "PO-2026-0447",
+        "TotalAmount": "12740.00",
+        "Currency": "USD",
+        "DueDate": "04/20/2026"
+      },
+      "simulationInstructions": "Simulate VendorInvoiceIXP returning exactly the expected values for the named synthetic invoice.",
+      "expectedAgentBehavior": "Call VendorInvoiceIXP exactly once with SourceFile, copy only grounded IXP values, and return all eight output fields.",
+      "simulateInput": false,
+      "inputGenerationInstructions": "",
+      "simulateTools": true,
+      "evalSetId": "1754a168-6943-4866-9fd8-c5adad91d7c7",
+      "createdAt": "2026-09-07T01:32:08.689Z",
+      "updatedAt": "2026-09-07T01:32:08.689Z",
+      "source": "manual"
+    },
+    {
+      "id": "783a7cd3-6bb0-4d3a-9796-503b25b1c313",
+      "name": "invoice-003-ableton",
+      "inputs": {
+        "SourceFile": {
+          "ID": "reference-invoice-003",
+          "FullName": "commercial-invoice-003-ableton-fabrication.pdf",
+          "MimeType": "application/pdf",
+          "Metadata": {}
+        }
+      },
+      "expectedOutput": {
+        "VendorName": "Ableton Fabrication, Inc.",
+        "VendorTaxId": "26-1509338",
+        "InvoiceNumber": "AF19427",
+        "InvoiceDate": "03/09/2026",
+        "PONumber": "PO-2026-0452",
+        "TotalAmount": "4026.88",
+        "Currency": "USD",
+        "DueDate": "04/08/2026"
+      },
+      "simulationInstructions": "Simulate VendorInvoiceIXP returning exactly the expected values for the named synthetic invoice.",
+      "expectedAgentBehavior": "Call VendorInvoiceIXP exactly once with SourceFile, copy only grounded IXP values, and return all eight output fields.",
+      "simulateInput": false,
+      "inputGenerationInstructions": "",
+      "simulateTools": true,
+      "evalSetId": "1754a168-6943-4866-9fd8-c5adad91d7c7",
+      "createdAt": "2026-09-07T01:32:08.689Z",
+      "updatedAt": "2026-09-07T01:32:08.689Z",
+      "source": "manual"
+    },
+    {
+      "id": "31fb9214-d7a0-4da8-a381-a647c1788cc8",
+      "name": "invoice-004-meridian",
+      "inputs": {
+        "SourceFile": {
+          "ID": "reference-invoice-004",
+          "FullName": "commercial-invoice-004-meridian-cloud.pdf",
+          "MimeType": "application/pdf",
+          "Metadata": {}
+        }
+      },
+      "expectedOutput": {
+        "VendorName": "Meridian Cloud Services Corp.",
+        "VendorTaxId": "91-3320764",
+        "InvoiceNumber": "MCS-Q1-20418",
+        "InvoiceDate": "03/01/2026",
+        "PONumber": "PO-2026-0399",
+        "TotalAmount": "16980.00",
+        "Currency": "USD",
+        "DueDate": "03/31/2026"
+      },
+      "simulationInstructions": "Simulate VendorInvoiceIXP returning exactly the expected values for the named synthetic invoice.",
+      "expectedAgentBehavior": "Call VendorInvoiceIXP exactly once with SourceFile, copy only grounded IXP values, and return all eight output fields.",
+      "simulateInput": false,
+      "inputGenerationInstructions": "",
+      "simulateTools": true,
+      "evalSetId": "1754a168-6943-4866-9fd8-c5adad91d7c7",
+      "createdAt": "2026-09-07T01:32:08.689Z",
+      "updatedAt": "2026-09-07T01:32:08.689Z",
+      "source": "manual"
+    },
+    {
+      "id": "e42104dc-b754-44a4-a29c-0e8016d42429",
+      "name": "invoice-005-blue-harbor",
+      "inputs": {
+        "SourceFile": {
+          "ID": "reference-invoice-005",
+          "FullName": "commercial-invoice-005-blue-harbor-catering.pdf",
+          "MimeType": "application/pdf",
+          "Metadata": {}
+        }
+      },
+      "expectedOutput": {
+        "VendorName": "Blue Harbor Catering Co.",
+        "VendorTaxId": "33-7788214",
+        "InvoiceNumber": "BHC-4471",
+        "InvoiceDate": "03/11/2026",
+        "PONumber": "PO-2026-0461",
+        "TotalAmount": "2954.00",
+        "Currency": "USD",
+        "DueDate": "03/26/2026"
+      },
+      "simulationInstructions": "Simulate VendorInvoiceIXP returning exactly the expected values for the named synthetic invoice.",
+      "expectedAgentBehavior": "Call VendorInvoiceIXP exactly once with SourceFile, copy only grounded IXP values, and return all eight output fields.",
+      "simulateInput": false,
+      "inputGenerationInstructions": "",
+      "simulateTools": true,
+      "evalSetId": "1754a168-6943-4866-9fd8-c5adad91d7c7",
+      "createdAt": "2026-09-07T01:32:08.689Z",
+      "updatedAt": "2026-09-07T01:32:08.689Z",
+      "source": "manual"
+    }
+  ],
+  "modelSettings": [],
+  "agentMemoryEnabled": false,
+  "agentMemorySettings": [],
+  "lineByLineEvaluation": false,
+  "createdAt": "2026-09-07T00:47:47.823Z",
+  "updatedAt": "2026-09-07T00:47:47.823Z"
+}

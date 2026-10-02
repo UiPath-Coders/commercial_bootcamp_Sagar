@@ -1,0 +1,12 @@
+{
+  "DocVersion": "1.0.0",
+  "StudioMinVersion": "2025.10.0",
+  "SolutionId": "9aeac38b-7126-4925-91cf-9cbfc3b5c561",
+  "Projects": [
+    {
+      "Type": "Agent",
+      "ProjectRelativePath": "Invoice_Extraction_Agent_Sagar/project.uiproj",
+      "Id": "e91174fb-cbd1-4cd9-b137-9bb8421f4370"
+    }
+  ]
+}

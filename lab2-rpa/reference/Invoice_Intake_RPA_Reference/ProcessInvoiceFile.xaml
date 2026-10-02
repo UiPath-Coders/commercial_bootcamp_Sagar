@@ -1,0 +1,357 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="ProcessInvoiceFile" mva:VisualBasic.Settings="{x:Null}"
+ xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities"
+ xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+ xmlns:mva="clr-namespace:Microsoft.VisualBasic.Activities;assembly=System.Activities"
+ xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib"
+ xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation"
+ xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation"
+ xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=mscorlib"
+ xmlns:ucas="clr-namespace:UiPath.Core.Activities.Storage;assembly=UiPath.System.Activities"
+ xmlns:ui="http://schemas.uipath.com/workflow/activities"
+ xmlns:upr="clr-namespace:UiPath.Platform.ResourceHandling;assembly=UiPath.Platform"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+    ProcessInvoiceFile.xaml - Lab 2 reference (Commercial Bootcamp, Invoice-to-Pay).
+    One transaction = one invoice file from the InvoiceInbox_Reference bucket:
+      download -> extract (agent) -> Valid? (PONumber and TotalAmount present) -> AP_Invoice_Reference record -> queue item.
+    Returns out_Status = Created | Rejected | Duplicate and out_RecordId (Data Fabric record Id, the canonical invoice id).
+    System exceptions propagate to the caller (Main.xaml) which isolates them per file.
+  -->
+  <x:Members>
+    <x:Property Name="in_FileFullPath" Type="InArgument(x:String)" />
+    <x:Property Name="in_StorageBucketName" Type="InArgument(x:String)" />
+    <x:Property Name="in_AgentProcessName" Type="InArgument(x:String)" />
+    <x:Property Name="in_QueueName" Type="InArgument(x:String)" />
+    <x:Property Name="in_DownloadFolder" Type="InArgument(x:String)" />
+    <x:Property Name="out_Status" Type="OutArgument(x:String)" />
+    <x:Property Name="out_RecordId" Type="OutArgument(x:String)" />
+  </x:Members>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.Globalization</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Text.RegularExpressions</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+      <x:String>System.Windows.Markup</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Drawing.Primitives</AssemblyReference>
+      <AssemblyReference>System.Drawing.Common</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Text.RegularExpressions</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>System.Data.DataSetExtensions</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence DisplayName="Process Invoice File" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="fileName" />
+      <Variable x:TypeArguments="x:String" Name="localPath" />
+      <Variable x:TypeArguments="upr:ILocalResource" Name="localFile" />
+      <Variable x:TypeArguments="x:String" Name="vendorName" />
+      <Variable x:TypeArguments="x:String" Name="vendorTaxId" />
+      <Variable x:TypeArguments="x:String" Name="invoiceNumber" />
+      <Variable x:TypeArguments="x:String" Name="invoiceDate" />
+      <Variable x:TypeArguments="x:String" Name="poNumber" />
+      <Variable x:TypeArguments="x:String" Name="totalAmountText" />
+      <Variable x:TypeArguments="x:String" Name="currency" />
+      <Variable x:TypeArguments="x:String" Name="dueDate" />
+      <Variable x:TypeArguments="x:String" Name="amountClean" />
+      <Variable x:TypeArguments="x:Boolean" Name="amountIsNumeric" />
+      <Variable x:TypeArguments="x:Boolean" Name="hasPONumber" />
+      <Variable x:TypeArguments="x:String" Name="missingFields" />
+      <Variable x:TypeArguments="x:Decimal" Name="totalAmount" />
+      <Variable x:TypeArguments="x:String" Name="recordId" />
+      <Variable x:TypeArguments="x:Boolean" Name="recordCreated" />
+    </Sequence.Variables>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign - fileName">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="fileName" />
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="Path.GetFileName(in_FileFullPath.Replace(&quot;\&quot;c, &quot;/&quot;c))" />
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign - localPath">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="localPath" />
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="Path.Combine(in_DownloadFolder, fileName)" />
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <ui:LogMessage Level="Info" DisplayName="Log - processing file">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">
+          <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Processing &quot; &amp; fileName &amp; &quot; from bucket &quot; &amp; in_StorageBucketName &amp; &quot; (&quot; &amp; in_FileFullPath &amp; &quot;)&quot;" />
+        </InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
+    <!-- Download is idempotent (overwrites the local copy), so a transient Orchestrator/network error is retried. -->
+    <ui:RetryScope DisplayName="Retry Scope - download from bucket" NumberOfRetries="3" RetryInterval="00:00:05" LogRetriedExceptions="True" RetriedExceptionsLogLevel="Warn">
+      <ui:RetryScope.ActivityBody>
+        <ActivityAction>
+          <Sequence DisplayName="Action">
+            <ucas:DownloadStorageFile DisplayName="Download invoice from storage bucket" StorageBucketName="[in_StorageBucketName]" Path="[in_FileFullPath]" Destination="[localPath]" Result="[localFile]" />
+          </Sequence>
+        </ActivityAction>
+      </ui:RetryScope.ActivityBody>
+      <ui:RetryScope.Condition>
+        <ActivityFunc x:TypeArguments="x:Boolean" />
+      </ui:RetryScope.Condition>
+    </ui:RetryScope>
+    <ui:InvokeWorkflowFile DisplayName="Invoke ExtractInvoiceData.xaml" WorkflowFileName="ExtractInvoiceData.xaml" UnSafe="False">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="upr:ILocalResource" x:Key="in_LocalFile">[localFile]</InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_SourceFileName">[fileName]</InArgument>
+        <InArgument x:TypeArguments="x:String" x:Key="in_AgentProcessName">[in_AgentProcessName]</InArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_VendorName">[vendorName]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_VendorTaxId">[vendorTaxId]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_InvoiceNumber">[invoiceNumber]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_InvoiceDate">[invoiceDate]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_PONumber">[poNumber]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_TotalAmount">[totalAmountText]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_Currency">[currency]</OutArgument>
+        <OutArgument x:TypeArguments="x:String" x:Key="out_DueDate">[dueDate]</OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <!-- Valid? gateway: PONumber present AND TotalAmount present and numeric (currency symbols / thousands separators tolerated). -->
+    <Assign x:TypeArguments="x:Boolean" DisplayName="Assign - hasPONumber">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Boolean">
+          <VisualBasicReference x:TypeArguments="x:Boolean" ExpressionText="hasPONumber" />
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Boolean">
+          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="Not String.IsNullOrWhiteSpace(poNumber)" />
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign - amountClean">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="amountClean" />
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="Regex.Replace(If(totalAmountText, String.Empty), &quot;[^0-9.\-]&quot;, String.Empty)" />
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:Boolean" DisplayName="Assign - amountIsNumeric">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:Boolean">
+          <VisualBasicReference x:TypeArguments="x:Boolean" ExpressionText="amountIsNumeric" />
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:Boolean">
+          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="Regex.IsMatch(amountClean, &quot;^-?[0-9]+(\.[0-9]+)?$&quot;)" />
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign x:TypeArguments="x:String" DisplayName="Assign - missingFields">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">
+          <VisualBasicReference x:TypeArguments="x:String" ExpressionText="missingFields" />
+        </OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">
+          <VisualBasicValue x:TypeArguments="x:String" ExpressionText="String.Join(&quot;, &quot;, New String() {If(hasPONumber, Nothing, &quot;PONumber&quot;), If(amountIsNumeric, Nothing, &quot;TotalAmount&quot;)}.Where(Function(f) f IsNot Nothing))" />
+        </InArgument>
+      </Assign.Value>
+    </Assign>
+    <If DisplayName="If - structurally invalid (missing PONumber or TotalAmount)">
+      <If.Condition>
+        <InArgument x:TypeArguments="x:Boolean">
+          <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="Not hasPONumber OrElse Not amountIsNumeric" />
+        </InArgument>
+      </If.Condition>
+      <If.Then>
+        <Sequence DisplayName="Rejected - log and skip (no record, no queue item)">
+          <ui:LogMessage Level="Warn" DisplayName="Log - Rejected">
+            <ui:LogMessage.Message>
+              <InArgument x:TypeArguments="x:Object">
+                <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="&quot;Rejected: &quot; &amp; fileName &amp; &quot; missing &quot; &amp; missingFields" />
+              </InArgument>
+            </ui:LogMessage.Message>
+          </ui:LogMessage>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign - out_Status = Rejected">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">
+                <VisualBasicReference x:TypeArguments="x:String" ExpressionText="out_Status" />
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">
+                <VisualBasicValue x:TypeArguments="x:String" ExpressionText="&quot;Rejected&quot;" />
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign - out_RecordId = empty">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">
+                <VisualBasicReference x:TypeArguments="x:String" ExpressionText="out_RecordId" />
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">
+                <VisualBasicValue x:TypeArguments="x:String" ExpressionText="String.Empty" />
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Valid - create record and queue item">
+          <Assign x:TypeArguments="x:Decimal" DisplayName="Assign - totalAmount (Decimal)">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:Decimal">
+                <VisualBasicReference x:TypeArguments="x:Decimal" ExpressionText="totalAmount" />
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:Decimal">
+                <VisualBasicValue x:TypeArguments="x:Decimal" ExpressionText="Decimal.Parse(amountClean, NumberStyles.Number, CultureInfo.InvariantCulture)" />
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+          <ui:InvokeWorkflowFile DisplayName="Invoke CreateInvoiceRecord.xaml" WorkflowFileName="CreateInvoiceRecord.xaml" UnSafe="False">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="in_VendorName">[vendorName]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_VendorTaxId">[vendorTaxId]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_InvoiceNumber">[invoiceNumber]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_InvoiceDate">[invoiceDate]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_PONumber">[poNumber]</InArgument>
+              <InArgument x:TypeArguments="x:Decimal" x:Key="in_TotalAmount">[totalAmount]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_Currency">[currency]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_DueDate">[dueDate]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_SourceFileName">[fileName]</InArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="out_RecordId">[recordId]</OutArgument>
+              <OutArgument x:TypeArguments="x:Boolean" x:Key="out_Created">[recordCreated]</OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <If DisplayName="If - record newly created">
+            <If.Condition>
+              <InArgument x:TypeArguments="x:Boolean">
+                <VisualBasicValue x:TypeArguments="x:Boolean" ExpressionText="recordCreated" />
+              </InArgument>
+            </If.Condition>
+            <If.Then>
+              <Sequence DisplayName="Queue the record Id">
+                <!-- Reference = Data Fabric record Id (canonical invoice identifier). Not retried: a queue item is a
+                     non-idempotent write; on rerun the InvoiceNumber duplicate check skips this invoice entirely. -->
+                <ui:AddQueueItem DisplayName="Add Queue Item - InvoiceQueue" QueueType="[in_QueueName]" Priority="Normal" Reference="[recordId]">
+                  <ui:AddQueueItem.ItemInformation>
+                    <InArgument x:TypeArguments="x:String" x:Key="RecordId">[recordId]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="InvoiceNumber">[invoiceNumber]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="VendorName">[vendorName]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="PONumber">[poNumber]</InArgument>
+                    <InArgument x:TypeArguments="x:Decimal" x:Key="TotalAmount">[totalAmount]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="Currency">[currency]</InArgument>
+                    <InArgument x:TypeArguments="x:String" x:Key="SourceFile">[in_FileFullPath]</InArgument>
+                  </ui:AddQueueItem.ItemInformation>
+                </ui:AddQueueItem>
+                <Assign x:TypeArguments="x:String" DisplayName="Assign - out_Status = Created">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:String">
+                      <VisualBasicReference x:TypeArguments="x:String" ExpressionText="out_Status" />
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:String">
+                      <VisualBasicValue x:TypeArguments="x:String" ExpressionText="&quot;Created&quot;" />
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </If.Then>
+            <If.Else>
+              <Sequence DisplayName="Duplicate - record already exists, nothing queued">
+                <Assign x:TypeArguments="x:String" DisplayName="Assign - out_Status = Duplicate">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:String">
+                      <VisualBasicReference x:TypeArguments="x:String" ExpressionText="out_Status" />
+                    </OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:String">
+                      <VisualBasicValue x:TypeArguments="x:String" ExpressionText="&quot;Duplicate&quot;" />
+                    </InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </If.Else>
+          </If>
+          <Assign x:TypeArguments="x:String" DisplayName="Assign - out_RecordId">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">
+                <VisualBasicReference x:TypeArguments="x:String" ExpressionText="out_RecordId" />
+              </OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">
+                <VisualBasicValue x:TypeArguments="x:String" ExpressionText="recordId" />
+              </InArgument>
+            </Assign.Value>
+          </Assign>
+        </Sequence>
+      </If.Else>
+    </If>
+    <ui:LogMessage Level="Info" DisplayName="Log - file | status | record Id">
+      <ui:LogMessage.Message>
+        <InArgument x:TypeArguments="x:Object">
+          <VisualBasicValue x:TypeArguments="x:Object" ExpressionText="fileName &amp; &quot; | &quot; &amp; out_Status &amp; &quot; | &quot; &amp; If(String.IsNullOrEmpty(out_RecordId), &quot;(no record)&quot;, out_RecordId)" />
+        </InArgument>
+      </ui:LogMessage.Message>
+    </ui:LogMessage>
+  </Sequence>
+</Activity>

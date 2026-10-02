@@ -1,0 +1,23 @@
+{
+  "docVersion": "1.0.0",
+  "resource": {
+    "name": "Invoice_Extraction_Agent_Sagar",
+    "kind": "package",
+    "apiVersion": "orchestrator.uipath.com/v1",
+    "projectKey": "e91174fb-cbd1-4cd9-b137-9bb8421f4370",
+    "isOverridable": true,
+    "dependencies": [],
+    "runtimeDependencies": [],
+    "folders": [
+      {
+        "fullyQualifiedName": "solution_folder"
+      }
+    ],
+    "spec": {
+      "name": "Invoice_Extraction_Agent_Sagar"
+    },
+    "locks": [],
+    "key": "4bfc6c8c-aa0c-4c67-ab47-5eb327ff296a",
+    "files": []
+  }
+}

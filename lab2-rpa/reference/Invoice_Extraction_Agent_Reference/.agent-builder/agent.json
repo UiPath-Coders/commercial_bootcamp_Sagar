@@ -1,0 +1,167 @@
+{
+  "version": "1.1.0",
+  "settings": {
+    "model": "gpt-5.4",
+    "maxTokens": 8192,
+    "temperature": 0,
+    "engine": "basic-v2",
+    "maxIterations": 5,
+    "mode": "standard"
+  },
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "SourceFile": {
+        "$ref": "#/definitions/job-attachment",
+        "description": "One vendor-invoice PDF to extract with the published live IXP model."
+      }
+    },
+    "required": [
+      "SourceFile"
+    ],
+    "definitions": {
+      "job-attachment": {
+        "type": "object",
+        "properties": {
+          "ID": {
+            "type": "string",
+            "description": "Orchestrator attachment key"
+          },
+          "FullName": {
+            "type": "string",
+            "description": "File name"
+          },
+          "MimeType": {
+            "type": "string",
+            "description": "MIME type, e.g. application/pdf or image/png"
+          },
+          "Metadata": {
+            "type": "object",
+            "description": "Dictionary<string, string> of metadata",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ID"
+        ],
+        "x-uipath-resource-kind": "JobAttachment"
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "VendorName": {
+        "type": "string",
+        "description": "Vendor legal or trading name printed on the invoice."
+      },
+      "VendorTaxId": {
+        "type": "string",
+        "description": "Vendor US EIN in NN-NNNNNNN format."
+      },
+      "InvoiceNumber": {
+        "type": "string",
+        "description": "Invoice number exactly as printed."
+      },
+      "InvoiceDate": {
+        "type": "string",
+        "description": "Invoice issue date normalized to MM/DD/YYYY."
+      },
+      "PONumber": {
+        "type": "string",
+        "description": "Purchase-order number exactly as printed."
+      },
+      "TotalAmount": {
+        "type": "string",
+        "description": "Invoice grand total as a decimal string without a currency symbol or thousands separators."
+      },
+      "Currency": {
+        "type": "string",
+        "description": "Three-letter currency code; USD for the bootcamp invoices."
+      },
+      "DueDate": {
+        "type": "string",
+        "description": "Payment due date normalized to MM/DD/YYYY."
+      }
+    },
+    "required": [
+      "VendorName",
+      "VendorTaxId",
+      "InvoiceNumber",
+      "InvoiceDate",
+      "PONumber",
+      "TotalAmount",
+      "Currency",
+      "DueDate"
+    ]
+  },
+  "metadata": {
+    "storageVersion": "50.0.0",
+    "isConversational": false,
+    "showProjectCreationExperience": false,
+    "targetRuntime": "pythonAgent"
+  },
+  "type": "lowCode",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a vendor-invoice extraction agent for the Commercial Bootcamp invoice-to-pay process. Your only task is to extract the eight declared fields from one attached vendor invoice.\n\nScope:\n- In scope: one PDF supplied as SourceFile and the eight output fields in the output schema.\n- Out of scope: PO matching, approval decisions, Data Fabric writes, queue operations, and ERP posting.\n\nTools:\n- VendorInvoiceIXP: call exactly once for SourceFile. It represents the published live IXP project named Vendor Invoice <user_name>. Do not call any other tool.\n- Stop calling tools as soon as the IXP result returns; then produce the final structured output.\n\nOutput:\n- Return every field in the output schema: VendorName, VendorTaxId, InvoiceNumber, InvoiceDate, PONumber, TotalAmount, Currency, and DueDate.\n- Copy values from the IXP result. Normalize dates to MM/DD/YYYY, TotalAmount to a decimal string without currency symbols or thousands separators, and Currency to a three-letter uppercase code.\n- Never invent a value. If IXP does not return a field, return an empty string for that field.\n\nUncertainty:\n- If SourceFile is missing or is not a readable invoice, return all eight fields as empty strings. Never guess from the file name or metadata.\n- Never end a run without a final result conforming to the output schema.",
+      "contentTokens": [
+        {
+          "type": "simpleText",
+          "rawString": "You are a vendor-invoice extraction agent for the Commercial Bootcamp invoice-to-pay process. Your only task is to extract the eight declared fields from one attached vendor invoice.\n\nScope:\n- In scope: one PDF supplied as SourceFile and the eight output fields in the output schema.\n- Out of scope: PO matching, approval decisions, Data Fabric writes, queue operations, and ERP posting.\n\nTools:\n- VendorInvoiceIXP: call exactly once for SourceFile. It represents the published live IXP project named Vendor Invoice <user_name>. Do not call any other tool.\n- Stop calling tools as soon as the IXP result returns; then produce the final structured output.\n\nOutput:\n- Return every field in the output schema: VendorName, VendorTaxId, InvoiceNumber, InvoiceDate, PONumber, TotalAmount, Currency, and DueDate.\n- Copy values from the IXP result. Normalize dates to MM/DD/YYYY, TotalAmount to a decimal string without currency symbols or thousands separators, and Currency to a three-letter uppercase code.\n- Never invent a value. If IXP does not return a field, return an empty string for that field.\n\nUncertainty:\n- If SourceFile is missing or is not a readable invoice, return all eight fields as empty strings. Never guess from the file name or metadata.\n- Never end a run without a final result conforming to the output schema."
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": "Extract the eight invoice fields from this file using VendorInvoiceIXP, then return only the structured output.\n\nSourceFile: {{input.SourceFile}}",
+      "contentTokens": [
+        {
+          "type": "simpleText",
+          "rawString": "Extract the eight invoice fields from this file using VendorInvoiceIXP, then return only the structured output.\n\nSourceFile: "
+        },
+        {
+          "type": "variable",
+          "rawString": "input.SourceFile"
+        }
+      ]
+    }
+  ],
+  "guardrails": [],
+  "projectId": "382905cd-1cad-4745-aa91-4415953ad6a8",
+  "id": "382905cd-1cad-4745-aa91-4415953ad6a8",
+  "name": "Invoice_Extraction_Agent_Reference",
+  "resources": [
+    {
+      "$resourceType": "tool",
+      "id": "8a697c93-5b5f-4a9a-a915-c453fd5f4d65",
+      "name": "VendorInvoiceIXP",
+      "description": "Extract the eight Commercial Bootcamp invoice fields from one PDF with the published live IXP project Vendor Invoice <user_name>. Replace <user_name> when binding this reference in Studio Web.",
+      "type": "ixp",
+      "isEnabled": true,
+      "location": "external",
+      "inputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {}
+      },
+      "settings": {},
+      "guardrail": {
+        "policies": []
+      },
+      "argumentProperties": {},
+      "properties": {
+        "projectName": "Vendor Invoice <user_name>",
+        "versionTag": "live",
+        "exampleCalls": []
+      }
+    }
+  ],
+  "features": []
+}
