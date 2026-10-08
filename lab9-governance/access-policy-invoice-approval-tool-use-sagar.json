@@ -1,0 +1,30 @@
+{
+  "policyType": "ToolUsePolicy",
+  "organizationId": "3803c63e-5889-4e83-9753-64a99b607021",
+  "tenantId": "63715d8c-7759-413c-82cb-db5521d838c6",
+  "name": "Invoice Approval Tool Use Sagar",
+  "description": "Only the Lab 10 Maestro process InvoiceApprovalProcess_Sagar may invoke the coded agent Invoice_Approval_Agent_Sagar and the RPA process PostToERP_Sagar in Agentic Bootcamp/APAutomation_Sagar. Any other caller (another Maestro, Flow, Case or Agent) gets no Allow from this policy and falls through to the runtime default deny for these two resources. No identity restriction applies. The POMatch_Sagar functions are not covered because ToolUsePolicy has no Function resource type. Draft only: the caller key is a placeholder to bind after Lab 10; the policy starts Simulated.",
+  "selectors": [
+    {
+      "resourceType": "Agent",
+      "values": ["2CB7C282-4FE3-4B25-B1AA-D29AA944FE66"],
+      "operator": "Or"
+    },
+    {
+      "resourceType": "RPAWorkflow",
+      "values": ["CE50297F-925F-40D6-8D07-E879A76A0EAA"],
+      "operator": "Or"
+    }
+  ],
+  "executableRule": {
+    "values": [
+      {
+        "type": "AgenticProcess",
+        "values": ["BIND_AFTER_LAB10:InvoiceApprovalProcess_Sagar"],
+        "operator": "Or"
+      }
+    ]
+  },
+  "enforcement": "Allow",
+  "status": "Simulated"
+}
