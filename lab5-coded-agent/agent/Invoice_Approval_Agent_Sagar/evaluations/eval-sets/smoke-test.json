@@ -1,0 +1,124 @@
+{
+  "version": "1.0",
+  "id": "vendor-invoice-approval-smoke",
+  "name": "Vendor Invoice Approval Smoke Tests",
+  "description": "Six AP-TRAIN gate paths run live against imported AP_Invoice_Sagar evaluation records (recordId per case).",
+  "evaluatorRefs": [
+    "JsonSimilarityEvaluator"
+  ],
+  "evaluations": [
+    {
+      "id": "test-1-ap-train-1001",
+      "name": "Complete evidence - ready for approval",
+      "inputs": {
+        "recordId": "88155ef4-2042-4184-a2a3-01a0fe74bcfe"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "recordId": "88155ef4-2042-4184-a2a3-01a0fe74bcfe",
+            "approvalEvidenceState": "COMPLETE",
+            "missingApprovalFields": [],
+            "recommendation": "READY_FOR_APPROVAL",
+            "invoiceLifecycleState": "READY_FOR_APPROVAL"
+          }
+        }
+      }
+    },
+    {
+      "id": "test-2-ap-train-1002",
+      "name": "Missing receipt reference - AP review required",
+      "inputs": {
+        "recordId": "b6343413-5a8b-47a3-b5a9-01a0fe74bcff"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "recordId": "b6343413-5a8b-47a3-b5a9-01a0fe74bcff",
+            "approvalEvidenceState": "INCOMPLETE",
+            "missingApprovalFields": [
+              "ReceiptReference"
+            ],
+            "recommendation": "NEEDS_AP_REVIEW",
+            "invoiceLifecycleState": "NEEDS_AP_REVIEW"
+          }
+        }
+      }
+    },
+    {
+      "id": "test-3-ap-train-1003",
+      "name": "Under threshold and matched - auto-approved",
+      "inputs": {
+        "recordId": "264e7bac-c64b-4a42-a3bd-01a0fe74bd00"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "recordId": "264e7bac-c64b-4a42-a3bd-01a0fe74bd00",
+            "approvalEvidenceState": "NOT_REQUIRED",
+            "missingApprovalFields": [],
+            "recommendation": "AUTO_APPROVED",
+            "invoiceLifecycleState": "AUTO_APPROVED"
+          }
+        }
+      }
+    },
+    {
+      "id": "test-4-ap-train-1004",
+      "name": "PO mismatch - hold",
+      "inputs": {
+        "recordId": "bfcdbcd1-f91d-4cad-af66-01a0fe74bd01"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "recordId": "bfcdbcd1-f91d-4cad-af66-01a0fe74bd01",
+            "approvalEvidenceState": "NOT_EVALUATED",
+            "missingApprovalFields": [],
+            "recommendation": "HOLD_PO_MISMATCH",
+            "invoiceLifecycleState": "HOLD_PO_MISMATCH"
+          }
+        }
+      }
+    },
+    {
+      "id": "test-5-ap-train-1005",
+      "name": "Missing GL account and approver - AP review required",
+      "inputs": {
+        "recordId": "1524df6f-d491-43fa-977c-01a0fe74bd02"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "recordId": "1524df6f-d491-43fa-977c-01a0fe74bd02",
+            "approvalEvidenceState": "INCOMPLETE",
+            "missingApprovalFields": [
+              "GLAccount",
+              "Approver"
+            ],
+            "recommendation": "NEEDS_AP_REVIEW",
+            "invoiceLifecycleState": "NEEDS_AP_REVIEW"
+          }
+        }
+      }
+    },
+    {
+      "id": "test-6-ap-train-1006",
+      "name": "Complete evidence - second ready-for-approval case",
+      "inputs": {
+        "recordId": "98a306e0-9c3e-4ca4-b01f-01a0fe74bd03"
+      },
+      "evaluationCriterias": {
+        "JsonSimilarityEvaluator": {
+          "expectedOutput": {
+            "recordId": "98a306e0-9c3e-4ca4-b01f-01a0fe74bd03",
+            "approvalEvidenceState": "COMPLETE",
+            "missingApprovalFields": [],
+            "recommendation": "READY_FOR_APPROVAL",
+            "invoiceLifecycleState": "READY_FOR_APPROVAL"
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+[project]
+name = "Invoice_Approval_Agent_Sagar"
+version = "0.0.1"
+description = "Lab 5 approval agent: deterministic gates plus an LLM narrative written back to one AP_Invoice_Sagar record"
+authors = [{ name = "Sagar" }]
+dependencies = [
+    "uipath-langchain[bedrock,vertex]>=0.17.0, <0.18.0",
+]
+requires-python = ">=3.11"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+    "uipath-dev>=0.0.85",
+]

@@ -1,0 +1,161 @@
+{
+    "$schema": "https://cloud.uipath.com/draft/2024-12/entry-point",
+    "$id": "entry-points.json",
+    "entryPoints": [
+        {
+            "filePath": "agent",
+            "uniqueId": "66458848-1cb7-42b7-90e3-96fecc843c5c",
+            "type": "agent",
+            "input": {
+                "type": "object",
+                "properties": {
+                    "recordId": {
+                        "description": "Data Fabric Id of the AP_Invoice_Sagar record to evaluate",
+                        "title": "Recordid",
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "recordId"
+                ]
+            },
+            "output": {
+                "type": "object",
+                "properties": {
+                    "recordId": {
+                        "description": "The same record Id that was read (and updated)",
+                        "title": "Recordid",
+                        "type": "string"
+                    },
+                    "approvalEvidenceState": {
+                        "type": "string"
+                    },
+                    "missingApprovalFields": {
+                        "description": "Empty required approval inputs (gate 3)",
+                        "items": {
+                            "type": "string"
+                        },
+                        "title": "Missingapprovalfields",
+                        "type": "array"
+                    },
+                    "recommendation": {
+                        "type": "string"
+                    },
+                    "invoiceLifecycleState": {
+                        "type": "string"
+                    },
+                    "wasAlreadyPrepared": {
+                        "default": false,
+                        "description": "True when the retry guard returned the stored result without reprocessing",
+                        "title": "Wasalreadyprepared",
+                        "type": "boolean"
+                    },
+                    "errorType": {
+                        "type": "string"
+                    },
+                    "errorMessage": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "recordId"
+                ]
+            },
+            "graph": {
+                "nodes": [
+                    {
+                        "id": "__start__",
+                        "name": "__start__",
+                        "type": "__start__",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "load_record",
+                        "name": "load_record",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "evaluate_gates",
+                        "name": "evaluate_gates",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "write_narrative",
+                        "name": "write_narrative",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "write_back",
+                        "name": "write_back",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "finish",
+                        "name": "finish",
+                        "type": "node",
+                        "subgraph": null,
+                        "metadata": {}
+                    },
+                    {
+                        "id": "__end__",
+                        "name": "__end__",
+                        "type": "__end__",
+                        "subgraph": null,
+                        "metadata": {}
+                    }
+                ],
+                "edges": [
+                    {
+                        "source": "__start__",
+                        "target": "load_record",
+                        "label": null
+                    },
+                    {
+                        "source": "evaluate_gates",
+                        "target": "write_back",
+                        "label": null
+                    },
+                    {
+                        "source": "evaluate_gates",
+                        "target": "write_narrative",
+                        "label": null
+                    },
+                    {
+                        "source": "load_record",
+                        "target": "evaluate_gates",
+                        "label": null
+                    },
+                    {
+                        "source": "load_record",
+                        "target": "finish",
+                        "label": null
+                    },
+                    {
+                        "source": "write_back",
+                        "target": "finish",
+                        "label": null
+                    },
+                    {
+                        "source": "write_narrative",
+                        "target": "write_back",
+                        "label": null
+                    },
+                    {
+                        "source": "finish",
+                        "target": "__end__",
+                        "label": null
+                    }
+                ]
+            }
+        }
+    ]
+}

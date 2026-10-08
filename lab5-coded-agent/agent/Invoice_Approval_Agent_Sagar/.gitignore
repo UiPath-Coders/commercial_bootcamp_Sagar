@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+__uipath/
+.uipath/
+.env
+eval-results.json
+run-output*.json
+*.pyc
+*.nupkg
+.pytest_cache/

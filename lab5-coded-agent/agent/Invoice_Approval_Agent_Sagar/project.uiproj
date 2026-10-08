@@ -1,0 +1,6 @@
+{
+  "ProjectType": "Agent",
+  "Name": "Invoice_Approval_Agent_Sagar",
+  "Description": "Lab 5 approval agent: deterministic gates plus an LLM narrative written back to one AP_Invoice_Sagar record",
+  "MainFile": null
+}
