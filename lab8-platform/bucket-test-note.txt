@@ -1,0 +1,2 @@
+Lab 8 bucket test file. Synthetic content only.
+This file contains no invoice amounts, vendor data, banking details or credentials.
