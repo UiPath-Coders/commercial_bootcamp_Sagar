@@ -1,0 +1,8 @@
+{
+  "clientId": "9e626cd7-d522-4e74-9e49-d6030d3eb875",
+  "scope": "DataFabric.Schema.Read DataFabric.Data.Read DataFabric.Data.Write OR.Users.Read",
+  "orgName": "customersuccessamer",
+  "tenantName": "Training",
+  "baseUrl": "https://staging.uipath.com",
+  "redirectUri": "http://localhost:5173"
+}

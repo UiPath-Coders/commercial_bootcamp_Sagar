@@ -1,0 +1,16 @@
+@import "tailwindcss";
+@import "./styles/worklist.css";
+
+/* UiPath sign-in blue on cool neutrals. No warm, pink or cream tones. */
+@theme {
+  --color-uipath-50: #eef4fd;
+  --color-uipath-100: #dbeafe;
+  --color-uipath-500: #1a7cf0;
+  --color-uipath-600: #0067df;
+  --color-uipath-700: #0050b3;
+  --color-uipath-800: #003d8a;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
