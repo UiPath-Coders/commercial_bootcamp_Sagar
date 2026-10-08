@@ -1,0 +1,12 @@
+{
+    "DocVersion": "1.0.0",
+    "StudioMinVersion": "2025.10.0",
+    "SolutionId": "7aa82d79-69f7-45df-599a-08df255600fd",
+    "Projects": [
+        {
+            "Type": "processOrchestration",
+            "ProjectRelativePath": "InvoiceApprovalProcess_Sagar/project.uiproj",
+            "Id": "bfa067f9-8faf-4bd7-9fba-7bc912e060ca"
+        }
+    ]
+}

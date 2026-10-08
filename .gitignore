@@ -32,3 +32,17 @@ deploy-config*.json
 lab10-maestro-bpmn/*/resources/
 # Challenge (homework): `uip solution resources refresh` regenerates resources/ the same way as Lab 10
 challenge-maestro-flow/*/resources/
+# Lab 10 (Step 6): never commit solution build output, registry caches, tenant ids or secrets
+lab10-maestro-bpmn/**/*.zip
+lab10-maestro-bpmn/**/*.nupkg
+lab10-maestro-bpmn/**/packages/
+**/registry-evidence/
+**/.registry-cache/
+**/debug_overwrites.json
+*.pfx
+*.pem
+*.signed-url
+lab10-maestro-bpmn/**/*secret*
+# Scaffold briefing files written by `uip solution init`; the reference leaves them out too
+lab10-maestro-bpmn/*/AGENTS.md
+lab10-maestro-bpmn/*/CLAUDE.md
